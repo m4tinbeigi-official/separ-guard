@@ -25,12 +25,14 @@ import ir.ricksanchez.separ.audio.AudioGuideEngine;
 import ir.ricksanchez.separ.billing.PromoAndAffiliateManager;
 import ir.ricksanchez.separ.billing.UnifiedBillingManager;
 import ir.ricksanchez.separ.data.FakeReceiptAnalyzer;
+import ir.ricksanchez.separ.data.MediaPartnerRepository;
 import ir.ricksanchez.separ.data.RescueLedgerRepository;
 import ir.ricksanchez.separ.data.SmsAndScreenGuard;
 import ir.ricksanchez.separ.data.StealthTrojanDetector;
 import ir.ricksanchez.separ.data.ThreatPackageRegistry;
 import ir.ricksanchez.separ.data.UserCustomWhitelistManager;
 import ir.ricksanchez.separ.data.UserModeManager;
+import ir.ricksanchez.separ.data.VideoTutorialRepository;
 import ir.ricksanchez.separ.utils.CallForwardingAuditor;
 import ir.ricksanchez.separ.utils.PrivacyPolicyHelper;
 import ir.ricksanchez.separ.utils.ProminentDisclosureHelper;
@@ -247,6 +249,16 @@ public class MainActivity extends Activity {
         Button sessionBtn = createStyledButton("🚪 اخراج نفوذگران از تلگرام، روبیکا، ایتا و بله", "#161B22", "#FFA726");
         sessionBtn.setOnClickListener(v -> openSessionRemediationDialog());
         rootLayout.addView(sessionBtn);
+
+        // ویدیوهای آموزشی در آپارات
+        Button videoBtn = createStyledButton("🎬 ویدیوهای آموزشی امنیت و سشن‌ها در آپارات", "#1A1A2E", "#FF4081");
+        videoBtn.setOnClickListener(v -> openVideoTutorialsDialog());
+        rootLayout.addView(videoBtn);
+
+        // تالار حامیان، خبرگزاری‌ها و اینفلوئنسرها
+        Button partnerBtn = createStyledButton("🏆 تالار حامیان، خبرگزاری‌ها و اینفلوئنسرها", "#161B22", "#FFD700");
+        partnerBtn.setOnClickListener(v -> openMediaPartnersDialog());
+        rootLayout.addView(partnerBtn);
 
         // بررسی رسید و کارت بانکی
         Button receiptBtn = createStyledButton("💳 بررسی اصالت رسید فیش بانکی (ضد جعل)", "#161B22", "#00E676");
@@ -567,6 +579,125 @@ public class MainActivity extends Activity {
         });
         builder.setPositiveButton("بستن", null);
         builder.show();
+    }
+
+    private void openVideoTutorialsDialog() {
+        List<VideoTutorialRepository.VideoTutorial> tutorials = VideoTutorialRepository.getAllTutorials();
+        ScrollView sv = new ScrollView(this);
+        sv.setBackgroundColor(Color.parseColor("#0D1117"));
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(28, 28, 28, 28);
+
+        TextView intro = new TextView(this);
+        intro.setText("ویدیوهای آموزشی امنیت و ضد هک در آپارات (اینترنت نیم‌بها):");
+        intro.setTextColor(Color.WHITE);
+        intro.setTextSize(13);
+        intro.setTypeface(null, Typeface.BOLD);
+        intro.setPadding(0, 0, 0, 16);
+        layout.addView(intro);
+
+        for (VideoTutorialRepository.VideoTutorial item : tutorials) {
+            LinearLayout card = new LinearLayout(this);
+            card.setOrientation(LinearLayout.VERTICAL);
+            card.setPadding(20, 16, 20, 16);
+            card.setBackground(createCardBackground("#161B22", "#30363D"));
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            lp.setMargins(0, 0, 0, 14);
+            card.setLayoutParams(lp);
+
+            TextView title = new TextView(this);
+            title.setText(item.icon + " " + item.titleFa + " (" + item.durationFa + ")");
+            title.setTextColor(Color.parseColor("#58A6FF"));
+            title.setTextSize(13);
+            title.setTypeface(null, Typeface.BOLD);
+            card.addView(title);
+
+            TextView desc = new TextView(this);
+            desc.setText(item.descriptionFa);
+            desc.setTextColor(Color.parseColor("#C9D1D9"));
+            desc.setTextSize(11);
+            desc.setPadding(0, 6, 0, 10);
+            card.addView(desc);
+
+            Button playBtn = createSmallButton("▶️ تماشای ویدیو در آپارات (نیم‌بها)", "#E91E63", Color.WHITE);
+            playBtn.setOnClickListener(v -> VideoTutorialRepository.openAparatVideo(this, item.aparatUrl));
+            card.addView(playBtn);
+
+            layout.addView(card);
+        }
+
+        sv.addView(layout);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+            .setTitle("🎬 ویدیوهای آموزشی امنیتی")
+            .setView(sv)
+            .setPositiveButton("بستن", null)
+            .create();
+        dialog.show();
+    }
+
+    private void openMediaPartnersDialog() {
+        List<MediaPartnerRepository.PartnerInfo> partners = MediaPartnerRepository.getOfficialPartners();
+        ScrollView sv = new ScrollView(this);
+        sv.setBackgroundColor(Color.parseColor("#0D1117"));
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(28, 28, 28, 28);
+
+        TextView intro = new TextView(this);
+        intro.setText("قدردانی از رسانه‌ها، خبرگزاری‌ها و اینفلوئنسرهای حامی آگاهی‌بخشی:");
+        intro.setTextColor(Color.WHITE);
+        intro.setTextSize(13);
+        intro.setTypeface(null, Typeface.BOLD);
+        intro.setPadding(0, 0, 0, 16);
+        layout.addView(intro);
+
+        for (MediaPartnerRepository.PartnerInfo item : partners) {
+            LinearLayout card = new LinearLayout(this);
+            card.setOrientation(LinearLayout.VERTICAL);
+            card.setPadding(20, 16, 20, 16);
+            card.setBackground(createCardBackground("#161B22", item.badgeColorHex));
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            lp.setMargins(0, 0, 0, 14);
+            card.setLayoutParams(lp);
+
+            TextView name = new TextView(this);
+            name.setText(item.nameFa);
+            name.setTextColor(Color.parseColor(item.badgeColorHex));
+            name.setTextSize(13);
+            name.setTypeface(null, Typeface.BOLD);
+            card.addView(name);
+
+            TextView type = new TextView(this);
+            type.setText("• " + item.typeFa);
+            type.setTextColor(Color.parseColor("#8B949E"));
+            type.setTextSize(11);
+            type.setPadding(0, 2, 0, 6);
+            card.addView(type);
+
+            TextView role = new TextView(this);
+            role.setText(item.roleDescriptionFa);
+            role.setTextColor(Color.parseColor("#C9D1D9"));
+            role.setTextSize(11);
+            role.setPadding(0, 0, 0, 10);
+            card.addView(role);
+
+            Button visitBtn = createSmallButton("🌐 مشاهده صفحه رسمی / گزارش", "#21262D", Color.parseColor("#58A6FF"));
+            visitBtn.setOnClickListener(v -> MediaPartnerRepository.openPartnerUrl(this, item.url));
+            card.addView(visitBtn);
+
+            layout.addView(card);
+        }
+
+        sv.addView(layout);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+            .setTitle("🏆 تالار حامیان و رسانه‌های همکار")
+            .setView(sv)
+            .setPositiveButton("بستن", null)
+            .create();
+        dialog.show();
     }
 
     private void openWhitelistManagementDialog() {
