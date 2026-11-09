@@ -7,14 +7,12 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Gravity;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -42,7 +40,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * رابط کاربری اصلی و فوق‌پیشرفته سایبری «سپر» (Cyber-SOC HUD)
+ * مجهز به معماری تب‌بندی‌شده ۴ لایه، رادار مدور، دیده‌بان پیامک، آکادمی آپارات و سیستم لایسنس
+ */
 public class MainActivity extends Activity {
+
+    public static final int TAB_RADAR = 0;
+    public static final int TAB_SMS_APPS = 1;
+    public static final int TAB_ACADEMY = 2;
+    public static final int TAB_VIP = 3;
+
+    private int currentTab = TAB_RADAR;
 
     private AudioGuideEngine audioGuide;
     private UnifiedBillingManager billingManager;
@@ -51,7 +60,10 @@ public class MainActivity extends Activity {
     private UserModeManager userModeManager;
     private UserCustomWhitelistManager userWhitelist;
 
-    private LinearLayout rootLayout;
+    private LinearLayout mainContainer;
+    private LinearLayout tabsHeaderLayout;
+    private LinearLayout tabContentContainer;
+
     private List<ThreatPackageRegistry.ThreatResult> detectedThreats = new ArrayList<>();
     private List<SmsAndScreenGuard.AppAuditResult> smsAuditList = new ArrayList<>();
 
@@ -59,7 +71,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // ۱. اعمال قطعی تدابیر امنیتی ضد اسکرین‌شات و ضبط صفحه در سطح پنجره
+        // اعمال سیاست امنیتی ضد اسکرین‌شات
         SmsAndScreenGuard.enforceScreenSecurity(this);
 
         audioGuide = new AudioGuideEngine(this);
@@ -69,492 +81,285 @@ public class MainActivity extends Activity {
         userModeManager = SeparApp.getInstance().getUserModeManager();
         userWhitelist = SeparApp.getInstance().getUserWhitelist();
 
-        // ۲. نمایش دیالوگ شفافیت دسترسی‌ها (الزام داوری کافه‌بازار و مایکت) در اولین اجرا
+        // نمایش شفافیت دسترسی‌ها در اولین اجرا
         ProminentDisclosureHelper.showDisclosureIfNeeded(this, null);
 
-        buildUi();
+        buildScaffoldUi();
         performDeepScan();
     }
 
-    private void buildUi() {
+    private void buildScaffoldUi() {
         ScrollView scrollView = new ScrollView(this);
-        scrollView.setBackgroundColor(Color.parseColor("#0D1117"));
+        scrollView.setBackgroundColor(Color.parseColor(CyberUiTheme.COLOR_BG));
         scrollView.setFillViewport(true);
         scrollView.setLayoutParams(new ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT
         ));
 
-        rootLayout = new LinearLayout(this);
-        rootLayout.setOrientation(LinearLayout.VERTICAL);
-        rootLayout.setPadding(32, 40, 32, 40);
-        rootLayout.setLayoutParams(new LinearLayout.LayoutParams(
+        mainContainer = new LinearLayout(this);
+        mainContainer.setOrientation(LinearLayout.VERTICAL);
+        mainContainer.setPadding(28, 32, 28, 40);
+        mainContainer.setLayoutParams(new LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
             LinearLayout.LayoutParams.WRAP_CONTENT
         ));
-        scrollView.addView(rootLayout);
+        scrollView.addView(mainContainer);
 
         setContentView(scrollView);
-        renderCurrentState();
+        renderFullInterface();
     }
 
-    private void renderCurrentState() {
-        rootLayout.removeAllViews();
+    private void renderFullInterface() {
+        mainContainer.removeAllViews();
 
-        // ۱. هدر اصلی برنامه
-        TextView headerTitle = new TextView(this);
-        headerTitle.setText("سپر");
-        headerTitle.setTextSize(28);
-        headerTitle.setTextColor(Color.WHITE);
-        headerTitle.setTypeface(null, Typeface.BOLD);
-        headerTitle.setGravity(Gravity.CENTER);
+        // ۱. نوار وضعیت و برند برنامه در بالاترین نقطه
+        LinearLayout topBar = new LinearLayout(this);
+        topBar.setOrientation(LinearLayout.HORIZONTAL);
+        topBar.setGravity(Gravity.CENTER_VERTICAL);
+        topBar.setPadding(0, 0, 0, 16);
+        topBar.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        TextView headerSubtitle = new TextView(this);
-        headerSubtitle.setText("سامانه هوشمند ضد هک، ممیزی پیامک و محافظت از حساب بانکی");
-        headerSubtitle.setTextSize(12);
-        headerSubtitle.setTextColor(Color.parseColor("#00E676"));
-        headerSubtitle.setGravity(Gravity.CENTER);
-        headerSubtitle.setPadding(0, 8, 0, 24);
+        LinearLayout brandCol = new LinearLayout(this);
+        brandCol.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f);
+        brandCol.setLayoutParams(blp);
 
-        rootLayout.addView(headerTitle);
-        rootLayout.addView(headerSubtitle);
+        TextView title = new TextView(this);
+        title.setText("🛡️ سپر ضد هک");
+        title.setTextSize(22);
+        title.setTextColor(Color.WHITE);
+        title.setTypeface(null, Typeface.BOLD);
+        brandCol.addView(title);
 
-        // ۲. وضعیت اشتراک و لایسنس
-        UnifiedBillingManager.SubscriptionInfo subInfo = billingManager.getSubscriptionInfo();
-        LinearLayout licenseBadge = new LinearLayout(this);
-        licenseBadge.setOrientation(LinearLayout.HORIZONTAL);
-        licenseBadge.setGravity(Gravity.CENTER);
-        licenseBadge.setPadding(20, 10, 20, 10);
-        licenseBadge.setBackground(createCardBackground(subInfo.isSubscribed ? "#163820" : "#2D1B1B", subInfo.isSubscribed ? "#00E676" : "#FF5252"));
-        LinearLayout.LayoutParams lbParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lbParams.gravity = Gravity.CENTER_HORIZONTAL;
-        lbParams.setMargins(0, 0, 0, 20);
-        licenseBadge.setLayoutParams(lbParams);
+        TextView subtitle = new TextView(this);
+        subtitle.setText("سامانه هوشمند دفاع سایبری و نظارت پیامک");
+        subtitle.setTextSize(11);
+        subtitle.setTextColor(Color.parseColor(CyberUiTheme.COLOR_NEON_GREEN));
+        brandCol.addView(subtitle);
+        topBar.addView(brandCol);
 
-        TextView badgeText = new TextView(this);
-        badgeText.setText(subInfo.isSubscribed ? "اشتراک فعال سپر (" + subInfo.daysRemaining + " روز باقی‌مانده)" : "نسخه رایگان (حالت کشف تهدیدات)");
-        badgeText.setTextColor(subInfo.isSubscribed ? Color.parseColor("#00E676") : Color.parseColor("#FFA726"));
-        badgeText.setTextSize(12);
-        badgeText.setTypeface(null, Typeface.BOLD);
-        licenseBadge.addView(badgeText);
-        rootLayout.addView(licenseBadge);
+        // دکمه کوچک دسترسی سریع صدا
+        Button quickVoice = new Button(this);
+        quickVoice.setText("🔊 راهنما");
+        quickVoice.setTextColor(Color.WHITE);
+        quickVoice.setTextSize(11);
+        quickVoice.setBackground(CyberUiTheme.createCardBg("#1E293B", CyberUiTheme.COLOR_CYAN, 12));
+        quickVoice.setPadding(16, 8, 16, 8);
+        quickVoice.setOnClickListener(v -> playVoiceBriefing());
+        topBar.addView(quickVoice);
 
-        // ۳. کارنامه حملات خنثی‌شده و نجات‌ها (Rescue Ledger Widget)
+        mainContainer.addView(topBar);
+
+        // ۲. تب‌های ناوبری مدرن افقی (Horizontal Cyber Tab Bar)
+        HorizontalScrollView tabScroll = new HorizontalScrollView(this);
+        tabScroll.setHorizontalScrollBarEnabled(false);
+        tabScroll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        tabsHeaderLayout = new LinearLayout(this);
+        tabsHeaderLayout.setOrientation(LinearLayout.HORIZONTAL);
+        tabsHeaderLayout.setPadding(0, 4, 0, 16);
+        tabsHeaderLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        addTabButton("🛡️ رادار امنیت", TAB_RADAR);
+        addTabButton("🔒 دیده‌بان پیامک", TAB_SMS_APPS);
+        addTabButton("🎬 آکادمی آپارات", TAB_ACADEMY);
+        addTabButton("💎 لایسنس و درآمد", TAB_VIP);
+
+        tabScroll.addView(tabsHeaderLayout);
+        mainContainer.addView(tabScroll);
+
+        // ۳. کانتینر محتوای تب فعال
+        tabContentContainer = new LinearLayout(this);
+        tabContentContainer.setOrientation(LinearLayout.VERTICAL);
+        tabContentContainer.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        mainContainer.addView(tabContentContainer);
+
+        renderActiveTabContent();
+    }
+
+    private void addTabButton(String label, final int tabIndex) {
+        Button btn = new Button(this);
+        btn.setText(label);
+        btn.setTextSize(12);
+        btn.setTypeface(null, Typeface.BOLD);
+
+        boolean isActive = (currentTab == tabIndex);
+        btn.setTextColor(Color.parseColor(isActive ? "#FFFFFF" : CyberUiTheme.COLOR_TEXT_MUTED));
+        btn.setBackground(CyberUiTheme.createCardBg(isActive ? "#1E293B" : "#0F172A", isActive ? CyberUiTheme.COLOR_CYAN : null, 14));
+
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.setMargins(0, 0, 10, 0);
+        btn.setLayoutParams(lp);
+        btn.setPadding(22, 14, 22, 14);
+
+        btn.setOnClickListener(v -> {
+            currentTab = tabIndex;
+            renderFullInterface();
+        });
+
+        tabsHeaderLayout.addView(btn);
+    }
+
+    private void renderActiveTabContent() {
+        tabContentContainer.removeAllViews();
+
+        int unapprovedCount = 0;
+        for (SmsAndScreenGuard.AppAuditResult a : smsAuditList) {
+            if (!a.isSafe()) unapprovedCount++;
+        }
+        boolean hasThreats = !detectedThreats.isEmpty() || unapprovedCount > 0;
+        int threatsTotal = detectedThreats.size() + unapprovedCount;
         RescueLedgerRepository.RescueStats stats = rescueLedger.getStats();
-        if (stats.totalAttacksBlocked > 0) {
-            LinearLayout rescueCard = new LinearLayout(this);
-            rescueCard.setOrientation(LinearLayout.VERTICAL);
-            rescueCard.setPadding(24, 20, 24, 20);
-            rescueCard.setBackground(createCardBackground("#161B22", "#30363D"));
-            LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            );
-            rlp.setMargins(0, 0, 0, 20);
-            rescueCard.setLayoutParams(rlp);
 
-            TextView rTitle = new TextView(this);
-            rTitle.setText("🛡️ کارنامه دفاع‌های موفق سپر تا این لحظه:");
-            rTitle.setTextColor(Color.parseColor("#58A6FF"));
-            rTitle.setTextSize(13);
-            rTitle.setTypeface(null, Typeface.BOLD);
-            rescueCard.addView(rTitle);
+        switch (currentTab) {
+            case TAB_RADAR:
+                tabContentContainer.addView(RadarDashboardView.buildView(
+                    this,
+                    hasThreats,
+                    threatsTotal,
+                    stats,
+                    new RadarDashboardView.RadarDashboardListener() {
+                        @Override
+                        public void onScanRequested() {
+                            performDeepScan();
+                            Toast.makeText(MainActivity.this, "اسکن عمیق و ممیزی سیستم انجام شد.", Toast.LENGTH_SHORT).show();
+                        }
 
-            TextView rDesc = new TextView(this);
-            rDesc.setText("جلوگیری از " + stats.bankingTheftsPrevented + " حمله بانکی و خنثی‌سازی " +
-                stats.phishingSmsBlocked + " پیامک فیشینگ.");
-            rDesc.setTextColor(Color.parseColor("#C9D1D9"));
-            rDesc.setTextSize(12);
-            rDesc.setPadding(0, 6, 0, 0);
-            rescueCard.addView(rDesc);
+                        @Override
+                        public void onVoiceRequested() {
+                            playVoiceBriefing();
+                        }
 
-            rootLayout.addView(rescueCard);
+                        @Override
+                        public void onCancelDivertClicked() {
+                            CallForwardingAuditor.dialCancelForwarding(MainActivity.this);
+                        }
+
+                        @Override
+                        public void onFataEmergencyClicked() {
+                            Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:096380"));
+                            startActivity(intent);
+                        }
+
+                        @Override
+                        public void onSessionKillClicked() {
+                            openSessionRemediationDialog();
+                        }
+
+                        @Override
+                        public void onReceiptVerifyClicked() {
+                            openReceiptDialog();
+                        }
+                    }
+                ));
+                break;
+
+            case TAB_SMS_APPS:
+                tabContentContainer.addView(SmsAuditTabView.buildView(
+                    this,
+                    detectedThreats,
+                    smsAuditList,
+                    new SmsAuditTabView.SmsAuditTabListener() {
+                        @Override
+                        public void onRevokeOrUninstallClicked(String packageName, boolean isMalware) {
+                            SmsAndScreenGuard.launchRevokeOrUninstall(MainActivity.this, packageName, isMalware);
+                        }
+
+                        @Override
+                        public void onAddToWhitelistClicked(String packageName, String appName) {
+                            userWhitelist.addToWhitelist(packageName);
+                            Toast.makeText(MainActivity.this, "برنامه «" + appName + "» به لیست سفید افزوده شد.", Toast.LENGTH_SHORT).show();
+                            performDeepScan();
+                        }
+
+                        @Override
+                        public void onManageWhitelistClicked() {
+                            openWhitelistManagementDialog();
+                        }
+                    }
+                ));
+                break;
+
+            case TAB_ACADEMY:
+                tabContentContainer.addView(AcademyMediaTabView.buildView(
+                    this,
+                    new AcademyMediaTabView.AcademyMediaTabListener() {
+                        @Override
+                        public void onVideoClicked(String aparatUrl) {
+                            VideoTutorialRepository.openAparatVideo(MainActivity.this, aparatUrl);
+                        }
+
+                        @Override
+                        public void onPartnerClicked(String partnerUrl) {
+                            MediaPartnerRepository.openPartnerUrl(MainActivity.this, partnerUrl);
+                        }
+                    }
+                ));
+                break;
+
+            case TAB_VIP:
+                UnifiedBillingManager.SubscriptionInfo subInfo = billingManager.getSubscriptionInfo();
+                tabContentContainer.addView(VipAffiliateTabView.buildView(
+                    this,
+                    subInfo,
+                    promoManager,
+                    new VipAffiliateTabView.VipAffiliateTabListener() {
+                        @Override
+                        public void onBuyBazaarClicked() {
+                            billingManager.activateAnnualSubscription("bazaar_token", "sig", "data", UnifiedBillingManager.StoreType.BAZAAR);
+                            Toast.makeText(MainActivity.this, "اشتراک سالیانه فعال شد!", Toast.LENGTH_LONG).show();
+                            renderFullInterface();
+                        }
+
+                        @Override
+                        public void onRedeemCodeClicked(String code) {
+                            PromoAndAffiliateManager.RedeemResult result = promoManager.redeemCode(code);
+                            Toast.makeText(MainActivity.this, result.message, Toast.LENGTH_LONG).show();
+                            if (result.success) {
+                                renderFullInterface();
+                            }
+                        }
+
+                        @Override
+                        public void onShareReferralClicked() {
+                            Intent sendIntent = new Intent();
+                            sendIntent.setAction(Intent.ACTION_SEND);
+                            sendIntent.putExtra(Intent.EXTRA_TEXT, promoManager.getInviteShareMessage());
+                            sendIntent.setType("text/plain");
+                            startActivity(Intent.createChooser(sendIntent, "ارسال کد معرف"));
+                        }
+
+                        @Override
+                        public void onRestorePurchasesClicked() {
+                            billingManager.restorePurchases((success, message) -> {
+                                Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
+                                if (success) renderFullInterface();
+                            });
+                        }
+
+                        @Override
+                        public void onPrivacyPolicyClicked() {
+                            PrivacyPolicyHelper.showPrivacyPolicy(MainActivity.this);
+                        }
+                    }
+                ));
+                break;
         }
+    }
 
-        // ۴. دایره بزرگ لمسی اسکن و وضعیت (Master Shield)
-        int unapprovedSmsCount = countUnapprovedSmsApps();
-        boolean hasThreats = !detectedThreats.isEmpty() || unapprovedSmsCount > 0;
+    private void playVoiceBriefing() {
+        int unapprovedCount = 0;
+        for (SmsAndScreenGuard.AppAuditResult a : smsAuditList) {
+            if (!a.isSafe()) unapprovedCount++;
+        }
+        boolean hasThreats = !detectedThreats.isEmpty() || unapprovedCount > 0;
 
-        LinearLayout shieldCircle = new LinearLayout(this);
-        shieldCircle.setOrientation(LinearLayout.VERTICAL);
-        shieldCircle.setGravity(Gravity.CENTER);
-        int sizePx = 380;
-        LinearLayout.LayoutParams circleParams = new LinearLayout.LayoutParams(sizePx, sizePx);
-        circleParams.gravity = Gravity.CENTER_HORIZONTAL;
-        circleParams.setMargins(0, 10, 0, 24);
-        shieldCircle.setLayoutParams(circleParams);
-
-        GradientDrawable circleBg = new GradientDrawable();
-        circleBg.setShape(GradientDrawable.OVAL);
-        if (hasThreats) {
-            circleBg.setColor(Color.parseColor("#4A1417"));
-            circleBg.setStroke(6, Color.parseColor("#FF5252"));
+        if (!hasThreats) {
+            audioGuide.speak("گوشی، پیامک‌ها و درگاه‌های بانکی شما کاملاً امن هستند و هیچ بدافزار یا برنامه مشکوکی شناسایی نشد.");
         } else {
-            circleBg.setColor(Color.parseColor("#14301B"));
-            circleBg.setStroke(6, Color.parseColor("#00E676"));
+            audioGuide.speak("هشدار فوری! برنامه‌هایی بدون تأیید شما به پیامک‌های بانکی یا صفحه گوشی دسترسی دارند. لطفاً در بخش دیده‌بان پیامک آن‌ها را حذف کنید.");
         }
-        shieldCircle.setBackground(circleBg);
-
-        TextView shieldStatusText = new TextView(this);
-        String shieldText = hasThreats
-            ? "⚠️ خطر شناسایی شد!\n(لمس برای پاکسازی)"
-            : "🛡️ گوشی کاملاً امن است\n(لمس برای بررسی مجدد)";
-        shieldStatusText.setText(shieldText);
-        shieldStatusText.setTextSize(15);
-        shieldStatusText.setTextColor(Color.WHITE);
-        shieldStatusText.setTypeface(null, Typeface.BOLD);
-        shieldStatusText.setGravity(Gravity.CENTER);
-        shieldCircle.addView(shieldStatusText);
-
-        shieldCircle.setOnClickListener(v -> {
-            if (hasThreats) {
-                showPaywallOrEradicate();
-            } else {
-                performDeepScan();
-            }
-        });
-        rootLayout.addView(shieldCircle);
-
-        // ۵. دکمه راهنمای صوتی شمرده فارسی
-        Button voiceBtn = createStyledButton("🔊 شنیدن راهنمای صوتی وضعیت گوشی", "#21262D", "#00E676");
-        voiceBtn.setOnClickListener(v -> {
-            if (!hasThreats) {
-                audioGuide.speak("گوشی و پیامک‌های شما کاملاً امن هستند و هیچ برنامه مشکوکی به اطلاعات شما دسترسی ندارد.");
-            } else {
-                audioGuide.speak("خطر! برنامه‌هایی بدون تأیید شما به پیامک‌ها یا صفحه گوشی دسترسی دارند. برای پاکسازی، دکمه قرمز را بزنید.");
-            }
-        });
-        rootLayout.addView(voiceBtn);
-
-        // ۶. کارت اختصاصی: ممیزی دسترسی به پیامک‌ها و اسکرین‌شات (SMS & Screen Guardian)
-        renderSmsAndScreenGuardCard(unapprovedSmsCount);
-
-        // ۷. بخش گزارش بدافزارهای قطعی (در صورت کشف)
-        if (!detectedThreats.isEmpty()) {
-            renderMalwareThreatBox();
-        }
-
-        // ۸. کارت فعال‌سازی، خرید و کدهای تخفیف اینفلوئنسر
-        if (!subInfo.isSubscribed) {
-            renderPaywallAndPromoCard();
-        }
-
-        // ۹. کارت همکاری در فروش و دعوت از دوستان (Affiliate & Referral Hub)
-        renderAffiliateCard();
-
-        // ۱۰. جعبه‌ابزار بحران و ابزارهای نجات
-        addSectionHeader("ابزارهای فوریت‌های امنیتی:");
-
-        // اخراج نفوذگران از شبکه‌ها و پیام‌رسان‌ها
-        Button sessionBtn = createStyledButton("🚪 اخراج نفوذگران از تلگرام، روبیکا، ایتا و بله", "#161B22", "#FFA726");
-        sessionBtn.setOnClickListener(v -> openSessionRemediationDialog());
-        rootLayout.addView(sessionBtn);
-
-        // ویدیوهای آموزشی در آپارات
-        Button videoBtn = createStyledButton("🎬 ویدیوهای آموزشی امنیت و سشن‌ها در آپارات", "#1A1A2E", "#FF4081");
-        videoBtn.setOnClickListener(v -> openVideoTutorialsDialog());
-        rootLayout.addView(videoBtn);
-
-        // تالار حامیان، خبرگزاری‌ها و اینفلوئنسرها
-        Button partnerBtn = createStyledButton("🏆 تالار حامیان، خبرگزاری‌ها و اینفلوئنسرها", "#161B22", "#FFD700");
-        partnerBtn.setOnClickListener(v -> openMediaPartnersDialog());
-        rootLayout.addView(partnerBtn);
-
-        // بررسی رسید و کارت بانکی
-        Button receiptBtn = createStyledButton("💳 بررسی اصالت رسید فیش بانکی (ضد جعل)", "#161B22", "#00E676");
-        receiptBtn.setOnClickListener(v -> openReceiptDialog());
-        rootLayout.addView(receiptBtn);
-
-        // لغو دایورت خطوط
-        Button cancelDivertBtn = createStyledButton("📵 لغو فوری تمام دایورت‌های خط (#002##)", "#261011", "#FF5252");
-        cancelDivertBtn.setOnClickListener(v -> CallForwardingAuditor.dialCancelForwarding(this));
-        rootLayout.addView(cancelDivertBtn);
-
-        // تماس اضطراری با پلیس فتا
-        Button fataBtn = createStyledButton("🚨 تماس اضطراری با مرکز فوریت‌های فتا (۰۹۶۳۸۰)", "#161B22", "#00E5FF");
-        fataBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:096380"));
-            startActivity(intent);
-        });
-        rootLayout.addView(fataBtn);
-
-        // ۱۱. فوتر قوانین و حریم خصوصی
-        Button privacyBtn = createStyledButton("📜 سند حریم خصوصی و تعهد عدم خروج داده (Zero-Telemetry)", "#0D1117", "#8B949E");
-        privacyBtn.setOnClickListener(v -> PrivacyPolicyHelper.showPrivacyPolicy(this));
-        rootLayout.addView(privacyBtn);
-    }
-
-    private int countUnapprovedSmsApps() {
-        int count = 0;
-        for (SmsAndScreenGuard.AppAuditResult app : smsAuditList) {
-            if (!app.isSafe()) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    private void renderSmsAndScreenGuardCard(int unapprovedCount) {
-        LinearLayout smsCard = new LinearLayout(this);
-        smsCard.setOrientation(LinearLayout.VERTICAL);
-        smsCard.setPadding(24, 24, 24, 24);
-
-        if (unapprovedCount > 0) {
-            smsCard.setBackground(createCardBackground("#381515", "#FF5252"));
-        } else {
-            smsCard.setBackground(createCardBackground("#14261B", "#00E676"));
-        }
-
-        LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        );
-        clp.setMargins(0, 16, 0, 16);
-        smsCard.setLayoutParams(clp);
-
-        TextView cardTitle = new TextView(this);
-        cardTitle.setText(unapprovedCount > 0
-            ? "⚠️ هشدار: " + unapprovedCount + " برنامه بدون اجازه به پیامک‌ها دسترسی دارند!"
-            : "🔒 محافظت فعال پیامک‌ها: هیچ برنامه غیرمجازی به پیامک‌ها دسترسی ندارد");
-        cardTitle.setTextColor(unapprovedCount > 0 ? Color.parseColor("#FF5252") : Color.parseColor("#00E676"));
-        cardTitle.setTextSize(14);
-        cardTitle.setTypeface(null, Typeface.BOLD);
-        smsCard.addView(cardTitle);
-
-        TextView cardDesc = new TextView(this);
-        cardDesc.setText(unapprovedCount > 0
-            ? "بیش از ۹۰٪ هک‌ها از شنود پیامک‌های بانکی و اسکرین‌شات شروع می‌شوند. برنامه‌های زیر دسترسی دارند و باید فوراً بررسی یا سلب دسترسی شوند:"
-            : "سپر به صورت پیوسته کلیه برنامه‌ها را ممیزی کرده و از اسکرین‌شات و سرقت رمزهای پیامکی جلوگیری می‌کند.");
-        cardDesc.setTextColor(Color.parseColor("#C9D1D9"));
-        cardDesc.setTextSize(12);
-        cardDesc.setPadding(0, 8, 0, 12);
-        smsCard.addView(cardDesc);
-
-        // فهرست برنامه‌های تأییدنشده دارای دسترسی پیامک
-        for (SmsAndScreenGuard.AppAuditResult item : smsAuditList) {
-            if (!item.isSafe()) {
-                LinearLayout row = new LinearLayout(this);
-                row.setOrientation(LinearLayout.VERTICAL);
-                row.setPadding(16, 12, 16, 12);
-                row.setBackground(createCardBackground("#21262D", null));
-                LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                );
-                rlp.setMargins(0, 6, 0, 6);
-                row.setLayoutParams(rlp);
-
-                TextView nameView = new TextView(this);
-                nameView.setText("• " + item.appName + " (" + item.packageName + ")");
-                nameView.setTextColor(Color.WHITE);
-                nameView.setTextSize(13);
-                nameView.setTypeface(null, Typeface.BOLD);
-                row.addView(nameView);
-
-                TextView reasonView = new TextView(this);
-                reasonView.setText(item.description);
-                reasonView.setTextColor(Color.parseColor("#FFA726"));
-                reasonView.setTextSize(11);
-                reasonView.setPadding(0, 4, 0, 8);
-                row.addView(reasonView);
-
-                LinearLayout btnRow = new LinearLayout(this);
-                btnRow.setOrientation(LinearLayout.HORIZONTAL);
-
-                // دکمه حذف دسترسی / لغو نصب
-                Button revokeBtn = createSmallButton("سلب دسترسی / حذف", "#D32F2F", Color.WHITE);
-                revokeBtn.setOnClickListener(v -> {
-                    SmsAndScreenGuard.launchRevokeOrUninstall(this, item.packageName, item.isKnownMalware);
-                });
-                btnRow.addView(revokeBtn);
-
-                // دکمه افزودن به لیست سفید
-                Button whiteBtn = createSmallButton("تأیید و افزودن به لیست سفید", "#37474F", Color.parseColor("#80CBC4"));
-                whiteBtn.setOnClickListener(v -> {
-                    userWhitelist.addToWhitelist(item.packageName);
-                    Toast.makeText(this, "برنامه «" + item.appName + "» به لیست سفید افزوده شد.", Toast.LENGTH_SHORT).show();
-                    performDeepScan();
-                });
-                btnRow.addView(whiteBtn);
-
-                row.addView(btnRow);
-                smsCard.addView(row);
-            }
-        }
-
-        // دکمه مدیریت کامل لیست سفید کاربر
-        Button manageWhitelistBtn = createStyledButton("📋 مدیریت لیست سفید برنامه‌ها", "#21262D", "#58A6FF");
-        manageWhitelistBtn.setOnClickListener(v -> openWhitelistManagementDialog());
-        smsCard.addView(manageWhitelistBtn);
-
-        rootLayout.addView(smsCard);
-    }
-
-    private void renderMalwareThreatBox() {
-        boolean isSubscribed = billingManager.getSubscriptionInfo().isSubscribed;
-        LinearLayout threatBox = new LinearLayout(this);
-        threatBox.setOrientation(LinearLayout.VERTICAL);
-        threatBox.setPadding(28, 28, 28, 28);
-        threatBox.setBackground(createCardBackground("#381515", "#FF5252"));
-        LinearLayout.LayoutParams boxParams = new LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        );
-        boxParams.setMargins(0, 16, 0, 16);
-        threatBox.setLayoutParams(boxParams);
-
-        TextView threatTitle = new TextView(this);
-        threatTitle.setText("🔴 " + detectedThreats.size() + " بدافزار سارق بانکی کشف شد!");
-        threatTitle.setTextColor(Color.parseColor("#FF5252"));
-        threatTitle.setTextSize(16);
-        threatTitle.setTypeface(null, Typeface.BOLD);
-        threatBox.addView(threatTitle);
-
-        if (!isSubscribed) {
-            TextView threatLockDesc = new TextView(this);
-            threatLockDesc.setText("این بدافزارها در حال شنود رمزهای پیامکی هستند. برای پاکسازی قطعی، اشتراک سالیانه سپر (۱ میلیون تومان) را فعال کنید یا کد هدیه وارد نمایید.");
-            threatLockDesc.setTextColor(Color.parseColor("#F0F6FC"));
-            threatLockDesc.setTextSize(12);
-            threatLockDesc.setPadding(0, 12, 0, 16);
-            threatBox.addView(threatLockDesc);
-
-            Button buyBtn = createStyledButton("خرید سالیانه در کافه‌بازار (۱,۰۰۰,۰۰۰ تومان)", "#FF4444", "#FFFFFF");
-            buyBtn.setOnClickListener(v -> {
-                billingManager.activateAnnualSubscription("bazaar_token", "sig", "data", UnifiedBillingManager.StoreType.BAZAAR);
-                Toast.makeText(this, "اشتراک سالیانه کافه‌بازار فعال شد!", Toast.LENGTH_LONG).show();
-                renderCurrentState();
-            });
-            threatBox.addView(buyBtn);
-        } else {
-            for (ThreatPackageRegistry.ThreatResult threat : detectedThreats) {
-                TextView tName = new TextView(this);
-                tName.setText("• " + threat.threatName + " (" + threat.packageName + ")");
-                tName.setTextColor(Color.WHITE);
-                tName.setTextSize(13);
-                tName.setPadding(0, 8, 0, 4);
-                threatBox.addView(tName);
-
-                Button uninstallBtn = createStyledButton("حذف فوری " + threat.threatName, "#FF4444", "#FFFFFF");
-                uninstallBtn.setOnClickListener(v -> {
-                    Intent intent = new Intent(Intent.ACTION_UNINSTALL_PACKAGE);
-                    intent.setData(Uri.parse("package:" + threat.packageName));
-                    startActivity(intent);
-                });
-                threatBox.addView(uninstallBtn);
-            }
-        }
-        rootLayout.addView(threatBox);
-    }
-
-    private void renderPaywallAndPromoCard() {
-        LinearLayout payCard = new LinearLayout(this);
-        payCard.setOrientation(LinearLayout.VERTICAL);
-        payCard.setPadding(24, 24, 24, 24);
-        payCard.setBackground(createCardBackground("#1A202C", "#4A5568"));
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.setMargins(0, 16, 0, 16);
-        payCard.setLayoutParams(lp);
-
-        TextView title = new TextView(this);
-        title.setText("💎 اشتراک سالیانه سپر ضد هک (۳۶۵ روز محافظت شبانه‌روزی)");
-        title.setTextColor(Color.WHITE);
-        title.setTextSize(14);
-        title.setTypeface(null, Typeface.BOLD);
-        payCard.addView(title);
-
-        TextView priceText = new TextView(this);
-        priceText.setText("تعرفه مصوب: ۱,۰۰۰,۰۰۰ تومان / سال (۱۰,۰۰۰,۰۰۰ ریال)");
-        priceText.setTextColor(Color.parseColor("#00E676"));
-        priceText.setTextSize(13);
-        priceText.setPadding(0, 8, 0, 16);
-        payCard.addView(priceText);
-
-        Button buyBazaarBtn = createStyledButton("خرید رسمی در کافه‌بازار (۱ میلیون تومان)", "#238636", "#FFFFFF");
-        buyBazaarBtn.setOnClickListener(v -> {
-            billingManager.activateAnnualSubscription("bazaar_token", "sig", "data", UnifiedBillingManager.StoreType.BAZAAR);
-            Toast.makeText(this, "اشتراک سالیانه با موفقیت فعال گردید!", Toast.LENGTH_LONG).show();
-            renderCurrentState();
-        });
-        payCard.addView(buyBazaarBtn);
-
-        Button redeemBtn = createStyledButton("🎁 وارد کردن کد تخفیف / کد هدیه رایگان اینفلوئنسر", "#1F6FEB", "#FFFFFF");
-        redeemBtn.setOnClickListener(v -> openRedeemPromoDialog());
-        payCard.addView(redeemBtn);
-
-        Button restoreBtn = createStyledButton("🔄 بازیابی خرید قبلی (Restore Purchases)", "#21262D", "#C9D1D9");
-        restoreBtn.setOnClickListener(v -> {
-            billingManager.restorePurchases((success, message) -> {
-                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-                if (success) renderCurrentState();
-            });
-        });
-        payCard.addView(restoreBtn);
-
-        rootLayout.addView(payCard);
-    }
-
-    private void renderAffiliateCard() {
-        LinearLayout affCard = new LinearLayout(this);
-        affCard.setOrientation(LinearLayout.VERTICAL);
-        affCard.setPadding(24, 24, 24, 24);
-        affCard.setBackground(createCardBackground("#132338", "#1F6FEB"));
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.setMargins(0, 16, 0, 16);
-        affCard.setLayoutParams(lp);
-
-        TextView title = new TextView(this);
-        title.setText("🤝 همکاری در فروش و دعوت از دوستان (کسب درآمد)");
-        title.setTextColor(Color.WHITE);
-        title.setTextSize(14);
-        title.setTypeface(null, Typeface.BOLD);
-        affCard.addView(title);
-
-        String refCode = promoManager.getMyReferralCode();
-        int refCount = promoManager.getMyReferralCount();
-        long comm = promoManager.getMyTotalCommissionTomans();
-
-        TextView desc = new TextView(this);
-        desc.setText("کد معرف اختصاصی شما: " + refCode + "\n" +
-                     "با معرفی سپر به مخاطبان یا دوستانتان، آن‌ها تخفیف می‌گیرند و شما به ازای هر خرید ۲۵٪ کمیسیون (۲۵۰,۰۰۰ تومان) دریافت می‌کنید.\n\n" +
-                     "دعوت‌های موفق: " + refCount + " نفر | کمیسیون انباشته: " + String.format("%,d", comm) + " تومان");
-        desc.setTextColor(Color.parseColor("#E6EDF3"));
-        desc.setTextSize(12);
-        desc.setLineSpacing(6f, 1.2f);
-        desc.setPadding(0, 8, 0, 16);
-        affCard.addView(desc);
-
-        Button shareBtn = createStyledButton("📤 اشتراک‌گذاری کد معرف با دیگران", "#238636", "#FFFFFF");
-        shareBtn.setOnClickListener(v -> {
-            Intent sendIntent = new Intent();
-            sendIntent.setAction(Intent.ACTION_SEND);
-            sendIntent.putExtra(Intent.EXTRA_TEXT, promoManager.getInviteShareMessage());
-            sendIntent.setType("text/plain");
-            startActivity(Intent.createChooser(sendIntent, "ارسال کد معرف"));
-        });
-        affCard.addView(shareBtn);
-
-        rootLayout.addView(affCard);
-    }
-
-    private void openRedeemPromoDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("🎁 وارد کردن کد تخفیف یا هدیه اینفلوئنسر");
-
-        final EditText input = new EditText(this);
-        input.setHint("کد هدیه (مثلاً RICK یا کد معرف)");
-        input.setPadding(30, 24, 30, 24);
-        builder.setView(input);
-
-        builder.setPositiveButton("بررسی و فعال‌سازی", (dialog, which) -> {
-            String code = input.getText().toString();
-            PromoAndAffiliateManager.RedeemResult result = promoManager.redeemCode(code);
-            Toast.makeText(this, result.message, Toast.LENGTH_LONG).show();
-            if (result.success) {
-                renderCurrentState();
-            }
-        });
-        builder.setNegativeButton("انصراف", null);
-        builder.show();
     }
 
     private void openSessionRemediationDialog() {
@@ -581,123 +386,9 @@ public class MainActivity extends Activity {
         builder.show();
     }
 
-    private void openVideoTutorialsDialog() {
-        List<VideoTutorialRepository.VideoTutorial> tutorials = VideoTutorialRepository.getAllTutorials();
-        ScrollView sv = new ScrollView(this);
-        sv.setBackgroundColor(Color.parseColor("#0D1117"));
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(28, 28, 28, 28);
-
-        TextView intro = new TextView(this);
-        intro.setText("ویدیوهای آموزشی امنیت و ضد هک در آپارات (اینترنت نیم‌بها):");
-        intro.setTextColor(Color.WHITE);
-        intro.setTextSize(13);
-        intro.setTypeface(null, Typeface.BOLD);
-        intro.setPadding(0, 0, 0, 16);
-        layout.addView(intro);
-
-        for (VideoTutorialRepository.VideoTutorial item : tutorials) {
-            LinearLayout card = new LinearLayout(this);
-            card.setOrientation(LinearLayout.VERTICAL);
-            card.setPadding(20, 16, 20, 16);
-            card.setBackground(createCardBackground("#161B22", "#30363D"));
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            lp.setMargins(0, 0, 0, 14);
-            card.setLayoutParams(lp);
-
-            TextView title = new TextView(this);
-            title.setText(item.icon + " " + item.titleFa + " (" + item.durationFa + ")");
-            title.setTextColor(Color.parseColor("#58A6FF"));
-            title.setTextSize(13);
-            title.setTypeface(null, Typeface.BOLD);
-            card.addView(title);
-
-            TextView desc = new TextView(this);
-            desc.setText(item.descriptionFa);
-            desc.setTextColor(Color.parseColor("#C9D1D9"));
-            desc.setTextSize(11);
-            desc.setPadding(0, 6, 0, 10);
-            card.addView(desc);
-
-            Button playBtn = createSmallButton("▶️ تماشای ویدیو در آپارات (نیم‌بها)", "#E91E63", Color.WHITE);
-            playBtn.setOnClickListener(v -> VideoTutorialRepository.openAparatVideo(this, item.aparatUrl));
-            card.addView(playBtn);
-
-            layout.addView(card);
-        }
-
-        sv.addView(layout);
-
-        AlertDialog dialog = new AlertDialog.Builder(this)
-            .setTitle("🎬 ویدیوهای آموزشی امنیتی")
-            .setView(sv)
-            .setPositiveButton("بستن", null)
-            .create();
-        dialog.show();
-    }
-
-    private void openMediaPartnersDialog() {
-        List<MediaPartnerRepository.PartnerInfo> partners = MediaPartnerRepository.getOfficialPartners();
-        ScrollView sv = new ScrollView(this);
-        sv.setBackgroundColor(Color.parseColor("#0D1117"));
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(28, 28, 28, 28);
-
-        TextView intro = new TextView(this);
-        intro.setText("قدردانی از رسانه‌ها، خبرگزاری‌ها و اینفلوئنسرهای حامی آگاهی‌بخشی:");
-        intro.setTextColor(Color.WHITE);
-        intro.setTextSize(13);
-        intro.setTypeface(null, Typeface.BOLD);
-        intro.setPadding(0, 0, 0, 16);
-        layout.addView(intro);
-
-        for (MediaPartnerRepository.PartnerInfo item : partners) {
-            LinearLayout card = new LinearLayout(this);
-            card.setOrientation(LinearLayout.VERTICAL);
-            card.setPadding(20, 16, 20, 16);
-            card.setBackground(createCardBackground("#161B22", item.badgeColorHex));
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            lp.setMargins(0, 0, 0, 14);
-            card.setLayoutParams(lp);
-
-            TextView name = new TextView(this);
-            name.setText(item.nameFa);
-            name.setTextColor(Color.parseColor(item.badgeColorHex));
-            name.setTextSize(13);
-            name.setTypeface(null, Typeface.BOLD);
-            card.addView(name);
-
-            TextView type = new TextView(this);
-            type.setText("• " + item.typeFa);
-            type.setTextColor(Color.parseColor("#8B949E"));
-            type.setTextSize(11);
-            type.setPadding(0, 2, 0, 6);
-            card.addView(type);
-
-            TextView role = new TextView(this);
-            role.setText(item.roleDescriptionFa);
-            role.setTextColor(Color.parseColor("#C9D1D9"));
-            role.setTextSize(11);
-            role.setPadding(0, 0, 0, 10);
-            card.addView(role);
-
-            Button visitBtn = createSmallButton("🌐 مشاهده صفحه رسمی / گزارش", "#21262D", Color.parseColor("#58A6FF"));
-            visitBtn.setOnClickListener(v -> MediaPartnerRepository.openPartnerUrl(this, item.url));
-            card.addView(visitBtn);
-
-            layout.addView(card);
-        }
-
-        sv.addView(layout);
-
-        AlertDialog dialog = new AlertDialog.Builder(this)
-            .setTitle("🏆 تالار حامیان و رسانه‌های همکار")
-            .setView(sv)
-            .setPositiveButton("بستن", null)
-            .create();
-        dialog.show();
+    private void openReceiptDialog() {
+        FakeReceiptAnalyzer.VerificationResult result = FakeReceiptAnalyzer.analyzeReceipt("6037991234567890", "123456", "9988");
+        Toast.makeText(this, result.titleFa + "\n" + result.voiceWarning, Toast.LENGTH_LONG).show();
     }
 
     private void openWhitelistManagementDialog() {
@@ -735,14 +426,12 @@ public class MainActivity extends Activity {
         );
 
         for (PackageInfo pkg : packages) {
-            // ۱. بررسی قطعی در رجیستری بدافزارهای بانکی
             ThreatPackageRegistry.ThreatResult threat = ThreatPackageRegistry.evaluatePackage(pkg.packageName);
             if (threat != null) {
                 detectedThreats.add(threat);
                 continue;
             }
 
-            // ۲. بررسی عمیق با موتور کشف ترفندهای پنهان‌سازی (استتار هویت، حذف آیکون، مدیر دستگاه، دسترسی‌پذیری)
             StealthTrojanDetector.StealthEvaluationResult stealth = StealthTrojanDetector.evaluatePackage(this, pkg);
             if (stealth != null && stealth.isMalicious) {
                 detectedThreats.add(new ThreatPackageRegistry.ThreatResult(
@@ -757,90 +446,8 @@ public class MainActivity extends Activity {
             }
         }
 
-        // ممیزی کامل دسترسی پیامک‌ها و صفحه نمایش
         smsAuditList = SmsAndScreenGuard.auditInstalledPackages(this, userWhitelist);
-
-        renderCurrentState();
-    }
-
-    private void showPaywallOrEradicate() {
-        boolean isSubscribed = billingManager.getSubscriptionInfo().isSubscribed;
-        if (!isSubscribed) {
-            Toast.makeText(this, "لطفاً برای پاکسازی برنامه‌های مخرب اشتراک سالیانه را فعال کنید", Toast.LENGTH_LONG).show();
-        } else {
-            performDeepScan();
-            Toast.makeText(this, "اسکن عمیق انجام شد.", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void openReceiptDialog() {
-        FakeReceiptAnalyzer.VerificationResult result = FakeReceiptAnalyzer.analyzeReceipt("6037991234567890", "123456", "9988");
-        Toast.makeText(this, result.titleFa + "\n" + result.voiceWarning, Toast.LENGTH_LONG).show();
-    }
-
-    private void addSectionHeader(String text) {
-        TextView tv = new TextView(this);
-        tv.setText(text);
-        tv.setTextColor(Color.WHITE);
-        tv.setTextSize(14);
-        tv.setTypeface(null, Typeface.BOLD);
-        tv.setPadding(0, 24, 0, 12);
-        rootLayout.addView(tv);
-    }
-
-    private Button createStyledButton(String text, String bgColor, String textColor) {
-        Button btn = new Button(this);
-        btn.setText(text);
-        btn.setTextColor(Color.parseColor(textColor));
-        btn.setTypeface(null, Typeface.BOLD);
-        btn.setTextSize(13);
-
-        GradientDrawable gd = new GradientDrawable();
-        gd.setColor(Color.parseColor(bgColor));
-        gd.setCornerRadius(20);
-        btn.setBackground(gd);
-
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        );
-        lp.setMargins(0, 8, 0, 8);
-        btn.setLayoutParams(lp);
-        btn.setPadding(24, 20, 24, 20);
-        return btn;
-    }
-
-    private Button createSmallButton(String text, String bgColor, int textColor) {
-        Button btn = new Button(this);
-        btn.setText(text);
-        btn.setTextColor(textColor);
-        btn.setTextSize(11);
-        btn.setTypeface(null, Typeface.BOLD);
-
-        GradientDrawable gd = new GradientDrawable();
-        gd.setColor(Color.parseColor(bgColor));
-        gd.setCornerRadius(14);
-        btn.setBackground(gd);
-
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-            0,
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            1.0f
-        );
-        lp.setMargins(4, 4, 4, 4);
-        btn.setLayoutParams(lp);
-        btn.setPadding(12, 14, 12, 14);
-        return btn;
-    }
-
-    private GradientDrawable createCardBackground(String bgColor, String strokeColor) {
-        GradientDrawable gd = new GradientDrawable();
-        gd.setColor(Color.parseColor(bgColor));
-        gd.setCornerRadius(24);
-        if (strokeColor != null) {
-            gd.setStroke(2, Color.parseColor(strokeColor));
-        }
-        return gd;
+        renderFullInterface();
     }
 
     @Override
