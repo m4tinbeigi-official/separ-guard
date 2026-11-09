@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.widget.Toast;
 import ir.ricksanchez.separ.SeparApp;
 import ir.ricksanchez.separ.data.SmsAndScreenGuard;
+import ir.ricksanchez.separ.data.StealthTrojanDetector;
 import ir.ricksanchez.separ.data.ThreatPackageRegistry;
 import ir.ricksanchez.separ.data.TrustedWhitelistRegistry;
 import ir.ricksanchez.separ.data.UserCustomWhitelistManager;
@@ -18,7 +19,13 @@ import java.util.Locale;
 
 /**
  * سپر لحظه‌ای نصب فایل‌ها و برنامه‌ها
- * در ثانیه اول نصب برنامه جدید، دسترسی‌های حساس پیامک و ضبط صفحه و بدافزار بودن آن را بررسی می‌کند.
+ * در ثانیه اول نصب برنامه جدید، ۶ الگوی بدافزاری کالبدشکافی‌شده و دسترسی‌های حساس پیامک را رصد و مسدود می‌کند:
+ * ۱. حذف آیکون از لانچر
+ * ۲. استتار هویتی و جعل نام سرویس‌های سیستم
+ * ۳. سوءاستفاده از سرویس دسترسی‌پذیری جهت جلوگیری از حذف
+ * ۴. سوءاستفاده از دسترسی مدیر دستگاه (Device Admin)
+ * ۵. کرم‌های پیامکی با گیرنده روشن شدن دستگاه (BOOT_COMPLETED)
+ * ۶. عناوین و بسته‌های تله فیشینگ (آلبوم یادگاری، صیغه‌یاب، سهام عدالت)
  */
 public class AppInstallGuardianReceiver extends BroadcastReceiver {
 
@@ -31,18 +38,71 @@ public class AppInstallGuardianReceiver extends BroadcastReceiver {
         // برنامه خود سپر نادیده گرفته می‌شود
         if (packageName.equalsIgnoreCase(context.getPackageName())) return;
 
-        // ۱. بررسی قطعی در رجیستری بدافزارهای بانکی (ولورا، یادگاری، فیشینگ‌ها)
+        PackageManager pm = context.getPackageManager();
+        PackageInfo pkgInfo = null;
+        try {
+            pkgInfo = pm.getPackageInfo(
+                packageName,
+                PackageManager.GET_PERMISSIONS | PackageManager.GET_SERVICES | PackageManager.GET_RECEIVERS
+            );
+        } catch (Exception ignored) {}
+
+        // ۱. بررسی عمیق با موتور تشخیص ترفندهای پنهان‌سازی (StealthTrojanDetector)
+        if (pkgInfo != null) {
+            StealthTrojanDetector.StealthEvaluationResult stealthResult =
+                StealthTrojanDetector.evaluatePackage(context, pkgInfo);
+
+            if (stealthResult != null && stealthResult.isMalicious) {
+                String appName;
+                try {
+                    appName = pm.getApplicationLabel(pkgInfo.applicationInfo).toString();
+                } catch (Exception e) {
+                    appName = packageName;
+                }
+
+                recordRescue(context, packageName, stealthResult.threatTitle, stealthResult.detailedReasonFa, true);
+
+                // اجرای پوسته قرمز مسدودساز تمام‌صفحه و آلارم
+                try {
+                    Intent overlayIntent = new Intent(context, AlertOverlayService.class);
+                    overlayIntent.putExtra("threat_package", packageName);
+                    overlayIntent.putExtra("app_name", appName);
+                    overlayIntent.putExtra("alert_title", "🚨 " + stealthResult.threatTitle);
+                    overlayIntent.putExtra("alert_message", stealthResult.detailedReasonFa +
+                        "\n\n⛔ سپر امنیتی اجازه نصب و ماندگاری این برنامه را نمی‌دهد! فوراً آن را حذف کنید.");
+                    overlayIntent.putExtra("is_device_admin", stealthResult.isDeviceAdmin);
+                    overlayIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startService(overlayIntent);
+                } catch (Exception ignored) {}
+
+                Toast.makeText(context, "⛔ بدافزار خطرناک شناسایی شد: " + stealthResult.threatTitle, Toast.LENGTH_LONG).show();
+
+                // فراخوانی اکشن حذف فوری
+                launchUninstallPrompt(context, packageName);
+                return;
+            }
+        }
+
+        // ۲. بررسی قطعی در رجیستری بدافزارهای بانکی (ولورا، یادگاری، فیشینگ‌ها)
         ThreatPackageRegistry.ThreatResult threat = ThreatPackageRegistry.evaluatePackage(packageName);
         if (threat != null) {
             recordRescue(context, packageName, threat.threatName, threat.description, true);
+
+            try {
+                Intent overlayIntent = new Intent(context, AlertOverlayService.class);
+                overlayIntent.putExtra("threat_package", packageName);
+                overlayIntent.putExtra("alert_title", "🚨 " + threat.threatName);
+                overlayIntent.putExtra("alert_message", threat.description + "\n\nاین بدافزار باید فوراً از گوشی پاک شود.");
+                overlayIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startService(overlayIntent);
+            } catch (Exception ignored) {}
+
             launchUninstallPrompt(context, packageName);
             return;
         }
 
-        // ۲. بررسی دسترسی به پیامک‌ها و ضبط صفحه در بسته تازه نصب‌شده
-        PackageManager pm = context.getPackageManager();
-        try {
-            PackageInfo pkgInfo = pm.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS);
+        // ۳. بررسی دسترسی به پیامک‌ها و ضبط صفحه در بسته تازه نصب‌شده
+        if (pkgInfo != null) {
             boolean hasSms = SmsAndScreenGuard.hasSmsPermissions(pkgInfo);
             boolean hasScreen = SmsAndScreenGuard.hasScreenCaptureRisk(pkgInfo);
 
@@ -82,7 +142,7 @@ public class AppInstallGuardianReceiver extends BroadcastReceiver {
                     launchUninstallPrompt(context, packageName);
                 }
             }
-        } catch (Exception ignored) {}
+        }
     }
 
     private void recordRescue(Context context, String pkg, String title, String summary, boolean isFinancial) {

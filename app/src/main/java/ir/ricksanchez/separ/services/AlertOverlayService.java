@@ -44,13 +44,14 @@ public class AlertOverlayService extends Service {
         String appName = intent.getStringExtra("app_name");
         String customTitle = intent.getStringExtra("alert_title");
         String customMessage = intent.getStringExtra("alert_message");
+        boolean isDeviceAdmin = intent.getBooleanExtra("is_device_admin", false);
 
-        showCrimsonOverlay(domain, threatPkg, appName, customTitle, customMessage);
+        showCrimsonOverlay(domain, threatPkg, appName, customTitle, customMessage, isDeviceAdmin);
         return START_NOT_STICKY;
     }
 
     private void showCrimsonOverlay(final String domain, final String threatPkg, final String appName,
-                                    String title, String message) {
+                                    String title, String message, boolean isDeviceAdmin) {
         if (overlayView != null) {
             removeOverlay();
         }
@@ -135,6 +136,24 @@ public class AlertOverlayService extends Service {
                 }
             });
             layout.addView(uninstallBtn);
+
+            // ۱.۱. در صورت سوءاستفاده از دسترسی مدیر دستگاه
+            if (isDeviceAdmin) {
+                Button adminBtn = createActionButton("🔓 باز کردن تنظیمات امنیت و لغو قفل مدیر دستگاه", "#E65100", Color.WHITE);
+                adminBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        try {
+                            Intent secIntent = new Intent(Settings.ACTION_SECURITY_SETTINGS);
+                            secIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(secIntent);
+                        } catch (Exception ignored) {}
+                        removeOverlay();
+                        stopSelf();
+                    }
+                });
+                layout.addView(adminBtn);
+            }
 
             // ۲. دکمه لغو دسترسی پیامک در تنظیمات
             Button permBtn = createActionButton("⚙️ قطع دسترسی پیامک در تنظیمات گوشی", "#37474F", Color.WHITE);

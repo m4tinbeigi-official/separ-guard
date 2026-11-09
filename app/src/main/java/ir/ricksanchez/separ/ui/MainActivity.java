@@ -27,6 +27,7 @@ import ir.ricksanchez.separ.billing.UnifiedBillingManager;
 import ir.ricksanchez.separ.data.FakeReceiptAnalyzer;
 import ir.ricksanchez.separ.data.RescueLedgerRepository;
 import ir.ricksanchez.separ.data.SmsAndScreenGuard;
+import ir.ricksanchez.separ.data.StealthTrojanDetector;
 import ir.ricksanchez.separ.data.ThreatPackageRegistry;
 import ir.ricksanchez.separ.data.UserCustomWhitelistManager;
 import ir.ricksanchez.separ.data.UserModeManager;
@@ -598,12 +599,30 @@ public class MainActivity extends Activity {
     private void performDeepScan() {
         detectedThreats.clear();
         PackageManager pm = getPackageManager();
-        List<PackageInfo> packages = pm.getInstalledPackages(PackageManager.GET_META_DATA);
+        List<PackageInfo> packages = pm.getInstalledPackages(
+            PackageManager.GET_PERMISSIONS | PackageManager.GET_SERVICES | PackageManager.GET_RECEIVERS | PackageManager.GET_META_DATA
+        );
 
         for (PackageInfo pkg : packages) {
+            // ۱. بررسی قطعی در رجیستری بدافزارهای بانکی
             ThreatPackageRegistry.ThreatResult threat = ThreatPackageRegistry.evaluatePackage(pkg.packageName);
             if (threat != null) {
                 detectedThreats.add(threat);
+                continue;
+            }
+
+            // ۲. بررسی عمیق با موتور کشف ترفندهای پنهان‌سازی (استتار هویت، حذف آیکون، مدیر دستگاه، دسترسی‌پذیری)
+            StealthTrojanDetector.StealthEvaluationResult stealth = StealthTrojanDetector.evaluatePackage(this, pkg);
+            if (stealth != null && stealth.isMalicious) {
+                detectedThreats.add(new ThreatPackageRegistry.ThreatResult(
+                    true,
+                    true,
+                    true,
+                    stealth.threatTitle,
+                    stealth.threatType,
+                    stealth.detailedReasonFa,
+                    pkg.packageName
+                ));
             }
         }
 
