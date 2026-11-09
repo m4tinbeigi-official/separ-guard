@@ -14,6 +14,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -21,6 +22,7 @@ import android.widget.Toast;
 
 import ir.ricksanchez.separ.SeparApp;
 import ir.ricksanchez.separ.audio.AudioGuideEngine;
+import ir.ricksanchez.separ.billing.PromoAndAffiliateManager;
 import ir.ricksanchez.separ.billing.UnifiedBillingManager;
 import ir.ricksanchez.separ.data.FakeReceiptAnalyzer;
 import ir.ricksanchez.separ.data.RescueLedgerRepository;
@@ -29,6 +31,9 @@ import ir.ricksanchez.separ.data.ThreatPackageRegistry;
 import ir.ricksanchez.separ.data.UserCustomWhitelistManager;
 import ir.ricksanchez.separ.data.UserModeManager;
 import ir.ricksanchez.separ.utils.CallForwardingAuditor;
+import ir.ricksanchez.separ.utils.PrivacyPolicyHelper;
+import ir.ricksanchez.separ.utils.ProminentDisclosureHelper;
+import ir.ricksanchez.separ.utils.SessionRemediationHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +43,7 @@ public class MainActivity extends Activity {
 
     private AudioGuideEngine audioGuide;
     private UnifiedBillingManager billingManager;
+    private PromoAndAffiliateManager promoManager;
     private RescueLedgerRepository rescueLedger;
     private UserModeManager userModeManager;
     private UserCustomWhitelistManager userWhitelist;
@@ -55,9 +61,13 @@ public class MainActivity extends Activity {
 
         audioGuide = new AudioGuideEngine(this);
         billingManager = SeparApp.getInstance().getBillingManager();
+        promoManager = SeparApp.getInstance().getPromoManager();
         rescueLedger = SeparApp.getInstance().getRescueLedger();
         userModeManager = SeparApp.getInstance().getUserModeManager();
         userWhitelist = SeparApp.getInstance().getUserWhitelist();
+
+        // ۲. نمایش دیالوگ شفافیت دسترسی‌ها (الزام داوری کافه‌بازار و مایکت) در اولین اجرا
+        ProminentDisclosureHelper.showDisclosureIfNeeded(this, null);
 
         buildUi();
         performDeepScan();
@@ -106,7 +116,27 @@ public class MainActivity extends Activity {
         rootLayout.addView(headerTitle);
         rootLayout.addView(headerSubtitle);
 
-        // ۲. کارنامه حملات خنثی‌شده و نجات‌ها (Rescue Ledger Widget)
+        // ۲. وضعیت اشتراک و لایسنس
+        UnifiedBillingManager.SubscriptionInfo subInfo = billingManager.getSubscriptionInfo();
+        LinearLayout licenseBadge = new LinearLayout(this);
+        licenseBadge.setOrientation(LinearLayout.HORIZONTAL);
+        licenseBadge.setGravity(Gravity.CENTER);
+        licenseBadge.setPadding(20, 10, 20, 10);
+        licenseBadge.setBackground(createCardBackground(subInfo.isSubscribed ? "#163820" : "#2D1B1B", subInfo.isSubscribed ? "#00E676" : "#FF5252"));
+        LinearLayout.LayoutParams lbParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lbParams.gravity = Gravity.CENTER_HORIZONTAL;
+        lbParams.setMargins(0, 0, 0, 20);
+        licenseBadge.setLayoutParams(lbParams);
+
+        TextView badgeText = new TextView(this);
+        badgeText.setText(subInfo.isSubscribed ? "اشتراک فعال سپر (" + subInfo.daysRemaining + " روز باقی‌مانده)" : "نسخه رایگان (حالت کشف تهدیدات)");
+        badgeText.setTextColor(subInfo.isSubscribed ? Color.parseColor("#00E676") : Color.parseColor("#FFA726"));
+        badgeText.setTextSize(12);
+        badgeText.setTypeface(null, Typeface.BOLD);
+        licenseBadge.addView(badgeText);
+        rootLayout.addView(licenseBadge);
+
+        // ۳. کارنامه حملات خنثی‌شده و نجات‌ها (Rescue Ledger Widget)
         RescueLedgerRepository.RescueStats stats = rescueLedger.getStats();
         if (stats.totalAttacksBlocked > 0) {
             LinearLayout rescueCard = new LinearLayout(this);
@@ -138,14 +168,14 @@ public class MainActivity extends Activity {
             rootLayout.addView(rescueCard);
         }
 
-        // ۳. دایره بزرگ لمسی اسکن و وضعیت (Master Shield)
+        // ۴. دایره بزرگ لمسی اسکن و وضعیت (Master Shield)
         int unapprovedSmsCount = countUnapprovedSmsApps();
         boolean hasThreats = !detectedThreats.isEmpty() || unapprovedSmsCount > 0;
 
         LinearLayout shieldCircle = new LinearLayout(this);
         shieldCircle.setOrientation(LinearLayout.VERTICAL);
         shieldCircle.setGravity(Gravity.CENTER);
-        int sizePx = 400;
+        int sizePx = 380;
         LinearLayout.LayoutParams circleParams = new LinearLayout.LayoutParams(sizePx, sizePx);
         circleParams.gravity = Gravity.CENTER_HORIZONTAL;
         circleParams.setMargins(0, 10, 0, 24);
@@ -182,7 +212,7 @@ public class MainActivity extends Activity {
         });
         rootLayout.addView(shieldCircle);
 
-        // ۴. دکمه راهنمای صوتی شمرده فارسی
+        // ۵. دکمه راهنمای صوتی شمرده فارسی
         Button voiceBtn = createStyledButton("🔊 شنیدن راهنمای صوتی وضعیت گوشی", "#21262D", "#00E676");
         voiceBtn.setOnClickListener(v -> {
             if (!hasThreats) {
@@ -193,16 +223,29 @@ public class MainActivity extends Activity {
         });
         rootLayout.addView(voiceBtn);
 
-        // ۵. کارت اختصاصی: ممیزی دسترسی به پیامک‌ها و اسکرین‌شات (SMS & Screen Guardian)
+        // ۶. کارت اختصاصی: ممیزی دسترسی به پیامک‌ها و اسکرین‌شات (SMS & Screen Guardian)
         renderSmsAndScreenGuardCard(unapprovedSmsCount);
 
-        // ۶. بخش گزارش بدافزارهای قطعی (در صورت کشف)
+        // ۷. بخش گزارش بدافزارهای قطعی (در صورت کشف)
         if (!detectedThreats.isEmpty()) {
             renderMalwareThreatBox();
         }
 
-        // ۷. جعبه‌ابزار بحران و ابزارهای نجات
+        // ۸. کارت فعال‌سازی، خرید و کدهای تخفیف اینفلوئنسر
+        if (!subInfo.isSubscribed) {
+            renderPaywallAndPromoCard();
+        }
+
+        // ۹. کارت همکاری در فروش و دعوت از دوستان (Affiliate & Referral Hub)
+        renderAffiliateCard();
+
+        // ۱۰. جعبه‌ابزار بحران و ابزارهای نجات
         addSectionHeader("ابزارهای فوریت‌های امنیتی:");
+
+        // اخراج نفوذگران از شبکه‌ها و پیام‌رسان‌ها
+        Button sessionBtn = createStyledButton("🚪 اخراج نفوذگران از تلگرام، روبیکا، ایتا و بله", "#161B22", "#FFA726");
+        sessionBtn.setOnClickListener(v -> openSessionRemediationDialog());
+        rootLayout.addView(sessionBtn);
 
         // بررسی رسید و کارت بانکی
         Button receiptBtn = createStyledButton("💳 بررسی اصالت رسید فیش بانکی (ضد جعل)", "#161B22", "#00E676");
@@ -221,6 +264,11 @@ public class MainActivity extends Activity {
             startActivity(intent);
         });
         rootLayout.addView(fataBtn);
+
+        // ۱۱. فوتر قوانین و حریم خصوصی
+        Button privacyBtn = createStyledButton("📜 سند حریم خصوصی و تعهد عدم خروج داده (Zero-Telemetry)", "#0D1117", "#8B949E");
+        privacyBtn.setOnClickListener(v -> PrivacyPolicyHelper.showPrivacyPolicy(this));
+        rootLayout.addView(privacyBtn);
     }
 
     private int countUnapprovedSmsApps() {
@@ -351,13 +399,13 @@ public class MainActivity extends Activity {
 
         if (!isSubscribed) {
             TextView threatLockDesc = new TextView(this);
-            threatLockDesc.setText("این بدافزارها در حال شنود رمزهای پیامکی هستند. برای پاکسازی قطعی، اشتراک سالیانه سپر (۵۰۰ هزار تومان) را فعال کنید.");
+            threatLockDesc.setText("این بدافزارها در حال شنود رمزهای پیامکی هستند. برای پاکسازی قطعی، اشتراک سالیانه سپر (۱ میلیون تومان) را فعال کنید یا کد هدیه وارد نمایید.");
             threatLockDesc.setTextColor(Color.parseColor("#F0F6FC"));
             threatLockDesc.setTextSize(12);
             threatLockDesc.setPadding(0, 12, 0, 16);
             threatBox.addView(threatLockDesc);
 
-            Button buyBtn = createStyledButton("خرید سالیانه در کافه‌بازار (۵۰۰ هزار تومان)", "#FF4444", "#FFFFFF");
+            Button buyBtn = createStyledButton("خرید سالیانه در کافه‌بازار (۱,۰۰۰,۰۰۰ تومان)", "#FF4444", "#FFFFFF");
             buyBtn.setOnClickListener(v -> {
                 billingManager.activateAnnualSubscription("bazaar_token", "sig", "data", UnifiedBillingManager.StoreType.BAZAAR);
                 Toast.makeText(this, "اشتراک سالیانه کافه‌بازار فعال شد!", Toast.LENGTH_LONG).show();
@@ -383,6 +431,141 @@ public class MainActivity extends Activity {
             }
         }
         rootLayout.addView(threatBox);
+    }
+
+    private void renderPaywallAndPromoCard() {
+        LinearLayout payCard = new LinearLayout(this);
+        payCard.setOrientation(LinearLayout.VERTICAL);
+        payCard.setPadding(24, 24, 24, 24);
+        payCard.setBackground(createCardBackground("#1A202C", "#4A5568"));
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.setMargins(0, 16, 0, 16);
+        payCard.setLayoutParams(lp);
+
+        TextView title = new TextView(this);
+        title.setText("💎 اشتراک سالیانه سپر ضد هک (۳۶۵ روز محافظت شبانه‌روزی)");
+        title.setTextColor(Color.WHITE);
+        title.setTextSize(14);
+        title.setTypeface(null, Typeface.BOLD);
+        payCard.addView(title);
+
+        TextView priceText = new TextView(this);
+        priceText.setText("تعرفه مصوب: ۱,۰۰۰,۰۰۰ تومان / سال (۱۰,۰۰۰,۰۰۰ ریال)");
+        priceText.setTextColor(Color.parseColor("#00E676"));
+        priceText.setTextSize(13);
+        priceText.setPadding(0, 8, 0, 16);
+        payCard.addView(priceText);
+
+        Button buyBazaarBtn = createStyledButton("خرید رسمی در کافه‌بازار (۱ میلیون تومان)", "#238636", "#FFFFFF");
+        buyBazaarBtn.setOnClickListener(v -> {
+            billingManager.activateAnnualSubscription("bazaar_token", "sig", "data", UnifiedBillingManager.StoreType.BAZAAR);
+            Toast.makeText(this, "اشتراک سالیانه با موفقیت فعال گردید!", Toast.LENGTH_LONG).show();
+            renderCurrentState();
+        });
+        payCard.addView(buyBazaarBtn);
+
+        Button redeemBtn = createStyledButton("🎁 وارد کردن کد تخفیف / کد هدیه رایگان اینفلوئنسر", "#1F6FEB", "#FFFFFF");
+        redeemBtn.setOnClickListener(v -> openRedeemPromoDialog());
+        payCard.addView(redeemBtn);
+
+        Button restoreBtn = createStyledButton("🔄 بازیابی خرید قبلی (Restore Purchases)", "#21262D", "#C9D1D9");
+        restoreBtn.setOnClickListener(v -> {
+            billingManager.restorePurchases((success, message) -> {
+                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+                if (success) renderCurrentState();
+            });
+        });
+        payCard.addView(restoreBtn);
+
+        rootLayout.addView(payCard);
+    }
+
+    private void renderAffiliateCard() {
+        LinearLayout affCard = new LinearLayout(this);
+        affCard.setOrientation(LinearLayout.VERTICAL);
+        affCard.setPadding(24, 24, 24, 24);
+        affCard.setBackground(createCardBackground("#132338", "#1F6FEB"));
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.setMargins(0, 16, 0, 16);
+        affCard.setLayoutParams(lp);
+
+        TextView title = new TextView(this);
+        title.setText("🤝 همکاری در فروش و دعوت از دوستان (کسب درآمد)");
+        title.setTextColor(Color.WHITE);
+        title.setTextSize(14);
+        title.setTypeface(null, Typeface.BOLD);
+        affCard.addView(title);
+
+        String refCode = promoManager.getMyReferralCode();
+        int refCount = promoManager.getMyReferralCount();
+        long comm = promoManager.getMyTotalCommissionTomans();
+
+        TextView desc = new TextView(this);
+        desc.setText("کد معرف اختصاصی شما: " + refCode + "\n" +
+                     "با معرفی سپر به مخاطبان یا دوستانتان، آن‌ها تخفیف می‌گیرند و شما به ازای هر خرید ۲۵٪ کمیسیون (۲۵۰,۰۰۰ تومان) دریافت می‌کنید.\n\n" +
+                     "دعوت‌های موفق: " + refCount + " نفر | کمیسیون انباشته: " + String.format("%,d", comm) + " تومان");
+        desc.setTextColor(Color.parseColor("#E6EDF3"));
+        desc.setTextSize(12);
+        desc.setLineSpacing(6f, 1.2f);
+        desc.setPadding(0, 8, 0, 16);
+        affCard.addView(desc);
+
+        Button shareBtn = createStyledButton("📤 اشتراک‌گذاری کد معرف با دیگران", "#238636", "#FFFFFF");
+        shareBtn.setOnClickListener(v -> {
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.putExtra(Intent.EXTRA_TEXT, promoManager.getInviteShareMessage());
+            sendIntent.setType("text/plain");
+            startActivity(Intent.createChooser(sendIntent, "ارسال کد معرف"));
+        });
+        affCard.addView(shareBtn);
+
+        rootLayout.addView(affCard);
+    }
+
+    private void openRedeemPromoDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("🎁 وارد کردن کد تخفیف یا هدیه اینفلوئنسر");
+
+        final EditText input = new EditText(this);
+        input.setHint("کد هدیه (مثلاً RICK یا کد معرف)");
+        input.setPadding(30, 24, 30, 24);
+        builder.setView(input);
+
+        builder.setPositiveButton("بررسی و فعال‌سازی", (dialog, which) -> {
+            String code = input.getText().toString();
+            PromoAndAffiliateManager.RedeemResult result = promoManager.redeemCode(code);
+            Toast.makeText(this, result.message, Toast.LENGTH_LONG).show();
+            if (result.success) {
+                renderCurrentState();
+            }
+        });
+        builder.setNegativeButton("انصراف", null);
+        builder.show();
+    }
+
+    private void openSessionRemediationDialog() {
+        List<SessionRemediationHelper.AppSessionGuide> platforms = SessionRemediationHelper.getSupportedPlatforms();
+        String[] titles = new String[platforms.size()];
+        for (int i = 0; i < platforms.size(); i++) {
+            titles[i] = platforms.get(i).appName;
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("انتخاب برنامه جهت اخراج نشست‌ها و هکرها:");
+        builder.setItems(titles, (dialog, which) -> {
+            SessionRemediationHelper.AppSessionGuide selected = platforms.get(which);
+            new AlertDialog.Builder(this)
+                .setTitle(selected.appName)
+                .setMessage("مسیر خروج از سایر نشست‌ها:\n\n" + selected.pathDescriptionFa)
+                .setPositiveButton("باز کردن برنامه", (d, w) -> {
+                    SessionRemediationHelper.openAppOrSettings(this, selected);
+                })
+                .setNegativeButton("بستن", null)
+                .show();
+        });
+        builder.setPositiveButton("بستن", null);
+        builder.show();
     }
 
     private void openWhitelistManagementDialog() {
