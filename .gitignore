@@ -1,0 +1,15 @@
+# Android & Build caches
+.gradle/
+.idea/
+*.iml
+.DS_Store
+local.properties
+
+# Intermediate build objects
+build/obj/
+build/gen/
+build/reports/
+build/apk/app-unaligned.apk
+build/apk/Separ-Aligned.apk
+build/apk/classes.dex
+build/apk/*.idsig

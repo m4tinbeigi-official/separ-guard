@@ -1,0 +1,349 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-11-04",
+  "project": "separ-guard",
+  "description": "Corpus of known malicious Android packages, banking trojans, SMS worms, and abused remote tools in Iran",
+  "rules": {
+    "mandatory_wipe_keywords": [
+      {
+        "keyword": "velora",
+        "threat_type": "VELORA_TROJAN",
+        "severity": "CRITICAL",
+        "description_fa": "خانواده بدافزار ولورا و آلبوم یادگاری (شنود پیامک، سرقت رمز دوم پویا و انتشار کرم پیامکی)",
+        "action": "FORCE_UNINSTALL"
+      },
+      {
+        "keyword": "yadegari",
+        "threat_type": "YADEGARI_WORM",
+        "severity": "CRITICAL",
+        "description_fa": "تروجان پیامکی پوشه و آلبوم یادگاری (سرقت پیامک‌های OTP و ارسال هرزنامه به مخاطبین)",
+        "action": "FORCE_UNINSTALL"
+      },
+      {
+        "keyword": "residsaz",
+        "threat_type": "FAKE_RECEIPT_GENERATOR",
+        "severity": "CRITICAL",
+        "description_fa": "برنامه رسیدساز جعلی بانکی (تولید فیش تقلبی انتقال وجه کارت به کارت)",
+        "action": "FORCE_UNINSTALL"
+      },
+      {
+        "keyword": "vamchi",
+        "threat_type": "SPYLOAN_MALWARE",
+        "severity": "CRITICAL",
+        "description_fa": "بدافزار کلاهبرداری وام فوری و وام‌چی (سرقت رمزهای بانکی بدون ضامن)",
+        "action": "FORCE_UNINSTALL"
+      }
+    ],
+    "exact_malicious_packages": [
+      {
+        "package_name": "com.velora.cloud",
+        "threat_type": "VELORA_TROJAN",
+        "family": "Velora",
+        "description_fa": "بدافزار اصلی آلبوم یادگاری / پوشه یادگاری",
+        "c2": "velora-7f23e.firebasestorage.app",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.sana.adliran",
+        "threat_type": "FAKE_GOV_PHISHING",
+        "family": "FakeSana",
+        "description_fa": "سامانه جعلی ثنا و ابلاغیه قضایی عدل‌ایران",
+        "severity": "HIGH"
+      },
+      {
+        "package_name": "ir.sana.adliran",
+        "threat_type": "FAKE_GOV_PHISHING",
+        "family": "FakeSana",
+        "description_fa": "اپلیکیشن جعلی ابلاغیه قضایی ثنا",
+        "severity": "HIGH"
+      },
+      {
+        "package_name": "com.eblagh.adliran",
+        "threat_type": "FAKE_GOV_PHISHING",
+        "family": "FakeSana",
+        "description_fa": "برنامه جعلی مشاهده ابلاغ الکترونیک قضایی",
+        "severity": "HIGH"
+      },
+      {
+        "package_name": "ir.adliran.sana",
+        "threat_type": "FAKE_GOV_PHISHING",
+        "family": "FakeSana",
+        "description_fa": "جعلی ابلاغیه دادگستری",
+        "severity": "HIGH"
+      },
+      {
+        "package_name": "com.adliran.eblagh",
+        "threat_type": "FAKE_GOV_PHISHING",
+        "family": "FakeSana",
+        "description_fa": "جعلی ابلاغیه الکترونیک عدل‌ایران",
+        "severity": "HIGH"
+      },
+      {
+        "package_name": "com.sana.app",
+        "threat_type": "FAKE_GOV_PHISHING",
+        "family": "FakeSana",
+        "description_fa": "برنامه جعلی ثنا",
+        "severity": "HIGH"
+      },
+      {
+        "package_name": "com.saham.edalat",
+        "threat_type": "BANKING_PHISHING",
+        "family": "FakeSahamEdalat",
+        "description_fa": "برنامه جعلی واریز سود سهام عدالت (سرقت اطلاعات کارت)",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "ir.sahamedalat.app",
+        "threat_type": "BANKING_PHISHING",
+        "family": "FakeSahamEdalat",
+        "description_fa": "سامانه جعلی سود سهام عدالت",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.sahamedalat.sejam",
+        "threat_type": "BANKING_PHISHING",
+        "family": "FakeSahamEdalat",
+        "description_fa": "سامانه جعلی سجام و سهام عدالت",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.sejam.saham",
+        "threat_type": "BANKING_PHISHING",
+        "family": "FakeSahamEdalat",
+        "description_fa": "برنامه جعلی سهام عدالت",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.saham.edalat.soud",
+        "threat_type": "BANKING_PHISHING",
+        "family": "FakeSahamEdalat",
+        "description_fa": "برنامه جعلی واریز سود سهام عدالت",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.sayad.pichak",
+        "threat_type": "BANKING_PHISHING",
+        "family": "FakeSayad",
+        "description_fa": "سامانه جعلی ثبت و استعلام چک صیادی پیچک",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.sayad.cheque",
+        "threat_type": "BANKING_PHISHING",
+        "family": "FakeSayad",
+        "description_fa": "برنامه جعلی صیاد",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "ir.sayad.cheque",
+        "threat_type": "BANKING_PHISHING",
+        "family": "FakeSayad",
+        "description_fa": "چک صیادی جعلی",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.cheque.sayad",
+        "threat_type": "BANKING_PHISHING",
+        "family": "FakeSayad",
+        "description_fa": "برنامه جعلی چک صیاد",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.rahvar.khalafi",
+        "threat_type": "BANKING_PHISHING",
+        "family": "FakePolice",
+        "description_fa": "سامانه جعلی استعلام خلافی خودرو و نمره منفی راهور",
+        "severity": "HIGH"
+      },
+      {
+        "package_name": "ir.rahvar120.khalafi",
+        "threat_type": "BANKING_PHISHING",
+        "family": "FakePolice",
+        "description_fa": "برنامه جعلی راهور ۱۲۰",
+        "severity": "HIGH"
+      },
+      {
+        "package_name": "com.khalafi.khodro",
+        "threat_type": "BANKING_PHISHING",
+        "family": "FakePolice",
+        "description_fa": "برنامه جعلی پرداخت جریمه و خلافی",
+        "severity": "HIGH"
+      },
+      {
+        "package_name": "com.yaraneh.kalabarg",
+        "threat_type": "BANKING_PHISHING",
+        "family": "FakeYaraneh",
+        "description_fa": "برنامه جعلی ثبت نام کالابرگ الکترونیک و یارانه",
+        "severity": "HIGH"
+      },
+      {
+        "package_name": "ir.kalabarg.fajr",
+        "threat_type": "BANKING_PHISHING",
+        "family": "FakeYaraneh",
+        "description_fa": "سامانه جعلی کالابرگ فجر",
+        "severity": "HIGH"
+      },
+      {
+        "package_name": "com.free.internet",
+        "threat_type": "SMS_WORM",
+        "family": "FakeTelecom",
+        "description_fa": "برنامه فریبنده اینترنت رایگان عیدانه و دولت",
+        "severity": "HIGH"
+      },
+      {
+        "package_name": "com.mci.freeinternet",
+        "threat_type": "SMS_WORM",
+        "family": "FakeTelecom",
+        "description_fa": "برنامه جعلی بسته اینترنت رایگان همراه اول",
+        "severity": "HIGH"
+      },
+      {
+        "package_name": "com.irancell.freeinternet",
+        "threat_type": "SMS_WORM",
+        "family": "FakeTelecom",
+        "description_fa": "برنامه جعلی بسته اینترنت رایگان ایرانسل",
+        "severity": "HIGH"
+      },
+      {
+        "package_name": "com.invitation.wedding",
+        "threat_type": "SMS_WORM",
+        "family": "WeddingLure",
+        "description_fa": "بدافزار کارت دعوت عروسی جعلی (گزارش پلیس فتا)",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.wedding.card.invitation",
+        "threat_type": "SMS_WORM",
+        "family": "WeddingLure",
+        "description_fa": "کارت دعوت عروسی جعلی",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.arosi.kart",
+        "threat_type": "SMS_WORM",
+        "family": "WeddingLure",
+        "description_fa": "بدافزار کارت عروسی",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.lololo",
+        "threat_type": "RANSOMWARE",
+        "family": "ZeusAndroid",
+        "description_fa": "باج‌افزار اندرویدی زئوس (گزارش مرکز ماهر)",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "android.com.ui",
+        "threat_type": "SPYWARE",
+        "family": "AmadVpn",
+        "description_fa": "بدافزار جاسوسی موسوم به فیلترشکن آمدنیوز (گزارش مرکز ماهر)",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.shexa.permissionmanager",
+        "threat_type": "SPYWARE",
+        "family": "PermissionStealer",
+        "description_fa": "ابزار سرقت دسترسی‌ها و شنود پیامک بانکی",
+        "severity": "HIGH"
+      },
+      {
+        "package_name": "ahmyth.mine.king.ahmyth",
+        "threat_type": "RAT",
+        "family": "AhMyth",
+        "description_fa": "تروجان دسترسی از راه دور AhMyth",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.vamchi.app",
+        "threat_type": "SPYLOAN_MALWARE",
+        "family": "SpyLoan",
+        "description_fa": "بدافزار ثبت نام وام فوری (وام‌چی)",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.radyab.spy",
+        "threat_type": "STALKERWARE_SPY",
+        "family": "Stalkerware",
+        "description_fa": "جاسوس‌افزار ردیاب و شنود نامحسوس",
+        "severity": "CRITICAL"
+      }
+    ],
+    "remote_access_rats_abused": [
+      {
+        "package_name": "com.anydesk.anydeskandroid",
+        "name_fa": "انی‌دسک (AnyDesk)",
+        "threat_type": "REMOTE_ACCESS_RISK",
+        "description_fa": "برنامه کنترل از راه دور گوشی که کلاهبرداران تلفنی برای خالی کردن حساب استفاده می‌کنند.",
+        "severity": "MEDIUM_HIGH"
+      },
+      {
+        "package_name": "com.anydesk.adcontrol.ad1",
+        "name_fa": "پلاگین کنترل انی‌دسک",
+        "threat_type": "REMOTE_ACCESS_RISK",
+        "description_fa": "پلاگین کنترل کامل صفحه برای کلاهبرداری از راه دور",
+        "severity": "HIGH"
+      },
+      {
+        "package_name": "com.carriez.flutter_rustdesk",
+        "name_fa": "راست‌دسک (RustDesk)",
+        "threat_type": "REMOTE_ACCESS_RISK",
+        "description_fa": "برنامه کنترل از راه دور صفحه گوشی",
+        "severity": "MEDIUM_HIGH"
+      },
+      {
+        "package_name": "com.teamviewer.host.market",
+        "name_fa": "تیم‌ویوور هاست (TeamViewer Host)",
+        "threat_type": "REMOTE_ACCESS_RISK",
+        "description_fa": "برنامه دسترسی بدون اجازه به صفحه گوشی",
+        "severity": "MEDIUM_HIGH"
+      },
+      {
+        "package_name": "com.teamviewer.quicksupport.market",
+        "name_fa": "تیم‌ویوور کوئیک‌ساپورت",
+        "threat_type": "REMOTE_ACCESS_RISK",
+        "description_fa": "برنامه اشتراک‌گذاری صفحه و کنترل از راه دور",
+        "severity": "MEDIUM_HIGH"
+      },
+      {
+        "package_name": "com.sand.airdroid",
+        "name_fa": "ایر‌دروید (AirDroid)",
+        "threat_type": "REMOTE_ACCESS_RISK",
+        "description_fa": "برنامه مانیتورینگ و کنترل گوشی از طریق کامپیوتر",
+        "severity": "MEDIUM_HIGH"
+      },
+      {
+        "package_name": "com.supremo.remote",
+        "name_fa": "سوپریمو (Supremo Remote)",
+        "threat_type": "REMOTE_ACCESS_RISK",
+        "description_fa": "نرم‌افزار کنترل ریموت موبایل",
+        "severity": "MEDIUM_HIGH"
+      },
+      {
+        "package_name": "com.splashtop.remote",
+        "name_fa": "اسپلش‌تاپ (Splashtop)",
+        "threat_type": "REMOTE_ACCESS_RISK",
+        "description_fa": "برنامه ریموت دسکتاپ",
+        "severity": "MEDIUM"
+      },
+      {
+        "package_name": "com.zoho.assist",
+        "name_fa": "زوهو اسیست (Zoho Assist)",
+        "threat_type": "REMOTE_ACCESS_RISK",
+        "description_fa": "ابزار کنترل و ریموت صفحه",
+        "severity": "MEDIUM"
+      }
+    ],
+    "pattern_rules": [
+      {
+        "pattern": "^com\\.example\\.(saham|eblagh|adliran|sana|yaraneh|khalafi).*",
+        "threat_type": "DEBUG_LURE_MALWARE",
+        "description_fa": "بدافزار پکیج آزمایشی توزیع‌شده با عناوین دولتی و بانکی"
+      },
+      {
+        "pattern": ".*(velora|yadegari).*",
+        "threat_type": "VELORA_WORM_FAMILY",
+        "description_fa": "هرگونه برنامه مرتبط با زنجیره تروجان ولورا و یادگاری"
+      }
+    ]
+  }
+}
