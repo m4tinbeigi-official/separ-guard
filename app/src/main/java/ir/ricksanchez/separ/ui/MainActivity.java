@@ -88,6 +88,7 @@ public class MainActivity extends Activity {
     private List<ThreatPackageRegistry.ThreatResult> detectedThreats = new ArrayList<>();
     private List<SmsAndScreenGuard.AppAuditResult> smsAuditList = new ArrayList<>();
 
+    private TextView topModeChip;
     private int initialStatusBarHeight = 0;
     private int initialNavBarHeight = 0;
 
@@ -136,6 +137,9 @@ public class MainActivity extends Activity {
 
         buildScaffoldUi();
         performDeepScan();
+
+        // پردازش اینتنت‌های اضطراری ورودی (خرید طلا در دیجی‌کالا یا سوزاندن کارت)
+        handleIncomingIntent(getIntent());
 
         // ویزارد گام‌به‌گام اعطای دسترسی و منشور ضد هک
         if (!PermissionOnboardingWizardHelper.isOnboardingCompleted(this)) {
@@ -290,18 +294,21 @@ public class MainActivity extends Activity {
         brandCol.addView(subtitle);
         topBar.addView(brandCol);
 
-        // نشان وضعیت سبز (Live Status Chip)
-        TextView liveChip = new TextView(this);
-        liveChip.setText("پایش ۲۴ ساعته");
-        liveChip.setTextColor(Color.parseColor(CyberUiTheme.COLOR_NEON_GREEN));
-        liveChip.setTextSize(10);
-        FontHelper.applyMedium(liveChip);
-        liveChip.setPadding(CyberUiTheme.dpToPx(this, 10), CyberUiTheme.dpToPx(this, 5), CyberUiTheme.dpToPx(this, 10), CyberUiTheme.dpToPx(this, 5));
-        liveChip.setBackground(CyberUiTheme.createCardBg("#0F2618", CyberUiTheme.COLOR_NEON_GREEN, 8));
-        LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        clp.setMargins(CyberUiTheme.dpToPx(this, 6), 0, CyberUiTheme.dpToPx(this, 6), 0);
-        liveChip.setLayoutParams(clp);
-        topBar.addView(liveChip);
+        // نشان وضعیت و دکمه تعویض حالت ساده و حرفه‌ای
+        topModeChip = new TextView(this);
+        updateTopModeChip();
+        topModeChip.setOnClickListener(v -> {
+            if (userModeManager.isSimpleMode()) {
+                userModeManager.setUserMode(UserModeManager.UserMode.PRO);
+                Toast.makeText(this, "حالت حرفه‌ای (تحلیل تخصصی SOC) فعال شد.", Toast.LENGTH_SHORT).show();
+            } else {
+                userModeManager.setUserMode(UserModeManager.UserMode.SIMPLE);
+                Toast.makeText(this, "حالت ساده (ویژه والدین و سالمندان) فعال شد.", Toast.LENGTH_SHORT).show();
+            }
+            updateTopModeChip();
+            renderActiveTabContent();
+        });
+        topBar.addView(topModeChip);
 
         // دکمه دستیار صوتی
         ImageView voiceBtn = new ImageView(this);
@@ -316,6 +323,48 @@ public class MainActivity extends Activity {
         topBar.addView(voiceBtn);
 
         return topBar;
+    }
+
+    private void updateTopModeChip() {
+        if (topModeChip == null) return;
+        boolean isSimple = userModeManager != null && userModeManager.isSimpleMode();
+        topModeChip.setText(isSimple ? "ساده (والدین)" : "حرفه‌ای (SOC)");
+        topModeChip.setTextColor(Color.parseColor(isSimple ? CyberUiTheme.COLOR_CYAN : CyberUiTheme.COLOR_NEON_GREEN));
+        topModeChip.setTextSize(10);
+        FontHelper.applyMedium(topModeChip);
+        topModeChip.setPadding(CyberUiTheme.dpToPx(this, 10), CyberUiTheme.dpToPx(this, 5), CyberUiTheme.dpToPx(this, 10), CyberUiTheme.dpToPx(this, 5));
+        topModeChip.setBackground(CyberUiTheme.createCardBg(isSimple ? "#131D2E" : "#0F2618", isSimple ? CyberUiTheme.COLOR_CYAN : CyberUiTheme.COLOR_NEON_GREEN, 8));
+        LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        clp.setMargins(CyberUiTheme.dpToPx(this, 6), 0, CyberUiTheme.dpToPx(this, 6), 0);
+        topModeChip.setLayoutParams(clp);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleIncomingIntent(intent);
+    }
+
+    private void handleIncomingIntent(Intent intent) {
+        if (intent == null) return;
+        if ("ir.ricksanchez.separ.ACTION_VERIFY_GOLD_ORDER".equals(intent.getAction())) {
+            String platform = intent.getStringExtra("platform_name");
+            String msg = intent.getStringExtra("raw_message");
+            String phone = intent.getStringExtra("support_phone");
+            GoldOrderAlertHelper.showGoldOrderVerificationDialog(
+                this,
+                new ir.ricksanchez.separ.data.GoldOrderAndCashingGuardian.SuspectedOrderEvent(
+                    platform != null ? platform : "دیجی‌کالا",
+                    msg != null ? msg : "سفارش جدید ثبت شد",
+                    phone != null ? phone : "02161930000",
+                    "",
+                    true
+                )
+            );
+        } else if ("ir.ricksanchez.separ.ACTION_OPEN_BANK_FREEZE".equals(intent.getAction())) {
+            BankEmergencyFreezeDialogHelper.showEmergencyBankFreezeDialog(this);
+        }
     }
 
     private LinearLayout buildBottomNavBar() {
@@ -477,6 +526,49 @@ public class MainActivity extends Activity {
 
         switch (currentTab) {
             case TAB_RADAR:
+                if (userModeManager != null && userModeManager.isSimpleMode()) {
+                    tabContentContainer.addView(SimpleDashboardView.buildView(
+                        this,
+                        hasThreats,
+                        threatsTotal,
+                        new SimpleDashboardView.SimpleDashboardListener() {
+                            @Override
+                            public void onScanClicked() {
+                                performDeepScan();
+                                Toast.makeText(MainActivity.this, "اسکن ساده انجام شد.", Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onVoiceBriefingClicked() {
+                                playVoiceBriefing();
+                            }
+
+                            @Override
+                            public void onEmergencyFreezeClicked() {
+                                BankEmergencyFreezeDialogHelper.showEmergencyBankFreezeDialog(MainActivity.this);
+                            }
+
+                            @Override
+                            public void onEmergencyLockdownClicked() {
+                                triggerEmergencyLockdownProtocol();
+                            }
+
+                            @Override
+                            public void onFataEmergencyClicked() {
+                                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:096380"));
+                                startActivity(intent);
+                            }
+
+                            @Override
+                            public void onSwitchToProModeClicked() {
+                                userModeManager.setUserMode(UserModeManager.UserMode.PRO);
+                                updateTopModeChip();
+                                renderActiveTabContent();
+                            }
+                        }
+                    ));
+                    break;
+                }
                 tabContentContainer.addView(RadarDashboardView.buildView(
                     this,
                     hasThreats,
@@ -502,6 +594,35 @@ public class MainActivity extends Activity {
                         @Override
                         public void onRescueReportClicked() {
                             RescueReportHelper.showRescueReportDialog(MainActivity.this);
+                        }
+
+                        @Override
+                        public void onBankEmergencyFreezeClicked() {
+                            BankEmergencyFreezeDialogHelper.showEmergencyBankFreezeDialog(MainActivity.this);
+                        }
+
+                        @Override
+                        public void onGoldOrderGuardianClicked() {
+                            GoldOrderAlertHelper.showGoldOrderVerificationDialog(
+                                MainActivity.this,
+                                new ir.ricksanchez.separ.data.GoldOrderAndCashingGuardian.SuspectedOrderEvent(
+                                    "دیجی‌کالا (دیده‌بان طلا)",
+                                    "پایش فعال سفارشات طلا، سکه و ووچرهای اعتباری",
+                                    "02161930000",
+                                    "https://www.digikala.com/profile/orders/",
+                                    true
+                                )
+                            );
+                        }
+
+                        @Override
+                        public void onStoryExporterClicked() {
+                            ir.ricksanchez.separ.utils.SecurityStoryExporter.exportAndShareThreatStory(
+                                MainActivity.this,
+                                "تروجان آلبوم یادگاری (Velora)",
+                                "com.velora.cloud",
+                                "سرقت رمز پویا و ارسال پیامک انبوه"
+                            );
                         }
 
                         @Override

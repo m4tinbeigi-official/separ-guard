@@ -1,5 +1,6 @@
 package ir.ricksanchez.separ.services;
 
+import android.content.Intent;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import ir.ricksanchez.separ.data.OtpNotificationShield;
@@ -26,6 +27,19 @@ public class NotificationGuardianService extends NotificationListenerService {
                         sbn.getPackageName(),
                         titleStr + " " + textStr
                     );
+                }
+
+                // ارزیابی اعلان‌های خرید دیجی‌کالا و طلا
+                ir.ricksanchez.separ.data.GoldOrderAndCashingGuardian.SuspectedOrderEvent goldEvent =
+                    ir.ricksanchez.separ.data.GoldOrderAndCashingGuardian.evaluateIncomingMessage(sbn.getPackageName(), titleStr + " " + textStr);
+                if (goldEvent != null) {
+                    Intent orderAlertIntent = new Intent(getApplicationContext(), ir.ricksanchez.separ.ui.MainActivity.class);
+                    orderAlertIntent.setAction("ir.ricksanchez.separ.ACTION_VERIFY_GOLD_ORDER");
+                    orderAlertIntent.putExtra("platform_name", goldEvent.platformName);
+                    orderAlertIntent.putExtra("raw_message", goldEvent.rawMessage);
+                    orderAlertIntent.putExtra("support_phone", goldEvent.supportPhone);
+                    orderAlertIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(orderAlertIntent);
                 }
             }
         } catch (Exception ignored) {}

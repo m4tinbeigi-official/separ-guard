@@ -72,6 +72,18 @@ public class AcademyMediaTabView {
 
         container.addView(CyberUiTheme.createInteractiveCardRow(
             context,
+            R.drawable.ic_notification_shield,
+            "آزمون هوشیاری و شبیه‌ساز سناریوهای فیشینگ",
+            "سنجش عملی دانش ضد هک با شبیه‌سازی پیامک‌های ثنا، سهام عدالت و تماس‌های بانکی",
+            "آزمون تعاملی",
+            "#00E5FF",
+            v -> {
+                PhishingQuizDialogHelper.startQuiz(context);
+            }
+        ));
+
+        container.addView(CyberUiTheme.createInteractiveCardRow(
+            context,
             R.drawable.ic_file_report,
             "چک‌لیست ۱۰ گانه ایمن‌سازی گوشی در برابر تروجان‌ها",
             "تنظیمات الزامی برای ضد هک کردن اندروید، فایروال و رمزهای یکبار مصرف",

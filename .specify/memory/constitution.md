@@ -24,6 +24,24 @@ Continuous background protection is enforced via three decoupled shields:
 ### VI. Commercial Proprietary Governance & Sole Ownership
 Separ Guard is a strictly commercial, closed-source security asset developed and owned exclusively by Rick Sanchez. The software is not open-source, and all source code, algorithms, visual layouts, and threat databases are fully proprietary. No third-party developer names or trademarked brands may be used.
 
+### VII. Anti-Slop, VibeFarsi & Pure Native UI Standards
+1. Strict RTL Layout: Rely strictly on logical direction properties (layoutDirection, start, end, ms, me, ps, pe) with zero hardcoded left/right alignments.
+2. Typography & Zero Em-Dash: Mandatory Vazirmatn font family with letter-spacing strictly zero. Absolute prohibition of em-dashes (—) across all strings, layouts, logs, and comments.
+3. Persian Numerals & Currency: Enforce Persian digits (۰-۹) across all visual counters, dates, and amounts, with currency strictly denoted in Toman (تومان) placed after the value.
+4. Anti-Slop Aesthetic: OLED dark theme (#080B10, #0F141C), neon cyan (#00E5FF), phosphor green (#00E676), danger crimson (#FF1744). Zero cheesy emojis, zero boilerplate placeholding, and razor-sharp functional microcopy.
+
+### VIII. Airplane Mode Persistence & Emergency Card Freeze
+When an account compromise, SMS worm, or banking trojan is detected:
+1. Airplane Mode Lockdown: The infected phone must strictly remain in Airplane Mode. Attackers control remote C2 links and will intercept newly issued SMS OTPs over the internet if the device goes online.
+2. Cross-Device Remediation: Account and card freezing must be performed via Telephone Banking IVR from another telephone or landline.
+3. Universal Bank Hotlines: Built-in offline directory with direct phone numbers and IVR keypad sequences for all 16 major Iranian banks.
+
+### IX. Physical Gold & Marketplace Cashing-Out Defense
+Attackers routinely exploit intercepted OTPs or stored card credentials on e-commerce platforms (Digikala, DigiPay, SnappPay, Milli Gold) to buy physical gold bars, coins, and vouchers:
+1. Real-time interception of marketplace order confirmations and OTP messages.
+2. Instant full-screen confirmation prompt: "Did you place this order yourself?"
+3. Immediate 1-tap cancellation routing and direct 24/7 hotline dispatch (e.g. Digikala 021-61930000) if the user did not authorize the purchase.
+
 ## Architecture and Quality Standards
 
 ### Stack & Platform Requirements

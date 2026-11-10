@@ -117,6 +117,13 @@
             </intent-filter>
         </service>
 
+        <!-- صفحه هشدار قرمز بحرانی جعل هویت بانک و فیشینگ پیامکی -->
+        <activity
+            android:name=".ui.EmergencySmsAlertActivity"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
     </application>
 
 </manifest>

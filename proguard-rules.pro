@@ -25,6 +25,11 @@
     public void onCreate(android.os.Bundle);
 }
 
+-keep public class ir.ricksanchez.separ.ui.EmergencySmsAlertActivity {
+    public <init>();
+    public void onCreate(android.os.Bundle);
+}
+
 -keep public class * extends android.app.Service
 -keep public class * extends android.content.BroadcastReceiver
 -keep public class * extends android.appwidget.AppWidgetProvider

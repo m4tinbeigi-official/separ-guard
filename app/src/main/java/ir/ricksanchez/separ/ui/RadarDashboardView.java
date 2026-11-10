@@ -23,6 +23,9 @@ public class RadarDashboardView {
         void onVoiceRequested();
         void onEmergencyKillSwitchClicked();
         void onRescueReportClicked();
+        void onBankEmergencyFreezeClicked();
+        void onGoldOrderGuardianClicked();
+        void onStoryExporterClicked();
         void onFeaturesAndChangelogClicked();
         void onDailyBulletinClicked();
         void onSocialSideloadBlockerClicked();
@@ -246,6 +249,42 @@ public class RadarDashboardView {
             "#00E5FF",
             v -> {
                 if (listener != null) listener.onFeaturesAndChangelogClicked();
+            }
+        ));
+
+        container.addView(CyberUiTheme.createInteractiveCardRow(
+            context,
+            R.drawable.ic_bank,
+            "هاب سوزاندن فوری کارت‌های بانکی (۱۶ بانک)",
+            "تلفنبانک شبانه‌روزی و کلیدهای IVR توقیف حساب (بدون خروج از حالت پرواز)",
+            "سوزاندن کارت",
+            CyberUiTheme.COLOR_CRIMSON,
+            v -> {
+                if (listener != null) listener.onBankEmergencyFreezeClicked();
+            }
+        ));
+
+        container.addView(CyberUiTheme.createInteractiveCardRow(
+            context,
+            R.drawable.ic_receipt,
+            "دیده‌بان خرید طلای فیزیکی و فاکتور دیجی‌کالا",
+            "جلوگیری از نقد کردن موجودی و خرید طلا/سکه در مارکت‌پلیس‌ها توسط هکر",
+            "ضد نقد کردن",
+            "#FFD600",
+            v -> {
+                if (listener != null) listener.onGoldOrderGuardianClicked();
+            }
+        ));
+
+        container.addView(CyberUiTheme.createInteractiveCardRow(
+            context,
+            R.drawable.ic_file_report,
+            "تولید پوستر و استوری هشدار بدافزار",
+            "ساخت تصویر باکیفیت ۱۰۸۰x۱۹۲۰ جهت اطلاع‌رسانی به دوستان و استوری اینستاگرام",
+            "اشتراک ویروسی",
+            "#00E676",
+            v -> {
+                if (listener != null) listener.onStoryExporterClicked();
             }
         ));
 
