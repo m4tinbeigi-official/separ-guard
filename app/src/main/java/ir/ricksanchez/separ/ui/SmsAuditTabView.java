@@ -150,18 +150,19 @@ public class SmsAuditTabView {
 
         TextView aTitle = new TextView(context);
         aTitle.setText(unapprovedCount > 0
-            ? CyberUiTheme.toPersianDigits(String.valueOf(unapprovedCount)) + " برنامه دارای دسترسی حساس به پیامک و صفحه"
-            : "محافظت فعال: کلیه برنامه‌های دارای دسترسی در لیست سفید تایید شده‌اند");
+            ? CyberUiTheme.toPersianDigits(String.valueOf(unapprovedCount)) + " برنامه هم‌اکنون دسترسی فعال به پیامک‌های شما دارند"
+            : "محافظت فعال: هیچ برنامه تاییدنشده‌ای دسترسی فعال به پیامک ندارد");
         aTitle.setTextColor(Color.parseColor(unapprovedCount > 0 ? CyberUiTheme.COLOR_CRIMSON : CyberUiTheme.COLOR_NEON_GREEN));
         aTitle.setTextSize(14);
         FontHelper.applyBold(aTitle);
         auditCard.addView(aTitle);
 
         TextView aDesc = new TextView(context);
-        aDesc.setText("بیش از ۹۰٪ سرقت‌های بانکی از طریق شنود پیامک‌های رمز پویا انجام می‌شود. شما می‌توانید با ۱ کلیک برنامه را حذف یا دسترسی آن را سلب کنید:");
+        aDesc.setText("فقط برنامه‌هایی نمایش داده می‌شوند که همین حالا مجوز پیامک به آن‌ها اعطا شده است (برنامه‌هایی که صرفاً درخواست داده‌اند ولی تایید نشده‌اند، در این لیست نیستند):");
         aDesc.setTextColor(Color.parseColor(CyberUiTheme.COLOR_TEXT_MUTED));
         aDesc.setTextSize(11);
         FontHelper.applyRegular(aDesc);
+        aDesc.setLineSpacing(CyberUiTheme.dpToPx(context, 4), 1.25f);
         aDesc.setPadding(0, CyberUiTheme.dpToPx(context, 4), 0, CyberUiTheme.dpToPx(context, 10));
         auditCard.addView(aDesc);
 
