@@ -20,6 +20,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import ir.ricksanchez.separ.SeparApp;
+import ir.ricksanchez.separ.ui.FontHelper;
 
 /**
  * پوسته مسدودساز اضطراری تمام‌صفحه به رنگ قرمز زرشکی
@@ -102,7 +103,7 @@ public class AlertOverlayService extends Service {
         titleView.setText(title != null ? title : "⚠️ هشدار فوری امنیتی سپر");
         titleView.setTextSize(22);
         titleView.setTextColor(Color.WHITE);
-        titleView.setTypeface(null, Typeface.BOLD);
+        FontHelper.applyBold(titleView);
         titleView.setGravity(Gravity.CENTER);
         titleView.setPadding(0, 0, 0, 20);
         layout.addView(titleView);
@@ -113,6 +114,7 @@ public class AlertOverlayService extends Service {
         msgView.setText(finalMsg);
         msgView.setTextSize(15);
         msgView.setTextColor(Color.WHITE);
+        FontHelper.applyRegular(msgView);
         msgView.setGravity(Gravity.CENTER);
         msgView.setLineSpacing(10f, 1.2f);
         msgView.setPadding(0, 0, 0, 40);
@@ -212,7 +214,7 @@ public class AlertOverlayService extends Service {
         btn.setText(text);
         btn.setTextColor(textColor);
         btn.setTextSize(14);
-        btn.setTypeface(null, Typeface.BOLD);
+        FontHelper.applyMedium(btn);
 
         GradientDrawable bg = new GradientDrawable();
         bg.setColor(Color.parseColor(bgColor));

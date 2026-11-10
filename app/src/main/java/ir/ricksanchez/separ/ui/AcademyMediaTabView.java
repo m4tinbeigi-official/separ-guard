@@ -2,7 +2,6 @@ package ir.ricksanchez.separ.ui;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -13,6 +12,7 @@ import java.util.List;
 
 /**
  * رندر تب آکادمی ویدیوهای آپارات و تالار حامیان رسانه‌ای و اینفلوئنسرها
+ * مجهز به فونت فارسی وزیرمتن (Vazirmatn)
  */
 public class AcademyMediaTabView {
 
@@ -27,12 +27,7 @@ public class AcademyMediaTabView {
         container.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         // ۱. بخش ویدیوهای آموزشی در آپارات
-        TextView vidHeader = new TextView(context);
-        vidHeader.setText("🎬 ویدیوهای آموزشی امنیت و ضد هک در آپارات (اینترنت نیم‌بها):");
-        vidHeader.setTextSize(13);
-        vidHeader.setTextColor(Color.parseColor(CyberUiTheme.COLOR_TEXT_PRIMARY));
-        vidHeader.setTypeface(null, Typeface.BOLD);
-        vidHeader.setPadding(0, 4, 0, 12);
+        TextView vidHeader = CyberUiTheme.createSectionTitle(context, "🎬 ویدیوهای آموزشی امنیت و ضد هک در آپارات (اینترنت نیم‌بها):");
         container.addView(vidHeader);
 
         List<VideoTutorialRepository.VideoTutorial> tutorials = VideoTutorialRepository.getAllTutorials();
@@ -49,13 +44,14 @@ public class AcademyMediaTabView {
             title.setText(v.icon + " " + v.titleFa);
             title.setTextColor(Color.parseColor(CyberUiTheme.COLOR_CYAN));
             title.setTextSize(13);
-            title.setTypeface(null, Typeface.BOLD);
+            FontHelper.applyBold(title);
             card.addView(title);
 
             TextView desc = new TextView(context);
             desc.setText(v.descriptionFa + " (" + v.durationFa + " • " + v.categoryFa + ")");
             desc.setTextColor(Color.parseColor(CyberUiTheme.COLOR_TEXT_MUTED));
             desc.setTextSize(11);
+            FontHelper.applyRegular(desc);
             desc.setPadding(0, 4, 0, 10);
             card.addView(desc);
 
@@ -69,12 +65,8 @@ public class AcademyMediaTabView {
         }
 
         // ۲. تالار حامیان رسانه‌ای و اینفلوئنسرها
-        TextView partHeader = new TextView(context);
-        partHeader.setText("🏆 تالار حامیان رسانه‌ای، خبرگزاری‌ها و اینفلوئنسرها:");
-        partHeader.setTextSize(13);
+        TextView partHeader = CyberUiTheme.createSectionTitle(context, "🏆 تالار حامیان رسانه‌ای، خبرگزاری‌ها و اینفلوئنسرها:");
         partHeader.setTextColor(Color.parseColor(CyberUiTheme.COLOR_GOLD));
-        partHeader.setTypeface(null, Typeface.BOLD);
-        partHeader.setPadding(0, 16, 0, 12);
         container.addView(partHeader);
 
         List<MediaPartnerRepository.PartnerInfo> partners = MediaPartnerRepository.getOfficialPartners();
@@ -91,13 +83,14 @@ public class AcademyMediaTabView {
             pName.setText(p.nameFa + " (" + p.typeFa + ")");
             pName.setTextColor(Color.parseColor(p.badgeColorHex));
             pName.setTextSize(13);
-            pName.setTypeface(null, Typeface.BOLD);
+            FontHelper.applyBold(pName);
             pCard.addView(pName);
 
             TextView pRole = new TextView(context);
             pRole.setText(p.roleDescriptionFa);
             pRole.setTextColor(Color.parseColor(CyberUiTheme.COLOR_TEXT_MUTED));
             pRole.setTextSize(11);
+            FontHelper.applyRegular(pRole);
             pRole.setPadding(0, 4, 0, 8);
             pCard.addView(pRole);
 

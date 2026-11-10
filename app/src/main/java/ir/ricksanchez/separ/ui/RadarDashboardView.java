@@ -2,7 +2,6 @@ package ir.ricksanchez.separ.ui;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +12,7 @@ import ir.ricksanchez.separ.data.RescueLedgerRepository;
 
 /**
  * رندر تب رادار امنیت و داشبورد مرکزی (Cyber Radar Dashboard)
- * مجهز به رادار مدور، تلمتری حملات دفع‌شده و جعبه‌ابزار پیشرفته دفاع سایبری
+ * مجهز به فونت فارسی وزیرمتن (Vazirmatn)، رادار مدور، تلمتری حملات دفع‌شده و جعبه‌ابزار پیشرفته دفاع سایبری
  */
 public class RadarDashboardView {
 
@@ -85,7 +84,7 @@ public class RadarDashboardView {
         statusTitle.setText(hasThreats ? "خطر شناسایی شد!" : "سیستم کاملاً ایمن است");
         statusTitle.setTextSize(16);
         statusTitle.setTextColor(Color.WHITE);
-        statusTitle.setTypeface(null, Typeface.BOLD);
+        FontHelper.applyBold(statusTitle);
         statusTitle.setGravity(Gravity.CENTER);
         statusTitle.setPadding(0, 6, 0, 2);
         innerRadar.addView(statusTitle);
@@ -94,6 +93,7 @@ public class RadarDashboardView {
         subTitle.setText(hasThreats ? "لمس برای پاکسازی فوری" : "لمس برای رصد و اسکن عمیق");
         subTitle.setTextSize(11);
         subTitle.setTextColor(Color.parseColor(hasThreats ? "#FF8A80" : "#A7F3D0"));
+        FontHelper.applyRegular(subTitle);
         subTitle.setGravity(Gravity.CENTER);
         innerRadar.addView(subTitle);
 
@@ -111,12 +111,7 @@ public class RadarDashboardView {
         container.addView(voiceBtn);
 
         // ۴. بخش جعبه‌ابزار پیشرفته امنیتی
-        TextView quickHeader = new TextView(context);
-        quickHeader.setText("⚡ ابزارهای فوریت‌های امنیتی و واکنش سریع:");
-        quickHeader.setTextSize(13);
-        quickHeader.setTextColor(Color.parseColor(CyberUiTheme.COLOR_TEXT_PRIMARY));
-        quickHeader.setTypeface(null, Typeface.BOLD);
-        quickHeader.setPadding(0, 20, 0, 10);
+        TextView quickHeader = CyberUiTheme.createSectionTitle(context, "⚡ ابزارهای فوریت‌های امنیتی و واکنش سریع:");
         container.addView(quickHeader);
 
         // سطر ۱: فوریت‌ها

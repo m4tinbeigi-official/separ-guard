@@ -134,13 +134,14 @@ public class MainActivity extends Activity {
         title.setText("🛡️ سپر ضد هک");
         title.setTextSize(22);
         title.setTextColor(Color.WHITE);
-        title.setTypeface(null, Typeface.BOLD);
+        FontHelper.applyBold(title);
         brandCol.addView(title);
 
         TextView subtitle = new TextView(this);
         subtitle.setText("۱۰۰٪ رایگان و عام‌المنفعه • برنامه‌نویس: ریک سانچز");
         subtitle.setTextSize(11);
         subtitle.setTextColor(Color.parseColor(CyberUiTheme.COLOR_NEON_GREEN));
+        FontHelper.applyRegular(subtitle);
         brandCol.addView(subtitle);
         topBar.addView(brandCol);
 
@@ -149,6 +150,7 @@ public class MainActivity extends Activity {
         quickVoice.setText("🔊 راهنما");
         quickVoice.setTextColor(Color.WHITE);
         quickVoice.setTextSize(11);
+        FontHelper.applyMedium(quickVoice);
         quickVoice.setBackground(CyberUiTheme.createCardBg("#1E293B", CyberUiTheme.COLOR_CYAN, 12));
         quickVoice.setPadding(16, 8, 16, 8);
         quickVoice.setOnClickListener(v -> playVoiceBriefing());
@@ -187,7 +189,7 @@ public class MainActivity extends Activity {
         Button btn = new Button(this);
         btn.setText(label);
         btn.setTextSize(12);
-        btn.setTypeface(null, Typeface.BOLD);
+        FontHelper.applyMedium(btn);
 
         boolean isActive = (currentTab == tabIndex);
         btn.setTextColor(Color.parseColor(isActive ? "#FFFFFF" : CyberUiTheme.COLOR_TEXT_MUTED));

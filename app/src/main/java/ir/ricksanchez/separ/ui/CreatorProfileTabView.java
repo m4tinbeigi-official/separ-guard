@@ -3,7 +3,6 @@ package ir.ricksanchez.separ.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.net.Uri;
 import android.view.Gravity;
 import android.view.ViewGroup;
@@ -14,7 +13,7 @@ import ir.ricksanchez.separ.utils.PrivacyPolicyHelper;
 
 /**
  * صفحه معرفی رسمی سازنده و برنامه‌نویس نرم‌افزار «سپر»: ریک سانچز (Rick Sanchez)
- * بیانیه خدمت عام‌المنفعه، تعهد رایگان بودن دائمی و راه‌های ارتباطی رسمی
+ * مجهز به تایپوگرافی وزیرمتن (Vazirmatn)، بیانیه خدمت عام‌المنفعه و راه‌های ارتباطی
  */
 public class CreatorProfileTabView {
 
@@ -44,7 +43,7 @@ public class CreatorProfileTabView {
         devBadge.setText("معمار و برنامه‌نویس نرم‌افزار");
         devBadge.setTextColor(Color.parseColor(CyberUiTheme.COLOR_NEON_GREEN));
         devBadge.setTextSize(12);
-        devBadge.setTypeface(null, Typeface.BOLD);
+        FontHelper.applyBold(devBadge);
         devBadge.setGravity(Gravity.CENTER);
         idCard.addView(devBadge);
 
@@ -52,7 +51,7 @@ public class CreatorProfileTabView {
         devName.setText("ریک سانچز (Rick Sanchez)");
         devName.setTextColor(Color.WHITE);
         devName.setTextSize(22);
-        devName.setTypeface(null, Typeface.BOLD);
+        FontHelper.applyBold(devName);
         devName.setGravity(Gravity.CENTER);
         devName.setPadding(0, 6, 0, 4);
         idCard.addView(devName);
@@ -61,6 +60,7 @@ public class CreatorProfileTabView {
         devRole.setText("تحلیلگر ارشد امنیت سایبری و مهندسی معکوس بدافزارها");
         devRole.setTextColor(Color.parseColor(CyberUiTheme.COLOR_CYAN));
         devRole.setTextSize(12);
+        FontHelper.applyRegular(devRole);
         devRole.setGravity(Gravity.CENTER);
         idCard.addView(devRole);
 
@@ -79,7 +79,7 @@ public class CreatorProfileTabView {
         missionTitle.setText("💎 ۱۰۰٪ رایگان، بدون تبلیغات و وقف امنیت جامعه");
         missionTitle.setTextColor(Color.parseColor(CyberUiTheme.COLOR_CYAN));
         missionTitle.setTextSize(13);
-        missionTitle.setTypeface(null, Typeface.BOLD);
+        FontHelper.applyBold(missionTitle);
         missionCard.addView(missionTitle);
 
         TextView missionDesc = new TextView(context);
@@ -91,6 +91,7 @@ public class CreatorProfileTabView {
         );
         missionDesc.setTextColor(Color.parseColor(CyberUiTheme.COLOR_TEXT_PRIMARY));
         missionDesc.setTextSize(11);
+        FontHelper.applyRegular(missionDesc);
         missionDesc.setLineSpacing(6f, 1.25f);
         missionDesc.setPadding(0, 8, 0, 0);
         missionCard.addView(missionDesc);
@@ -98,12 +99,7 @@ public class CreatorProfileTabView {
         container.addView(missionCard);
 
         // ۳. کانال‌ها و راه‌های ارتباطی رسمی با سازنده
-        TextView linksHeader = new TextView(context);
-        linksHeader.setText("🌐 راه‌های ارتباطی رسمی با ریک سانچز:");
-        linksHeader.setTextSize(13);
-        linksHeader.setTextColor(Color.parseColor(CyberUiTheme.COLOR_TEXT_PRIMARY));
-        linksHeader.setTypeface(null, Typeface.BOLD);
-        linksHeader.setPadding(0, 4, 0, 10);
+        TextView linksHeader = CyberUiTheme.createSectionTitle(context, "🌐 راه‌های ارتباطی رسمی با ریک سانچز:");
         container.addView(linksHeader);
 
         // کانال تلگرام

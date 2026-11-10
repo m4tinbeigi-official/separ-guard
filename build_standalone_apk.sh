@@ -29,6 +29,7 @@ echo "=== ۲. پیوند APK و تزریق مشخصات سازگاری نسخه 
 "$AAPT2" link \
     -I "$PLATFORM" \
     --manifest "$PROJECT_DIR/app/src/main/AndroidManifest.xml" \
+    -A "$PROJECT_DIR/app/src/main/assets" \
     --min-sdk-version 26 \
     --target-sdk-version 35 \
     --version-code 1 \

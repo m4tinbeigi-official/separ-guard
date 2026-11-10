@@ -2,7 +2,6 @@ package ir.ricksanchez.separ.ui;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -13,6 +12,7 @@ import java.util.List;
 
 /**
  * رندر تب ممیزی دسترسی به پیامک‌ها، ضبط صفحه و بدافزارهای استتاریافته (SMS & Apps SOC)
+ * مجهز به فونت فارسی وزیرمتن (Vazirmatn)
  */
 public class SmsAuditTabView {
 
@@ -45,7 +45,7 @@ public class SmsAuditTabView {
             tTitle.setText("🔴 " + threats.size() + " بدافزار سارق و استتاریافته شناسایی شد!");
             tTitle.setTextColor(Color.parseColor(CyberUiTheme.COLOR_CRIMSON));
             tTitle.setTextSize(14);
-            tTitle.setTypeface(null, Typeface.BOLD);
+            FontHelper.applyBold(tTitle);
             threatCard.addView(tTitle);
 
             for (ThreatPackageRegistry.ThreatResult t : threats) {
@@ -53,6 +53,7 @@ public class SmsAuditTabView {
                 tItem.setText("• " + t.threatName + "\n  " + t.description);
                 tItem.setTextColor(Color.WHITE);
                 tItem.setTextSize(12);
+                FontHelper.applyRegular(tItem);
                 tItem.setPadding(0, 6, 0, 8);
                 threatCard.addView(tItem);
 
@@ -87,13 +88,14 @@ public class SmsAuditTabView {
             : "🔒 محافظت فعال: هیچ برنامه ناشناسی به پیامک‌ها دسترسی ندارد");
         aTitle.setTextColor(Color.parseColor(unapprovedCount > 0 ? CyberUiTheme.COLOR_CRIMSON : CyberUiTheme.COLOR_NEON_GREEN));
         aTitle.setTextSize(14);
-        aTitle.setTypeface(null, Typeface.BOLD);
+        FontHelper.applyBold(aTitle);
         auditCard.addView(aTitle);
 
         TextView aDesc = new TextView(context);
         aDesc.setText("بیش از ۹۰٪ حملات بانکی از شنود پیامک‌های رمز پویا شروع می‌شوند. برنامه‌های زیر دسترسی دارند:");
         aDesc.setTextColor(Color.parseColor(CyberUiTheme.COLOR_TEXT_MUTED));
         aDesc.setTextSize(11);
+        FontHelper.applyRegular(aDesc);
         aDesc.setPadding(0, 4, 0, 12);
         auditCard.addView(aDesc);
 
@@ -111,13 +113,14 @@ public class SmsAuditTabView {
                 nView.setText("• " + item.appName + " (" + item.packageName + ")");
                 nView.setTextColor(Color.WHITE);
                 nView.setTextSize(13);
-                nView.setTypeface(null, Typeface.BOLD);
+                FontHelper.applyBold(nView);
                 row.addView(nView);
 
                 TextView dView = new TextView(context);
                 dView.setText(item.description);
                 dView.setTextColor(Color.parseColor(CyberUiTheme.COLOR_AMBER));
                 dView.setTextSize(11);
+                FontHelper.applyRegular(dView);
                 dView.setPadding(0, 2, 0, 6);
                 row.addView(dView);
 
