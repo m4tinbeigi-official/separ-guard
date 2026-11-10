@@ -307,10 +307,10 @@ public class MainActivity extends Activity {
     private LinearLayout buildBottomNavBar() {
         LinearLayout bar = new LinearLayout(this);
         bar.setOrientation(LinearLayout.VERTICAL);
-        bar.setBackgroundColor(Color.parseColor(CyberUiTheme.COLOR_BOTTOM_BAR_BG));
+        bar.setBackgroundColor(Color.parseColor("#0A0E17"));
 
         View divider = new View(this);
-        divider.setBackgroundColor(Color.parseColor(CyberUiTheme.COLOR_BOTTOM_BAR_BORDER));
+        divider.setBackgroundColor(Color.parseColor("#1B2638"));
         divider.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1));
         bar.addView(divider);
 
@@ -318,9 +318,9 @@ public class MainActivity extends Activity {
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER);
         row.setPadding(
-            CyberUiTheme.dpToPx(this, 4),
+            CyberUiTheme.dpToPx(this, 2),
             CyberUiTheme.dpToPx(this, 6),
-            CyberUiTheme.dpToPx(this, 4),
+            CyberUiTheme.dpToPx(this, 2),
             initialNavBarHeight + CyberUiTheme.dpToPx(this, 6)
         );
         row.setLayoutParams(new LinearLayout.LayoutParams(
@@ -349,42 +349,61 @@ public class MainActivity extends Activity {
 
         boolean isActive = (currentTab == tabIndex);
 
-        // کانتینر آیکون (Pill Container)
+        // کانتینر بالایی آیکون با کپسول نئونی مدرن
         LinearLayout iconBox = new LinearLayout(this);
         iconBox.setGravity(Gravity.CENTER);
-        int boxW = CyberUiTheme.dpToPx(this, 44);
-        int boxH = CyberUiTheme.dpToPx(this, 26);
+        int boxW = CyberUiTheme.dpToPx(this, 48);
+        int boxH = CyberUiTheme.dpToPx(this, 28);
         iconBox.setLayoutParams(new LinearLayout.LayoutParams(boxW, boxH));
         if (isActive) {
             GradientDrawable pill = new GradientDrawable();
-            pill.setColor(Color.parseColor("#152238"));
-            pill.setCornerRadius(CyberUiTheme.dpToPx(this, 13));
+            pill.setColor(Color.parseColor("#122538"));
+            pill.setCornerRadius(CyberUiTheme.dpToPx(this, 14));
+            pill.setStroke(1, Color.parseColor(CyberUiTheme.COLOR_CYAN));
             iconBox.setBackground(pill);
         }
 
         ImageView icon = new ImageView(this);
         icon.setImageResource(iconResId);
-        int iconSize = CyberUiTheme.dpToPx(this, 18);
+        int iconSize = CyberUiTheme.dpToPx(this, 20);
         icon.setLayoutParams(new LinearLayout.LayoutParams(iconSize, iconSize));
         if (isActive) {
             icon.setColorFilter(Color.parseColor(CyberUiTheme.COLOR_CYAN));
         } else {
-            icon.setColorFilter(Color.parseColor(CyberUiTheme.COLOR_TEXT_DIM));
+            icon.setColorFilter(Color.parseColor("#64748B"));
         }
         iconBox.addView(icon);
         item.addView(iconBox);
 
+        // متن تایتل با فونت شفاف و خوانای وزیرمتن
         TextView text = new TextView(this);
         text.setText(label);
-        text.setTextSize(9);
-        text.setTextColor(Color.parseColor(isActive ? "#FFFFFF" : CyberUiTheme.COLOR_TEXT_DIM));
+        text.setTextSize(11);
+        text.setSingleLine(true);
+        text.setGravity(Gravity.CENTER);
+        text.setTextColor(Color.parseColor(isActive ? CyberUiTheme.COLOR_CYAN : "#94A3B8"));
         if (isActive) {
             FontHelper.applyBold(text);
         } else {
-            FontHelper.applyRegular(text);
+            FontHelper.applyMedium(text);
         }
-        text.setPadding(0, CyberUiTheme.dpToPx(this, 2), 0, 0);
+        text.setPadding(0, CyberUiTheme.dpToPx(this, 3), 0, 0);
         item.addView(text);
+
+        // نقطه نشانگر تب فعال
+        if (isActive) {
+            View dot = new View(this);
+            GradientDrawable dotDrawable = new GradientDrawable();
+            dotDrawable.setColor(Color.parseColor(CyberUiTheme.COLOR_CYAN));
+            dotDrawable.setCornerRadius(CyberUiTheme.dpToPx(this, 2));
+            dot.setBackground(dotDrawable);
+            int dotW = CyberUiTheme.dpToPx(this, 12);
+            int dotH = CyberUiTheme.dpToPx(this, 2);
+            LinearLayout.LayoutParams dlp = new LinearLayout.LayoutParams(dotW, dotH);
+            dlp.setMargins(0, CyberUiTheme.dpToPx(this, 2), 0, 0);
+            dot.setLayoutParams(dlp);
+            item.addView(dot);
+        }
 
         item.setOnClickListener(v -> {
             if (currentTab != tabIndex) {
@@ -403,7 +422,7 @@ public class MainActivity extends Activity {
         bottomNavBar.removeAllViews();
 
         View divider = new View(this);
-        divider.setBackgroundColor(Color.parseColor(CyberUiTheme.COLOR_BOTTOM_BAR_BORDER));
+        divider.setBackgroundColor(Color.parseColor("#1B2638"));
         divider.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1));
         bottomNavBar.addView(divider);
 
@@ -411,9 +430,9 @@ public class MainActivity extends Activity {
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER);
         row.setPadding(
-            CyberUiTheme.dpToPx(this, 4),
+            CyberUiTheme.dpToPx(this, 2),
             CyberUiTheme.dpToPx(this, 6),
-            CyberUiTheme.dpToPx(this, 4),
+            CyberUiTheme.dpToPx(this, 2),
             initialNavBarHeight + CyberUiTheme.dpToPx(this, 6)
         );
         row.setLayoutParams(new LinearLayout.LayoutParams(
