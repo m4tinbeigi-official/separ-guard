@@ -297,6 +297,37 @@ public class SecuritySettingsTabView {
 
         container.addView(policyCard);
 
+        // کارت شناسنامه و کاتالوگ جامع امکانات سپر
+        LinearLayout featCard = new LinearLayout(context);
+        featCard.setOrientation(LinearLayout.VERTICAL);
+        int fp = CyberUiTheme.dpToPx(context, 16);
+        featCard.setPadding(fp, fp, fp, fp);
+        featCard.setBackground(CyberUiTheme.createCardBg("#0D1726", CyberUiTheme.COLOR_CYAN, 16));
+        LinearLayout.LayoutParams flp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        flp.setMargins(0, 0, 0, CyberUiTheme.dpToPx(context, 20));
+        featCard.setLayoutParams(flp);
+
+        TextView featTitle = new TextView(context);
+        featTitle.setText("شناسنامه جامع تمامی قابلیت‌های پیاده‌سازی‌شده در سپر");
+        featTitle.setTextColor(Color.parseColor(CyberUiTheme.COLOR_CYAN));
+        featTitle.setTextSize(13.5f);
+        FontHelper.applyBold(featTitle);
+        featCard.addView(featTitle);
+
+        TextView featDesc = new TextView(context);
+        featDesc.setText("مشاهده کاتالوگ کامل تمام ابزارهای دفاعی، سپرهای بانکی، شکارچی تروجان‌ها و تاریخچه نسخه‌ها");
+        featDesc.setTextColor(Color.parseColor("#94A3B8"));
+        featDesc.setTextSize(11);
+        FontHelper.applyRegular(featDesc);
+        featDesc.setPadding(0, CyberUiTheme.dpToPx(context, 4), 0, CyberUiTheme.dpToPx(context, 10));
+        featCard.addView(featDesc);
+
+        Button btnOpenFeat = CyberUiTheme.createCyberButton(context, "مشاهده کاتالوگ کامل امکانات سپر", "#00E5FF", "#080B10", 12);
+        btnOpenFeat.setOnClickListener(v -> FeaturesAndChangelogDialogHelper.showFeaturesAndChangelogDialog(context));
+        featCard.addView(btnOpenFeat);
+
+        container.addView(featCard);
+
         return container;
     }
 
