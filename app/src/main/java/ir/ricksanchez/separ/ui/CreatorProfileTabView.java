@@ -3,10 +3,12 @@ package ir.ricksanchez.separ.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import ir.ricksanchez.separ.R;
@@ -14,7 +16,7 @@ import ir.ricksanchez.separ.utils.PrivacyPolicyHelper;
 
 /**
  * صفحه معرفی رسمی سازنده و برنامه‌نویس نرم‌افزار «سپر»: ریک سانچز (Rick Sanchez)
- * طراحی دارک مود درجه یک بدون استفاده از اموجی، مجهز به وکتورهای تمیز و تایپوگرافی وزیرمتن
+ * مجهز به تصویر پرتره رسمی سازنده، تایپوگرافی وزیرمتن و لینک‌های ارتباط مستقیم
  */
 public class CreatorProfileTabView {
 
@@ -30,28 +32,32 @@ public class CreatorProfileTabView {
         container.setOrientation(LinearLayout.VERTICAL);
         container.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        // ۱. کارت شناسنامه و هویت توسعه‌دهنده
+        // ۱. کارت شناسنامه و پرتره رسمی توسعه‌دهنده
         LinearLayout idCard = new LinearLayout(context);
         idCard.setOrientation(LinearLayout.VERTICAL);
         idCard.setGravity(Gravity.CENTER);
-        idCard.setPadding(24, 28, 24, 28);
-        idCard.setBackground(CyberUiTheme.createCardBg("#111827", CyberUiTheme.COLOR_NEON_GREEN, 22));
+        int p = CyberUiTheme.dpToPx(context, 24);
+        idCard.setPadding(p, p, p, p);
+        idCard.setBackground(CyberUiTheme.createCardBg("#0F172A", CyberUiTheme.COLOR_NEON_GREEN, 24));
         LinearLayout.LayoutParams idLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        idLp.setMargins(0, 0, 0, 16);
+        idLp.setMargins(0, 0, 0, CyberUiTheme.dpToPx(context, 16));
         idCard.setLayoutParams(idLp);
 
-        // نشان گرافیکی حروف اختصاری سازنده (RS)
-        TextView avatarBadge = new TextView(context);
-        avatarBadge.setText("RS");
-        avatarBadge.setTextSize(20);
-        avatarBadge.setTextColor(Color.WHITE);
-        FontHelper.applyBold(avatarBadge);
-        avatarBadge.setGravity(Gravity.CENTER);
-        int avatarSizePx = 54;
-        LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(avatarSizePx, avatarSizePx);
-        avatarBadge.setLayoutParams(alp);
-        avatarBadge.setBackground(CyberUiTheme.createOvalBg("#1E293B", CyberUiTheme.COLOR_NEON_GREEN, 2));
-        idCard.addView(avatarBadge);
+        // تصویر پرتره رسمی ریک سانچز
+        LinearLayout avatarRing = new LinearLayout(context);
+        avatarRing.setGravity(Gravity.CENTER);
+        int ringSize = CyberUiTheme.dpToPx(context, 86);
+        LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(ringSize, ringSize);
+        avatarRing.setLayoutParams(alp);
+        avatarRing.setBackground(CyberUiTheme.createOvalBg("#1E293B", CyberUiTheme.COLOR_NEON_GREEN, 3));
+
+        ImageView avatarImg = new ImageView(context);
+        avatarImg.setImageResource(R.drawable.rick_sanchez);
+        int imgSize = CyberUiTheme.dpToPx(context, 80);
+        avatarImg.setLayoutParams(new LinearLayout.LayoutParams(imgSize, imgSize));
+        avatarImg.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        avatarRing.addView(avatarImg);
+        idCard.addView(avatarRing);
 
         TextView devName = new TextView(context);
         devName.setText("ریک سانچز (Rick Sanchez)");
@@ -59,11 +65,11 @@ public class CreatorProfileTabView {
         devName.setTextSize(20);
         FontHelper.applyBold(devName);
         devName.setGravity(Gravity.CENTER);
-        devName.setPadding(0, 12, 0, 4);
+        devName.setPadding(0, CyberUiTheme.dpToPx(context, 12), 0, CyberUiTheme.dpToPx(context, 4));
         idCard.addView(devName);
 
         TextView devRole = new TextView(context);
-        devRole.setText("معمار ارشد امنیت سایبری و مهندسی معکوس بدافزارها");
+        devRole.setText("معمار ارشد امنیت سایبری، مهندسی معکوس و هوش مصنوعی");
         devRole.setTextColor(Color.parseColor(CyberUiTheme.COLOR_CYAN));
         devRole.setTextSize(12);
         FontHelper.applyRegular(devRole);
@@ -75,10 +81,11 @@ public class CreatorProfileTabView {
         // ۲. بیانیه نرم‌افزار عام‌المنفعه و ۱۰۰٪ رایگان
         LinearLayout missionCard = new LinearLayout(context);
         missionCard.setOrientation(LinearLayout.VERTICAL);
-        missionCard.setPadding(20, 18, 20, 18);
+        int mp = CyberUiTheme.dpToPx(context, 18);
+        missionCard.setPadding(mp, mp, mp, mp);
         missionCard.setBackground(CyberUiTheme.createCardBg("#131D2C", CyberUiTheme.COLOR_CYAN, 18));
         LinearLayout.LayoutParams mlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        mlp.setMargins(0, 0, 0, 16);
+        mlp.setMargins(0, 0, 0, CyberUiTheme.dpToPx(context, 16));
         missionCard.setLayoutParams(mlp);
 
         TextView missionTitle = new TextView(context);
@@ -98,8 +105,8 @@ public class CreatorProfileTabView {
         missionDesc.setTextColor(Color.parseColor(CyberUiTheme.COLOR_TEXT_PRIMARY));
         missionDesc.setTextSize(11);
         FontHelper.applyRegular(missionDesc);
-        missionDesc.setLineSpacing(6f, 1.25f);
-        missionDesc.setPadding(0, 8, 0, 0);
+        missionDesc.setLineSpacing(CyberUiTheme.dpToPx(context, 4), 1.25f);
+        missionDesc.setPadding(0, CyberUiTheme.dpToPx(context, 8), 0, 0);
         missionCard.addView(missionDesc);
 
         container.addView(missionCard);

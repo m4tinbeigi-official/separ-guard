@@ -2,8 +2,12 @@ package ir.ricksanchez.separ.ui;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
+import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import ir.ricksanchez.separ.R;
@@ -13,7 +17,7 @@ import java.util.List;
 
 /**
  * رندر تب آکادمی ویدیوهای آپارات و تالار حامیان رسانه‌ای و اینفلوئنسرها
- * طراحی دارک مود درجه یک بدون استفاده از اموجی، مجهز به وکتورهای تمیز و تایپوگرافی وزیرمتن
+ * مجهز به تصاویر پروفایل واقعی حامیان، دکمه‌های مستقیم شبکه‌های اجتماعی و تایپوگرافی وزیرمتن
  */
 public class AcademyMediaTabView {
 
@@ -27,7 +31,33 @@ public class AcademyMediaTabView {
         container.setOrientation(LinearLayout.VERTICAL);
         container.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        // ۱. بخش ویدیوهای آموزشی در آپارات
+        // ۱. تالار حامیان رسانه‌ای و اینفلوئنسرها (در ابتدای صفحه)
+        TextView partHeader = CyberUiTheme.createSectionTitle(context, "تالار حامیان رسانه‌ای و چهره‌های فناوری");
+        partHeader.setTextColor(Color.parseColor(CyberUiTheme.COLOR_GOLD));
+        container.addView(partHeader);
+
+        List<MediaPartnerRepository.PartnerInfo> partners = MediaPartnerRepository.getOfficialPartners();
+        for (MediaPartnerRepository.PartnerInfo p : partners) {
+            if (p.imageResId > 0) {
+                // کارت اختصاصی لوکس با پرتره واقعی
+                container.addView(createFeaturedPartnerCard(context, p, listener));
+            } else {
+                // کارت استاندارد برای خبرگزاری‌ها
+                container.addView(CyberUiTheme.createInteractiveCardRow(
+                    context,
+                    R.drawable.ic_shield,
+                    p.nameFa,
+                    p.roleDescriptionFa,
+                    p.typeFa,
+                    p.badgeColorHex,
+                    view -> {
+                        if (listener != null) listener.onPartnerClicked(p.url);
+                    }
+                ));
+            }
+        }
+
+        // ۲. بخش ویدیوهای آموزشی در آپارات
         TextView vidHeader = CyberUiTheme.createSectionTitle(context, "ویدیوهای آموزشی امنیت و ضد هک در آپارات (اینترنت نیم‌بها)");
         container.addView(vidHeader);
 
@@ -46,26 +76,92 @@ public class AcademyMediaTabView {
             ));
         }
 
-        // ۲. تالار حامیان رسانه‌ای و اینفلوئنسرها
-        TextView partHeader = CyberUiTheme.createSectionTitle(context, "تالار حامیان رسانه‌ای، خبرگزاری‌ها و همکاران");
-        partHeader.setTextColor(Color.parseColor(CyberUiTheme.COLOR_GOLD));
-        container.addView(partHeader);
+        return container;
+    }
 
-        List<MediaPartnerRepository.PartnerInfo> partners = MediaPartnerRepository.getOfficialPartners();
-        for (MediaPartnerRepository.PartnerInfo p : partners) {
-            container.addView(CyberUiTheme.createInteractiveCardRow(
-                context,
-                R.drawable.ic_shield,
-                p.nameFa,
-                p.roleDescriptionFa,
-                p.typeFa,
-                p.badgeColorHex,
-                view -> {
-                    if (listener != null) listener.onPartnerClicked(p.url);
-                }
-            ));
+    private static LinearLayout createFeaturedPartnerCard(Context context, final MediaPartnerRepository.PartnerInfo partner,
+                                                          final AcademyMediaTabListener listener) {
+        LinearLayout card = new LinearLayout(context);
+        card.setOrientation(LinearLayout.VERTICAL);
+        int p = CyberUiTheme.dpToPx(context, 16);
+        card.setPadding(p, p, p, p);
+        card.setBackground(CyberUiTheme.createCardBg(CyberUiTheme.COLOR_CARD_BG, partner.badgeColorHex, 18));
+
+        LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        clp.setMargins(0, 0, 0, CyberUiTheme.dpToPx(context, 14));
+        card.setLayoutParams(clp);
+
+        // سطر مشخصات بالای کارت (عکس پروفایل + نام + تگ)
+        LinearLayout topRow = new LinearLayout(context);
+        topRow.setOrientation(LinearLayout.HORIZONTAL);
+        topRow.setGravity(Gravity.CENTER_VERTICAL);
+
+        // فریم گرد عکس پروفایل
+        LinearLayout avatarRing = new LinearLayout(context);
+        avatarRing.setGravity(Gravity.CENTER);
+        int ringSize = CyberUiTheme.dpToPx(context, 54);
+        LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(ringSize, ringSize);
+        alp.setMargins(CyberUiTheme.dpToPx(context, 12), 0, 0, 0);
+        avatarRing.setLayoutParams(alp);
+        avatarRing.setBackground(CyberUiTheme.createOvalBg("#1E293B", partner.badgeColorHex, 2));
+
+        ImageView avatarIv = new ImageView(context);
+        avatarIv.setImageResource(partner.imageResId);
+        int imgSize = CyberUiTheme.dpToPx(context, 50);
+        avatarIv.setLayoutParams(new LinearLayout.LayoutParams(imgSize, imgSize));
+        avatarIv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        avatarRing.addView(avatarIv);
+        topRow.addView(avatarRing);
+
+        // ستون متنی نام و نقش
+        LinearLayout nameCol = new LinearLayout(context);
+        nameCol.setOrientation(LinearLayout.VERTICAL);
+        nameCol.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f));
+
+        TextView nameTv = new TextView(context);
+        nameTv.setText(partner.nameFa);
+        nameTv.setTextColor(Color.WHITE);
+        nameTv.setTextSize(14);
+        FontHelper.applyBold(nameTv);
+        nameCol.addView(nameTv);
+
+        TextView roleTv = new TextView(context);
+        roleTv.setText(partner.typeFa);
+        roleTv.setTextColor(Color.parseColor(partner.badgeColorHex));
+        roleTv.setTextSize(11);
+        FontHelper.applyRegular(roleTv);
+        roleTv.setPadding(0, CyberUiTheme.dpToPx(context, 2), 0, 0);
+        nameCol.addView(roleTv);
+
+        topRow.addView(nameCol);
+        card.addView(topRow);
+
+        // متن توضیحات نقش حامی
+        TextView descTv = new TextView(context);
+        descTv.setText(partner.roleDescriptionFa);
+        descTv.setTextColor(Color.parseColor(CyberUiTheme.COLOR_TEXT_MUTED));
+        descTv.setTextSize(11);
+        FontHelper.applyRegular(descTv);
+        descTv.setLineSpacing(CyberUiTheme.dpToPx(context, 3), 1.25f);
+        descTv.setPadding(0, CyberUiTheme.dpToPx(context, 10), 0, CyberUiTheme.dpToPx(context, 10));
+        card.addView(descTv);
+
+        // دکمه‌های مستقیم شبکه‌های اجتماعی
+        if (!partner.socialLinks.isEmpty()) {
+            LinearLayout socialRow = new LinearLayout(context);
+            socialRow.setOrientation(LinearLayout.HORIZONTAL);
+            socialRow.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+            for (MediaPartnerRepository.SocialLink sl : partner.socialLinks) {
+                Button sBtn = CyberUiTheme.createChipButton(context, sl.titleFa, "#141F30", Color.parseColor(sl.colorHex));
+                sBtn.setOnClickListener(v -> {
+                    if (listener != null) listener.onPartnerClicked(sl.url);
+                });
+                socialRow.addView(sBtn);
+            }
+            card.addView(socialRow);
         }
 
-        return container;
+        return card;
     }
 }

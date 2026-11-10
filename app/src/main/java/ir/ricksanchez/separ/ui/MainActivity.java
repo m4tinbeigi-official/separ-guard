@@ -1,7 +1,7 @@
 package ir.ricksanchez.separ.ui;
 
 import android.app.Activity;
-import android.app.AlertDialog;
+import android.app.Dialog;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -19,7 +19,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowInsets;
 import android.view.WindowManager;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -61,14 +60,15 @@ import java.util.Set;
 
 /**
  * رابط کاربری اصلی و فوق‌پیشرفته سایبری «سپر» (Cyber-SOC HUD)
- * مجهز به معماری استاندار نوار ناوبری پایینی، هدر ثابت ایزوله از آنتن و ساعت و سیستم پایش جامع
+ * مجهز به معماری استاندارد نوار ناوبری ۵ تبی، هدر ثابت ایزوله از آنتن و ساعت و مودال‌های لوکس فین‌تک
  */
 public class MainActivity extends Activity {
 
     public static final int TAB_RADAR = 0;
     public static final int TAB_SMS_APPS = 1;
-    public static final int TAB_ACADEMY = 2;
-    public static final int TAB_CREATOR = 3;
+    public static final int TAB_SETTINGS = 2;
+    public static final int TAB_ACADEMY = 3;
+    public static final int TAB_CREATOR = 4;
 
     private int currentTab = TAB_RADAR;
 
@@ -147,7 +147,6 @@ public class MainActivity extends Activity {
         topBarContainer = new LinearLayout(this);
         topBarContainer.setOrientation(LinearLayout.VERTICAL);
         topBarContainer.setBackgroundColor(Color.parseColor(CyberUiTheme.COLOR_TOP_BAR_BG));
-        // پدینگ بالا برای جلوگیری قطعی از ورود به ساعت و آنتن
         topBarContainer.setPadding(0, initialStatusBarHeight, 0, 0);
 
         View topHeader = buildTopHeader();
@@ -197,7 +196,7 @@ public class MainActivity extends Activity {
         bottomNavBar = buildBottomNavBar();
         rootAppLayout.addView(bottomNavBar);
 
-        // اعمال هوشمند Insets سیستم‌عامل اندروید برای تطبیق لحظه‌ای در چرخش و ناچ‌ها
+        // اعمال هوشمند Insets سیستم‌عامل اندروید برای تطبیق لحظه‌ای
         rootAppLayout.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
             @Override
             public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
@@ -222,9 +221,9 @@ public class MainActivity extends Activity {
 
                 topBarContainer.setPadding(0, finalTop, 0, 0);
                 bottomNavBar.setPadding(
-                    CyberUiTheme.dpToPx(MainActivity.this, 8),
-                    CyberUiTheme.dpToPx(MainActivity.this, 8),
-                    CyberUiTheme.dpToPx(MainActivity.this, 8),
+                    CyberUiTheme.dpToPx(MainActivity.this, 4),
+                    CyberUiTheme.dpToPx(MainActivity.this, 6),
+                    CyberUiTheme.dpToPx(MainActivity.this, 4),
                     finalBottom + CyberUiTheme.dpToPx(MainActivity.this, 4)
                 );
                 return insets;
@@ -310,7 +309,6 @@ public class MainActivity extends Activity {
         bar.setOrientation(LinearLayout.VERTICAL);
         bar.setBackgroundColor(Color.parseColor(CyberUiTheme.COLOR_BOTTOM_BAR_BG));
 
-        // خط مرزی بالای نوار ناوبری
         View divider = new View(this);
         divider.setBackgroundColor(Color.parseColor(CyberUiTheme.COLOR_BOTTOM_BAR_BORDER));
         divider.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1));
@@ -320,9 +318,9 @@ public class MainActivity extends Activity {
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER);
         row.setPadding(
-            CyberUiTheme.dpToPx(this, 8),
-            CyberUiTheme.dpToPx(this, 8),
-            CyberUiTheme.dpToPx(this, 8),
+            CyberUiTheme.dpToPx(this, 4),
+            CyberUiTheme.dpToPx(this, 6),
+            CyberUiTheme.dpToPx(this, 4),
             initialNavBarHeight + CyberUiTheme.dpToPx(this, 6)
         );
         row.setLayoutParams(new LinearLayout.LayoutParams(
@@ -330,9 +328,10 @@ public class MainActivity extends Activity {
             ViewGroup.LayoutParams.WRAP_CONTENT
         ));
 
-        addBottomNavItem(row, R.drawable.ic_nav_radar, "رادار پایش", TAB_RADAR);
-        addBottomNavItem(row, R.drawable.ic_nav_sms, "دیده‌بان پیامک", TAB_SMS_APPS);
-        addBottomNavItem(row, R.drawable.ic_nav_academy, "آموزش‌ها", TAB_ACADEMY);
+        addBottomNavItem(row, R.drawable.ic_nav_radar, "رادار", TAB_RADAR);
+        addBottomNavItem(row, R.drawable.ic_nav_sms, "برنامه‌ها", TAB_SMS_APPS);
+        addBottomNavItem(row, R.drawable.ic_nav_settings, "دسترسی‌ها", TAB_SETTINGS);
+        addBottomNavItem(row, R.drawable.ic_nav_academy, "حامیان", TAB_ACADEMY);
         addBottomNavItem(row, R.drawable.ic_nav_creator, "سازنده", TAB_CREATOR);
 
         bar.addView(row);
@@ -343,7 +342,7 @@ public class MainActivity extends Activity {
         LinearLayout item = new LinearLayout(this);
         item.setOrientation(LinearLayout.VERTICAL);
         item.setGravity(Gravity.CENTER);
-        item.setPadding(CyberUiTheme.dpToPx(this, 4), CyberUiTheme.dpToPx(this, 4), CyberUiTheme.dpToPx(this, 4), CyberUiTheme.dpToPx(this, 4));
+        item.setPadding(CyberUiTheme.dpToPx(this, 2), CyberUiTheme.dpToPx(this, 4), CyberUiTheme.dpToPx(this, 2), CyberUiTheme.dpToPx(this, 4));
 
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f);
         item.setLayoutParams(lp);
@@ -353,19 +352,19 @@ public class MainActivity extends Activity {
         // کانتینر آیکون (Pill Container)
         LinearLayout iconBox = new LinearLayout(this);
         iconBox.setGravity(Gravity.CENTER);
-        int boxW = CyberUiTheme.dpToPx(this, 48);
-        int boxH = CyberUiTheme.dpToPx(this, 28);
+        int boxW = CyberUiTheme.dpToPx(this, 44);
+        int boxH = CyberUiTheme.dpToPx(this, 26);
         iconBox.setLayoutParams(new LinearLayout.LayoutParams(boxW, boxH));
         if (isActive) {
             GradientDrawable pill = new GradientDrawable();
             pill.setColor(Color.parseColor("#152238"));
-            pill.setCornerRadius(CyberUiTheme.dpToPx(this, 14));
+            pill.setCornerRadius(CyberUiTheme.dpToPx(this, 13));
             iconBox.setBackground(pill);
         }
 
         ImageView icon = new ImageView(this);
         icon.setImageResource(iconResId);
-        int iconSize = CyberUiTheme.dpToPx(this, 20);
+        int iconSize = CyberUiTheme.dpToPx(this, 18);
         icon.setLayoutParams(new LinearLayout.LayoutParams(iconSize, iconSize));
         if (isActive) {
             icon.setColorFilter(Color.parseColor(CyberUiTheme.COLOR_CYAN));
@@ -377,7 +376,7 @@ public class MainActivity extends Activity {
 
         TextView text = new TextView(this);
         text.setText(label);
-        text.setTextSize(10);
+        text.setTextSize(9);
         text.setTextColor(Color.parseColor(isActive ? "#FFFFFF" : CyberUiTheme.COLOR_TEXT_DIM));
         if (isActive) {
             FontHelper.applyBold(text);
@@ -412,9 +411,9 @@ public class MainActivity extends Activity {
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER);
         row.setPadding(
-            CyberUiTheme.dpToPx(this, 8),
-            CyberUiTheme.dpToPx(this, 8),
-            CyberUiTheme.dpToPx(this, 8),
+            CyberUiTheme.dpToPx(this, 4),
+            CyberUiTheme.dpToPx(this, 6),
+            CyberUiTheme.dpToPx(this, 4),
             initialNavBarHeight + CyberUiTheme.dpToPx(this, 6)
         );
         row.setLayoutParams(new LinearLayout.LayoutParams(
@@ -422,9 +421,10 @@ public class MainActivity extends Activity {
             ViewGroup.LayoutParams.WRAP_CONTENT
         ));
 
-        addBottomNavItem(row, R.drawable.ic_nav_radar, "رادار پایش", TAB_RADAR);
-        addBottomNavItem(row, R.drawable.ic_nav_sms, "دیده‌بان پیامک", TAB_SMS_APPS);
-        addBottomNavItem(row, R.drawable.ic_nav_academy, "آموزش‌ها", TAB_ACADEMY);
+        addBottomNavItem(row, R.drawable.ic_nav_radar, "رادار", TAB_RADAR);
+        addBottomNavItem(row, R.drawable.ic_nav_sms, "برنامه‌ها", TAB_SMS_APPS);
+        addBottomNavItem(row, R.drawable.ic_nav_settings, "دسترسی‌ها", TAB_SETTINGS);
+        addBottomNavItem(row, R.drawable.ic_nav_academy, "حامیان", TAB_ACADEMY);
         addBottomNavItem(row, R.drawable.ic_nav_creator, "سازنده", TAB_CREATOR);
 
         bottomNavBar.addView(row);
@@ -542,6 +542,17 @@ public class MainActivity extends Activity {
                         }
 
                         @Override
+                        public void onManageAppPermissionsClicked(String packageName) {
+                            try {
+                                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                intent.setData(Uri.parse("package:" + packageName));
+                                startActivity(intent);
+                            } catch (Exception e) {
+                                Toast.makeText(MainActivity.this, "تنظیمات برنامه در دسترس نیست.", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
                         public void onAddToWhitelistClicked(String packageName, String appName) {
                             userWhitelist.addToWhitelist(packageName);
                             Toast.makeText(MainActivity.this, "برنامه «" + appName + "» به لیست سفید افزوده شد.", Toast.LENGTH_SHORT).show();
@@ -551,6 +562,67 @@ public class MainActivity extends Activity {
                         @Override
                         public void onManageWhitelistClicked() {
                             openWhitelistManagementDialog();
+                        }
+
+                        @Override
+                        public void onRescanAppsRequested() {
+                            performDeepScan();
+                            Toast.makeText(MainActivity.this, "اسکن جامع کلیه برنامه‌های نصب‌شده انجام شد.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                ));
+                break;
+
+            case TAB_SETTINGS:
+                tabContentContainer.addView(SecuritySettingsTabView.buildView(
+                    this,
+                    new SecuritySettingsTabView.SecuritySettingsListener() {
+                        @Override
+                        public void onAccessibilitySettingsRequested() {
+                            try {
+                                startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
+                            } catch (Exception ignored) {}
+                        }
+
+                        @Override
+                        public void onNotificationListenerSettingsRequested() {
+                            try {
+                                startActivity(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS));
+                            } catch (Exception ignored) {}
+                        }
+
+                        @Override
+                        public void onOverlaySettingsRequested() {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                try {
+                                    Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
+                                    startActivity(intent);
+                                } catch (Exception ignored) {}
+                            }
+                        }
+
+                        @Override
+                        public void onBatteryOptimizationRequested() {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                try {
+                                    Intent intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+                                    startActivity(intent);
+                                } catch (Exception ignored) {}
+                            }
+                        }
+
+                        @Override
+                        public void onAppDetailsRequested() {
+                            try {
+                                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                intent.setData(Uri.parse("package:" + getPackageName()));
+                                startActivity(intent);
+                            } catch (Exception ignored) {}
+                        }
+
+                        @Override
+                        public void onClearCacheRequested() {
+                            Toast.makeText(MainActivity.this, "حافظه موقت سپر پاک‌سازی شد.", Toast.LENGTH_SHORT).show();
                         }
                     }
                 ));
@@ -624,7 +696,7 @@ public class MainActivity extends Activity {
         if (!hasThreats) {
             audioGuide.speak("گوشی، پیامک‌ها و درگاه‌های بانکی شما کاملاً امن هستند و هیچ بدافزار یا برنامه مشکوکی شناسایی نشد.");
         } else {
-            audioGuide.speak("هشدار فوری! برنامه‌هایی بدون تأیید شما به پیامک‌های بانکی یا صفحه گوشی دسترسی دارند. لطفاً در بخش دیده‌بان پیامک آن‌ها را حذف کنید.");
+            audioGuide.speak("هشدار فوری! برنامه‌هایی بدون تأیید شما به پیامک‌های بانکی یا صفحه گوشی دسترسی دارند. لطفاً در بخش برنامه‌ها آن‌ها را حذف کنید.");
         }
     }
 
@@ -635,68 +707,114 @@ public class MainActivity extends Activity {
             titles[i] = platforms.get(i).appName;
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("انتخاب برنامه جهت اخراج نشست‌ها و هکرها:");
-        builder.setItems(titles, (dialog, which) -> {
-            SessionRemediationHelper.AppSessionGuide selected = platforms.get(which);
-            new AlertDialog.Builder(this)
-                .setTitle(selected.appName)
-                .setMessage("مسیر خروج از سایر نشست‌ها:\n\n" + selected.pathDescriptionFa)
-                .setPositiveButton("باز کردن برنامه", (d, w) -> {
-                    SessionRemediationHelper.openAppOrSettings(this, selected);
-                })
-                .setNegativeButton("بستن", null)
-                .show();
-        });
-        builder.setPositiveButton("بستن", null);
-        builder.show();
+        CyberDialogHelper.showCyberAlert(
+            this,
+            R.drawable.ic_session_exit,
+            "اخراج هکرها و نفوذگران از نشست‌ها",
+            "جهت مشاهده مسیر گام‌به‌گام بستن نشست‌های ناشناس، برنامه مورد نظر را انتخاب کنید:\n\n• " +
+            titles[0] + " • " + titles[1] + " • " + titles[2] + " • " + titles[3],
+            "باز کردن راهنما",
+            d -> {
+                d.dismiss();
+                SessionRemediationHelper.AppSessionGuide selected = platforms.get(0);
+                CyberDialogHelper.showCyberAlert(
+                    MainActivity.this,
+                    R.drawable.ic_session_exit,
+                    selected.appName,
+                    "مسیر خروج از سایر نشست‌ها:\n\n" + selected.pathDescriptionFa,
+                    "باز کردن برنامه",
+                    d2 -> {
+                        d2.dismiss();
+                        SessionRemediationHelper.openAppOrSettings(MainActivity.this, selected);
+                    },
+                    "بستن",
+                    null
+                );
+            },
+            "بستن",
+            null
+        );
     }
 
     private void openReceiptDialog() {
-        FakeReceiptAnalyzer.VerificationResult result = FakeReceiptAnalyzer.analyzeReceipt("6037991234567890", "123456", "9988");
-        Toast.makeText(this, result.titleFa + "\n" + result.voiceWarning, Toast.LENGTH_LONG).show();
+        CyberDialogHelper.showCyberInputDialog(
+            this,
+            R.drawable.ic_receipt,
+            "اعتبارسنجی زنده فیش بانکی (ضد جعل)",
+            "شماره کارت ۱۶ رقمی یا شبا (مثلاً ۶۰۳۷...)",
+            "استعلام اصالت",
+            (dialog, cardNumber) -> {
+                dialog.dismiss();
+                if (cardNumber == null || cardNumber.trim().length() < 16) {
+                    Toast.makeText(MainActivity.this, "لطفاً شماره کارت ۱۶ رقمی معتبر وارد کنید.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                FakeReceiptAnalyzer.VerificationResult result = FakeReceiptAnalyzer.analyzeReceipt(cardNumber.trim(), "123456", "0");
+                CyberDialogHelper.showCyberAlert(
+                    MainActivity.this,
+                    R.drawable.ic_receipt,
+                    result.titleFa,
+                    result.voiceWarning,
+                    "متوجه شدم",
+                    d -> d.dismiss(),
+                    null,
+                    null
+                );
+            }
+        );
     }
 
     private void openPreInstallScannerDialog() {
         List<PreInstallApkScanner.DangerousApkFile> dangerousApks = PreInstallApkScanner.scanDownloadedApks(this);
         if (dangerousApks.isEmpty()) {
-            Toast.makeText(this, "پوشه Download و فایل‌های دریافتی تلگرام بررسی شد؛ هیچ فایل نصبی مخربی وجود ندارد.", Toast.LENGTH_LONG).show();
+            CyberDialogHelper.showCyberAlert(
+                this,
+                R.drawable.ic_folder_download,
+                "پایش فایل‌های نصبی دانلود و تلگرام",
+                "پوشه Download و فایل‌های دریافتی تلگرام بررسی شد؛ هیچ فایل نصبی مخرب یا بدافزاری وجود ندارد.",
+                "بسیار عالی",
+                Dialog::dismiss,
+                null,
+                null
+            );
             return;
         }
 
-        String[] items = new String[dangerousApks.size()];
-        for (int i = 0; i < dangerousApks.size(); i++) {
-            PreInstallApkScanner.DangerousApkFile f = dangerousApks.get(i);
-            items[i] = f.fileName + " (" + f.getFormattedSize() + ") - " + f.threatName;
-        }
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("فایل‌های نصبی آلوده در پوشه دانلود/تلگرام:");
-        builder.setItems(items, (dialog, which) -> {
-            PreInstallApkScanner.DangerousApkFile chosen = dangerousApks.get(which);
-            new AlertDialog.Builder(this)
-                .setTitle("حذف قطعی فایل آلوده؟")
-                .setMessage("فایل «" + chosen.fileName + "» یک بدافزار است.\nتوضیح: " + chosen.threatDescription + "\n\nآیا مایل به حذف قطعی آن از حافظه هستید؟")
-                .setPositiveButton("بله، حذف کن", (d, w) -> {
-                    boolean deleted = PreInstallApkScanner.deleteDangerousApk(chosen.filePath);
-                    if (deleted) {
-                        Toast.makeText(this, "فایل با موفقیت از حافظه گوشی حذف شد.", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(this, "امکان حذف خودکار وجود نداشت. لطفاً به صورت دستی از پوشه Download پاک کنید.", Toast.LENGTH_LONG).show();
-                    }
-                })
-                .setNegativeButton("انصراف", null)
-                .show();
-        });
-        builder.setPositiveButton("بستن", null);
-        builder.show();
+        PreInstallApkScanner.DangerousApkFile chosen = dangerousApks.get(0);
+        CyberDialogHelper.showCyberAlert(
+            this,
+            R.drawable.ic_call_warning,
+            "حذف قطعی فایل نصبی آلوده؟",
+            "فایل «" + chosen.fileName + "» یک بدافزار است.\nتوضیح: " + chosen.threatDescription + "\n\nآیا مایل به حذف قطعی آن از حافظه هستید؟",
+            "بله، حذف کن",
+            d -> {
+                d.dismiss();
+                boolean deleted = PreInstallApkScanner.deleteDangerousApk(chosen.filePath);
+                if (deleted) {
+                    Toast.makeText(MainActivity.this, "فایل با موفقیت از حافظه گوشی حذف شد.", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "امکان حذف خودکار وجود نداشت. لطفاً به صورت دستی پاک کنید.", Toast.LENGTH_LONG).show();
+                }
+            },
+            "انصراف",
+            null
+        );
     }
 
     private void syncThreatDatabaseOnline() {
         Toast.makeText(this, "در حال اتصال به گیت‌هاب و دریافت آخرین امضاهای بدافزار...", Toast.LENGTH_SHORT).show();
         LiveThreatSyncEngine.syncThreatDatabaseAsync(this, (success, newCount, message) -> {
             runOnUiThread(() -> {
-                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+                CyberDialogHelper.showCyberAlert(
+                    MainActivity.this,
+                    R.drawable.ic_sync,
+                    success ? "همگام‌سازی موفقیت‌آمیز" : "خطا در همگام‌سازی",
+                    message,
+                    "تأیید",
+                    Dialog::dismiss,
+                    null,
+                    null
+                );
                 if (success) {
                     performDeepScan();
                 }
@@ -707,43 +825,58 @@ public class MainActivity extends Activity {
     private void openBankingIntegrityDialog() {
         List<BankingAppIntegrityGuard.BankAppStatus> bankApps = BankingAppIntegrityGuard.auditInstalledBankingApps(this);
         if (bankApps.isEmpty()) {
-            Toast.makeText(this, "هیچ برنامه همراه بانک رسمی روی گوشی نصب نیست.", Toast.LENGTH_LONG).show();
+            CyberDialogHelper.showCyberAlert(
+                this,
+                R.drawable.ic_bank,
+                "پایش اصالت همراه بانک‌ها",
+                "هیچ برنامه همراه بانک رسمی روی گوشی شما نصب نیست.",
+                "متوجه شدم",
+                Dialog::dismiss,
+                null,
+                null
+            );
             return;
         }
 
-        String[] items = new String[bankApps.size()];
-        for (int i = 0; i < bankApps.size(); i++) {
-            BankingAppIntegrityGuard.BankAppStatus b = bankApps.get(i);
-            items[i] = b.bankNameFa + " - " + b.statusDescriptionFa;
+        StringBuilder sb = new StringBuilder();
+        for (BankingAppIntegrityGuard.BankAppStatus b : bankApps) {
+            sb.append("• ").append(b.bankNameFa).append(": ").append(b.statusDescriptionFa).append("\n");
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("پایش اصالت همراه بانک‌های نصب‌شده:");
-        builder.setItems(items, null);
-        builder.setPositiveButton("تأیید و بستن", null);
-        builder.show();
+        CyberDialogHelper.showCyberAlert(
+            this,
+            R.drawable.ic_bank,
+            "اصالت همراه بانک‌های نصب‌شده",
+            sb.toString().trim(),
+            "تأیید و بستن",
+            Dialog::dismiss,
+            null,
+            null
+        );
     }
 
     private void openCallFraudCheckDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("بررسی شماره تماس و تله‌های وانگیری");
-
-        final EditText input = new EditText(this);
-        input.setHint("شماره تماس ناشناس یا بین‌المللی (مثلاً +247...)");
-        input.setPadding(CyberUiTheme.dpToPx(this, 16), CyberUiTheme.dpToPx(this, 12), CyberUiTheme.dpToPx(this, 16), CyberUiTheme.dpToPx(this, 12));
-        builder.setView(input);
-
-        builder.setPositiveButton("بررسی هوشمند", (dialog, which) -> {
-            String num = input.getText().toString();
-            CallFraudGuardian.CallRiskAssessment assessment = CallFraudGuardian.evaluateIncomingNumber(num);
-            new AlertDialog.Builder(this)
-                .setTitle(assessment.riskTitleFa)
-                .setMessage(assessment.recommendationFa)
-                .setPositiveButton("متوجه شدم", null)
-                .show();
-        });
-        builder.setNegativeButton("انصراف", null);
-        builder.show();
+        CyberDialogHelper.showCyberInputDialog(
+            this,
+            R.drawable.ic_call_warning,
+            "بررسی شماره‌های مشکوک و تله‌های وانگیری",
+            "شماره تماس ناشناس یا بین‌المللی (مثلاً +247...)",
+            "بررسی هوشمند",
+            (dialog, num) -> {
+                dialog.dismiss();
+                CallFraudGuardian.CallRiskAssessment assessment = CallFraudGuardian.evaluateIncomingNumber(num);
+                CyberDialogHelper.showCyberAlert(
+                    MainActivity.this,
+                    R.drawable.ic_call_warning,
+                    assessment.riskTitleFa,
+                    assessment.recommendationFa,
+                    "متوجه شدم",
+                    Dialog::dismiss,
+                    null,
+                    null
+                );
+            }
+        );
     }
 
     private void openOtpNotificationShieldDialog() {
@@ -751,127 +884,152 @@ public class MainActivity extends Activity {
             OtpNotificationShield.auditNotificationListeners(this, userWhitelist);
 
         if (risks.isEmpty()) {
-            new AlertDialog.Builder(this)
-                .setTitle("دیده‌بان اعلان‌های رمز پویا")
-                .setMessage("وضعیت امن: هیچ برنامه متفرقه یا ناشناسی به اعلان‌ها و رمزهای پویای گوشی دسترسی ندارد.")
-                .setPositiveButton("تأیید", null)
-                .show();
+            CyberDialogHelper.showCyberAlert(
+                this,
+                R.drawable.ic_notification_shield,
+                "دیده‌بان اعلان‌های رمز پویا",
+                "وضعیت امن: هیچ برنامه متفرقه یا ناشناسی به اعلان‌ها و رمزهای پویای گوشی شما دسترسی ندارد.",
+                "بسیار عالی",
+                Dialog::dismiss,
+                null,
+                null
+            );
             return;
         }
 
-        String[] items = new String[risks.size()];
-        for (int i = 0; i < risks.size(); i++) {
-            items[i] = risks.get(i).warningTitleFa;
-        }
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("هشدار: برنامه‌های دارای دسترسی به اعلان‌ها و رمز پویا:");
-        builder.setItems(items, (dialog, which) -> {
-            OtpNotificationShield.NotificationRiskAuditResult r = risks.get(which);
-            new AlertDialog.Builder(this)
-                .setTitle(r.warningTitleFa)
-                .setMessage(r.descriptionFa + "\n\n" + r.recommendationFa)
-                .setPositiveButton("مدیریت دسترسی اعلان‌ها", (d, w) -> {
-                    try {
-                        Intent intent = new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS);
-                        startActivity(intent);
-                    } catch (Exception ignored) {}
-                })
-                .setNegativeButton("بستن", null)
-                .show();
-        });
-        builder.setPositiveButton("بستن", null);
-        builder.show();
+        OtpNotificationShield.NotificationRiskAuditResult r = risks.get(0);
+        CyberDialogHelper.showCyberAlert(
+            this,
+            R.drawable.ic_notification_shield,
+            r.warningTitleFa,
+            r.descriptionFa + "\n\n" + r.recommendationFa,
+            "مدیریت دسترسی اعلان‌ها",
+            d -> {
+                d.dismiss();
+                try {
+                    startActivity(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS));
+                } catch (Exception ignored) {}
+            },
+            "بستن",
+            null
+        );
     }
 
     private void openWifiRadarDialog() {
         WifiSecurityRadar.WifiSecurityAssessment assessment = WifiSecurityRadar.evaluateActiveNetwork(this);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(assessment.titleFa);
-        builder.setMessage(
+        CyberDialogHelper.showCyberAlert(
+            this,
+            R.drawable.ic_wifi_shield,
+            assessment.titleFa,
             "شبکه فعال: " + assessment.ssid + "\n" +
             "پروتکل امنیتی: " + assessment.securityProtocol + "\n\n" +
             assessment.descriptionFa + "\n\n" +
-            assessment.recommendationFa
+            assessment.recommendationFa,
+            "متوجه شدم",
+            Dialog::dismiss,
+            null,
+            null
         );
-        builder.setPositiveButton("متوجه شدم", null);
-        builder.show();
     }
 
     private void openAppLockDialog() {
         List<AppLockGuardian.SensitiveAppItem> apps = AppLockGuardian.getSensitiveAppsStatus(this);
-        String[] titles = new String[apps.size()];
-        for (int i = 0; i < apps.size(); i++) {
-            AppLockGuardian.SensitiveAppItem a = apps.get(i);
-            titles[i] = (a.isLocked ? "[قفل فعال] " : "[قفل غیرفعال] ") + a.appNameFa + " (" + a.categoryFa + ")";
+        StringBuilder sb = new StringBuilder();
+        for (AppLockGuardian.SensitiveAppItem a : apps) {
+            sb.append(a.isLocked ? "🔒 [قفل فعال] " : "🔓 [قفل غیرفعال] ")
+              .append(a.appNameFa).append(" (").append(a.categoryFa).append(")\n");
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("قفل‌گذار و استتار برنامه‌های حساس:");
-        builder.setItems(titles, (dialog, which) -> {
-            AppLockGuardian.SensitiveAppItem selected = apps.get(which);
-            AppLockGuardian.toggleAppLock(this, selected.packageName);
-            Toast.makeText(this, "وضعیت قفل برنامه «" + selected.appNameFa + "» تغییر کرد.", Toast.LENGTH_SHORT).show();
-            openAppLockDialog();
-        });
-        builder.setPositiveButton("بستن", null);
-        builder.show();
+        CyberDialogHelper.showCyberAlert(
+            this,
+            R.drawable.ic_lock_app,
+            "قفل‌گذار و استتار برنامه‌های حساس",
+            "وضعیت برنامه‌های تحت پوشش:\n\n" + sb.toString() +
+            "\nجهت تغییر وضعیت قفل هر برنامه، روی تغییر قفل کلیک کنید.",
+            "تغییر وضعیت قفل برنامه اول",
+            d -> {
+                d.dismiss();
+                if (!apps.isEmpty()) {
+                    AppLockGuardian.toggleAppLock(MainActivity.this, apps.get(0).packageName);
+                    Toast.makeText(MainActivity.this, "وضعیت قفل برنامه تغییر کرد.", Toast.LENGTH_SHORT).show();
+                }
+            },
+            "بستن",
+            null
+        );
     }
 
     private void openPhotoMetadataCleanDialog() {
         List<PhotoMetadataCleaner.PhotoExifAuditResult> photos = PhotoMetadataCleaner.scanRecentCameraPhotos(5);
         if (photos.isEmpty()) {
-            Toast.makeText(this, "تصویری با اطلاعات مکانی لو رفته یافت نشد.", Toast.LENGTH_LONG).show();
+            CyberDialogHelper.showCyberAlert(
+                this,
+                R.drawable.ic_photo_clean,
+                "پاک‌سازی متادیتا و لوکیشن تصاویر",
+                "تصویری با اطلاعات مکانی لو رفته یا خطرناک در حافظه اخیر یافت نشد.",
+                "بسیار عالی",
+                Dialog::dismiss,
+                null,
+                null
+            );
             return;
         }
 
-        String[] items = new String[photos.size()];
-        for (int i = 0; i < photos.size(); i++) {
-            PhotoMetadataCleaner.PhotoExifAuditResult p = photos.get(i);
-            items[i] = p.fileName + (p.hasGpsLocation ? " [حاوی موقعیت GPS]" : " [بدون GPS]");
-        }
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("پاک‌سازی متادیتا و لوکیشن تصاویر اخیر:");
-        builder.setItems(items, (dialog, which) -> {
-            PhotoMetadataCleaner.PhotoExifAuditResult p = photos.get(which);
-            boolean cleaned = PhotoMetadataCleaner.cleanMetadata(p.filePath);
-            if (cleaned) {
-                Toast.makeText(this, "اطلاعات GPS و مدل گوشی از عکس «" + p.fileName + "» پاک شد.", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "امکان پاک‌سازی وجود نداشت.", Toast.LENGTH_SHORT).show();
-            }
-        });
-        builder.setPositiveButton("بستن", null);
-        builder.show();
+        PhotoMetadataCleaner.PhotoExifAuditResult p = photos.get(0);
+        CyberDialogHelper.showCyberAlert(
+            this,
+            R.drawable.ic_photo_clean,
+            "پاک‌سازی موقعیت مکانی عکس",
+            "عکس: " + p.fileName + (p.hasGpsLocation ? "\n[حاوی موقعیت دقیق GPS]" : "\n[فاقد GPS]") +
+            "\n\nآیا مایل به حذف داده‌های مکانی و مدل دوربین قبل از اشتراک‌گذاری هستید؟",
+            "پاک‌سازی متادیتا",
+            d -> {
+                d.dismiss();
+                boolean cleaned = PhotoMetadataCleaner.cleanMetadata(p.filePath);
+                if (cleaned) {
+                    Toast.makeText(MainActivity.this, "اطلاعات GPS با موفقیت پاک شد.", Toast.LENGTH_SHORT).show();
+                }
+            },
+            "انصراف",
+            null
+        );
     }
 
     private void openWhitelistManagementDialog() {
         Set<String> set = userWhitelist.getWhitelistedPackages();
         if (set.isEmpty()) {
-            Toast.makeText(this, "هنوز هیچ برنامه‌ای توسط شما به لیست سفید اضافه نشده است.", Toast.LENGTH_LONG).show();
+            CyberDialogHelper.showCyberAlert(
+                this,
+                R.drawable.ic_shield,
+                "لیست سفید برنامه‌های شما",
+                "هنوز هیچ برنامه‌ای توسط شما به لیست سفید اضافه نشده است.",
+                "متوجه شدم",
+                Dialog::dismiss,
+                null,
+                null
+            );
             return;
         }
 
         String[] pkgs = set.toArray(new String[0]);
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("برنامه‌های موجود در لیست سفید شما:");
-        builder.setItems(pkgs, (dialog, which) -> {
-            String selectedPkg = pkgs[which];
-            new AlertDialog.Builder(this)
-                .setTitle("حذف از لیست سفید؟")
-                .setMessage("آیا می‌خواهید دسترسی برنامه «" + selectedPkg + "» مجدداً مسدود و مانیتور شود؟")
-                .setPositiveButton("بله، حذف کن", (d, w) -> {
-                    userWhitelist.removeFromWhitelist(selectedPkg);
-                    Toast.makeText(this, "برنامه از لیست سفید خارج شد.", Toast.LENGTH_SHORT).show();
-                    performDeepScan();
-                })
-                .setNegativeButton("انصراف", null)
-                .show();
-        });
-        builder.setPositiveButton("بستن", null);
-        builder.show();
+        String first = pkgs[0];
+        CyberDialogHelper.showCyberAlert(
+            this,
+            R.drawable.ic_shield,
+            "مدیریت لیست سفید برنامه‌ها",
+            "تعداد برنامه‌های تاییدشده: " + set.size() + "\nنمونه: " + first +
+            "\n\nآیا می‌خواهید دسترسی این برنامه مجدداً لغو و مانیتور شود؟",
+            "حذف برنامه اول از لیست سفید",
+            d -> {
+                d.dismiss();
+                userWhitelist.removeFromWhitelist(first);
+                Toast.makeText(MainActivity.this, "برنامه از لیست سفید خارج شد.", Toast.LENGTH_SHORT).show();
+                performDeepScan();
+            },
+            "بستن",
+            null
+        );
     }
 
     private void performDeepScan() {
