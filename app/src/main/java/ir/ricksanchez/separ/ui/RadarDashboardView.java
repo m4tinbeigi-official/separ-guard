@@ -23,6 +23,8 @@ public class RadarDashboardView {
         void onVoiceRequested();
         void onEmergencyKillSwitchClicked();
         void onRescueReportClicked();
+        void onFeaturesAndChangelogClicked();
+        void onDailyBulletinClicked();
         void onSocialSideloadBlockerClicked();
         void onCancelDivertClicked();
         void onFataEmergencyClicked();
@@ -217,6 +219,35 @@ public class RadarDashboardView {
         // ۳. بلوک ۱: فوریت‌ها و واکنش سریع (Crisis Response)
         // ==========================================
         container.addView(CyberUiTheme.createSectionTitle(context, "فوریت‌های امنیتی و واکنش سریع"));
+
+        // خبر و هشدار روز امنیت سایبری
+        ir.ricksanchez.separ.data.DailyThreatBulletinRepository.ThreatNewsItem todayNews =
+            ir.ricksanchez.separ.data.DailyThreatBulletinRepository.getNextRotatingNews(context);
+
+        container.addView(CyberUiTheme.createInteractiveCardRow(
+            context,
+            R.drawable.ic_call_warning,
+            todayNews.headline,
+            todayNews.shortSummary,
+            todayNews.categoryTag,
+            todayNews.colorHex,
+            v -> {
+                if (listener != null) listener.onDailyBulletinClicked();
+            }
+        ));
+
+        // شناسنامه قابلیت‌ها و گزارش بروزرسانی‌ها
+        container.addView(CyberUiTheme.createInteractiveCardRow(
+            context,
+            R.drawable.ic_shield,
+            "شناسنامه قابلیت‌ها و گزارش بروزرسانی‌ها",
+            "کاتالوگ کامل امکانات فعال سامانه و تاریخچه ارتقای نسخه ۱.۳.۰",
+            "امکانات",
+            "#00E5FF",
+            v -> {
+                if (listener != null) listener.onFeaturesAndChangelogClicked();
+            }
+        ));
 
         container.addView(CyberUiTheme.createInteractiveCardRow(
             context,

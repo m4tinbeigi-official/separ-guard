@@ -136,6 +136,15 @@ public class MainActivity extends Activity {
 
         buildScaffoldUi();
         performDeepScan();
+
+        // ویزارد گام‌به‌گام اعطای دسترسی و منشور ضد هک
+        if (!PermissionOnboardingWizardHelper.isOnboardingCompleted(this)) {
+            PermissionOnboardingWizardHelper.startWizard(this, () -> {
+                showDailyThreatBulletinAlert();
+            });
+        } else {
+            showDailyThreatBulletinAlert();
+        }
     }
 
     private void buildScaffoldUi() {
@@ -496,6 +505,16 @@ public class MainActivity extends Activity {
                         }
 
                         @Override
+                        public void onFeaturesAndChangelogClicked() {
+                            FeaturesAndChangelogDialogHelper.showFeaturesAndChangelogDialog(MainActivity.this);
+                        }
+
+                        @Override
+                        public void onDailyBulletinClicked() {
+                            showDailyThreatBulletinAlert();
+                        }
+
+                        @Override
                         public void onSocialSideloadBlockerClicked() {
                             openSocialSideloadBlockerDialog();
                         }
@@ -850,6 +869,25 @@ public class MainActivity extends Activity {
             },
             "بستن",
             null
+        );
+    }
+
+    private void showDailyThreatBulletinAlert() {
+        ir.ricksanchez.separ.data.DailyThreatBulletinRepository.ThreatNewsItem news =
+            ir.ricksanchez.separ.data.DailyThreatBulletinRepository.getNextRotatingNews(this);
+
+        CyberDialogHelper.showCyberAlert(
+            this,
+            R.drawable.ic_call_warning,
+            news.headline,
+            news.fullContent,
+            "متوجه شدم و رعایت می‌کنم",
+            Dialog::dismiss,
+            "شناسنامه امکانات سپر",
+            d -> {
+                d.dismiss();
+                FeaturesAndChangelogDialogHelper.showFeaturesAndChangelogDialog(MainActivity.this);
+            }
         );
     }
 
