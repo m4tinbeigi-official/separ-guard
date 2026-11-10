@@ -41,7 +41,7 @@ def test_creator_profile_has_portrait():
         content = f.read()
 
     assert "R.drawable.rick_sanchez" in content, "CreatorProfileTabView must display Rick Sanchez photo"
-    assert "avatarImg.setImageResource(R.drawable.rick_sanchez)" in content
+    assert "createCircularDrawable(context, R.drawable.rick_sanchez)" in content, "Rick Sanchez photo must use circular drawable"
 
 def test_five_tab_navigation_in_main_activity():
     main_path = os.path.join(BASE_DIR, "app/src/main/java/ir/ricksanchez/separ/ui/MainActivity.java")

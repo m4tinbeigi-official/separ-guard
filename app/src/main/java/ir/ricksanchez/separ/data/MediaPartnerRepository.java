@@ -17,11 +17,17 @@ public class MediaPartnerRepository {
         public final String titleFa;
         public final String url;
         public final String colorHex;
+        public final int iconResId;
 
-        public SocialLink(String titleFa, String url, String colorHex) {
+        public SocialLink(String titleFa, String url, String colorHex, int iconResId) {
             this.titleFa = titleFa;
             this.url = url;
             this.colorHex = colorHex;
+            this.iconResId = iconResId;
+        }
+
+        public SocialLink(String titleFa, String url, String colorHex) {
+            this(titleFa, url, colorHex, 0);
         }
     }
 
@@ -60,11 +66,11 @@ public class MediaPartnerRepository {
             "#00E5FF",
             R.drawable.adelkhaan,
             Arrays.asList(
-                new SocialLink("اینستاگرام", "https://instagram.com/adelkhaan", "#E1306C"),
-                new SocialLink("تلگرام", "https://t.me/adelkhaan", "#0088CC"),
-                new SocialLink("یوتیوب", "https://youtube.com/@adelkhaan", "#FF0000"),
-                new SocialLink("وب‌سایت", "https://adelkhaan.com", "#00E5FF"),
-                new SocialLink("آپارات", "https://aparat.com/adelkhaan", "#EA1E63")
+                new SocialLink("اینستاگرام", "https://instagram.com/adelkhaan", "#E1306C", R.drawable.ic_social_instagram),
+                new SocialLink("تلگرام", "https://t.me/adelkhaan", "#0088CC", R.drawable.ic_social_telegram),
+                new SocialLink("یوتیوب", "https://youtube.com/@adelkhaan", "#FF0000", R.drawable.ic_social_youtube),
+                new SocialLink("وب‌سایت", "https://adelkhaan.com", "#00E5FF", R.drawable.ic_social_globe),
+                new SocialLink("آپارات", "https://aparat.com/adelkhaan", "#EA1E63", R.drawable.ic_social_aparat)
             )
         ));
 
@@ -78,8 +84,8 @@ public class MediaPartnerRepository {
             "#00E676",
             R.drawable.iotechoi,
             Arrays.asList(
-                new SocialLink("اینستاگرام", "https://instagram.com/iotechoi", "#E1306C"),
-                new SocialLink("تلگرام", "https://t.me/iotechoi", "#0088CC")
+                new SocialLink("اینستاگرام", "https://instagram.com/iotechoi", "#E1306C", R.drawable.ic_social_instagram),
+                new SocialLink("تلگرام", "https://t.me/iotechoi", "#0088CC", R.drawable.ic_social_telegram)
             )
         ));
 
@@ -93,8 +99,8 @@ public class MediaPartnerRepository {
             "#00E676",
             R.drawable.rick_sanchez,
             Arrays.asList(
-                new SocialLink("کانال تلگرام", "https://t.me/M4tinBeigi", "#0088CC"),
-                new SocialLink("گیت‌هاب", "https://github.com/m4tinbeigi-official", "#94A3B8")
+                new SocialLink("کانال تلگرام", "https://t.me/M4tinBeigi", "#0088CC", R.drawable.ic_social_telegram),
+                new SocialLink("گیت‌هاب", "https://github.com/m4tinbeigi-official", "#FFFFFF", R.drawable.ic_social_github)
             )
         ));
 

@@ -43,7 +43,7 @@ public class CreatorProfileTabView {
         idLp.setMargins(0, 0, 0, CyberUiTheme.dpToPx(context, 16));
         idCard.setLayoutParams(idLp);
 
-        // تصویر پرتره رسمی ریک سانچز
+        // تصویر پرتره رسمی ریک سانچز با برش مدور بدون بیرون‌زدگی
         LinearLayout avatarRing = new LinearLayout(context);
         avatarRing.setGravity(Gravity.CENTER);
         int ringSize = CyberUiTheme.dpToPx(context, 86);
@@ -52,10 +52,10 @@ public class CreatorProfileTabView {
         avatarRing.setBackground(CyberUiTheme.createOvalBg("#1E293B", CyberUiTheme.COLOR_NEON_GREEN, 3));
 
         ImageView avatarImg = new ImageView(context);
-        avatarImg.setImageResource(R.drawable.rick_sanchez);
+        avatarImg.setImageDrawable(CyberUiTheme.createCircularDrawable(context, R.drawable.rick_sanchez));
         int imgSize = CyberUiTheme.dpToPx(context, 80);
         avatarImg.setLayoutParams(new LinearLayout.LayoutParams(imgSize, imgSize));
-        avatarImg.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        avatarImg.setScaleType(ImageView.ScaleType.FIT_CENTER);
         avatarRing.addView(avatarImg);
         idCard.addView(avatarRing);
 
@@ -75,6 +75,76 @@ public class CreatorProfileTabView {
         FontHelper.applyRegular(devRole);
         devRole.setGravity(Gravity.CENTER);
         idCard.addView(devRole);
+
+        // آیکون‌های ارتباط مستقیم تلگرام، گیت‌هاب و ایمیل درون کارت هویتی
+        LinearLayout devSocialRow = new LinearLayout(context);
+        devSocialRow.setOrientation(LinearLayout.HORIZONTAL);
+        devSocialRow.setGravity(Gravity.CENTER);
+        devSocialRow.setPadding(0, CyberUiTheme.dpToPx(context, 12), 0, 0);
+
+        // ۱. تلگرام
+        LinearLayout tgBtn = new LinearLayout(context);
+        tgBtn.setGravity(Gravity.CENTER);
+        int dBtnSize = CyberUiTheme.dpToPx(context, 42);
+        LinearLayout.LayoutParams tblp = new LinearLayout.LayoutParams(dBtnSize, dBtnSize);
+        tblp.setMargins(CyberUiTheme.dpToPx(context, 6), 0, CyberUiTheme.dpToPx(context, 6), 0);
+        tgBtn.setLayoutParams(tblp);
+        GradientDrawable tgBg = new GradientDrawable();
+        tgBg.setColor(Color.parseColor("#152438"));
+        tgBg.setCornerRadius(CyberUiTheme.dpToPx(context, 12));
+        tgBg.setStroke(1, Color.parseColor("#0088CC"));
+        tgBtn.setBackground(tgBg);
+        ImageView tgIv = new ImageView(context);
+        tgIv.setImageResource(R.drawable.ic_social_telegram);
+        tgIv.setLayoutParams(new LinearLayout.LayoutParams(CyberUiTheme.dpToPx(context, 22), CyberUiTheme.dpToPx(context, 22)));
+        tgBtn.addView(tgIv);
+        tgBtn.setOnClickListener(v -> {
+            if (listener != null) listener.onTelegramClicked();
+        });
+        devSocialRow.addView(tgBtn);
+
+        // ۲. گیت‌هاب
+        LinearLayout ghBtn = new LinearLayout(context);
+        ghBtn.setGravity(Gravity.CENTER);
+        ghBtn.setLayoutParams(tblp);
+        GradientDrawable ghBg = new GradientDrawable();
+        ghBg.setColor(Color.parseColor("#152438"));
+        ghBg.setCornerRadius(CyberUiTheme.dpToPx(context, 12));
+        ghBg.setStroke(1, Color.parseColor("#FFFFFF"));
+        ghBtn.setBackground(ghBg);
+        ImageView ghIv = new ImageView(context);
+        ghIv.setImageResource(R.drawable.ic_social_github);
+        ghIv.setLayoutParams(new LinearLayout.LayoutParams(CyberUiTheme.dpToPx(context, 22), CyberUiTheme.dpToPx(context, 22)));
+        ghBtn.addView(ghIv);
+        ghBtn.setOnClickListener(v -> {
+            if (listener != null) listener.onGithubClicked();
+        });
+        devSocialRow.addView(ghBtn);
+
+        // ۳. ایمیل
+        LinearLayout emBtn = new LinearLayout(context);
+        emBtn.setGravity(Gravity.CENTER);
+        emBtn.setLayoutParams(tblp);
+        GradientDrawable emBg = new GradientDrawable();
+        emBg.setColor(Color.parseColor("#152438"));
+        emBg.setCornerRadius(CyberUiTheme.dpToPx(context, 12));
+        emBg.setStroke(1, Color.parseColor(CyberUiTheme.COLOR_CYAN));
+        emBtn.setBackground(emBg);
+        ImageView emIv = new ImageView(context);
+        emIv.setImageResource(R.drawable.ic_file_report);
+        emIv.setColorFilter(Color.parseColor(CyberUiTheme.COLOR_CYAN));
+        emIv.setLayoutParams(new LinearLayout.LayoutParams(CyberUiTheme.dpToPx(context, 22), CyberUiTheme.dpToPx(context, 22)));
+        emBtn.addView(emIv);
+        emBtn.setOnClickListener(v -> {
+            try {
+                Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:m4tinbeigi@gmail.com"));
+                emailIntent.putExtra(Intent.EXTRA_SUBJECT, "گزارش بدافزار / پیام به ریک سانچز");
+                context.startActivity(emailIntent);
+            } catch (Exception ignored) {}
+        });
+        devSocialRow.addView(emBtn);
+
+        idCard.addView(devSocialRow);
 
         container.addView(idCard);
 

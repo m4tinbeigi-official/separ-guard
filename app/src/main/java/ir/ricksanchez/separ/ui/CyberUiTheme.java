@@ -1,7 +1,15 @@
 package ir.ricksanchez.separ.ui;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.BitmapShader;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Shader;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.view.Gravity;
 import android.view.View;
@@ -76,6 +84,32 @@ public class CyberUiTheme {
             gd.setStroke(strokeWidthDp, Color.parseColor(strokeColor));
         }
         return gd;
+    }
+
+    public static Drawable createCircularDrawable(Context context, int resId) {
+        if (context == null || resId <= 0) return null;
+        try {
+            Bitmap src = BitmapFactory.decodeResource(context.getResources(), resId);
+            if (src != null) {
+                int size = Math.min(src.getWidth(), src.getHeight());
+                int x = (src.getWidth() - size) / 2;
+                int y = (src.getHeight() - size) / 2;
+                Bitmap squared = Bitmap.createBitmap(src, x, y, size, size);
+                Bitmap output = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+                Canvas canvas = new Canvas(output);
+                Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                BitmapShader shader = new BitmapShader(squared, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+                paint.setShader(shader);
+                float r = size / 2f;
+                canvas.drawCircle(r, r, r, paint);
+                return new BitmapDrawable(context.getResources(), output);
+            }
+        } catch (Exception ignored) {}
+        try {
+            return context.getResources().getDrawable(resId);
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 
     public static Button createPrimaryButton(Context context, String text, String bgColor, String textColor) {

@@ -97,6 +97,54 @@ public class SecuritySettingsTabView {
 
         container.addView(headerCard);
 
+        // ۲. کارت راهنمای رفع خطای «App was denied access» در اندروید ۱۳ و ۱۴ (باز کردن قفل ۳ نقطه)
+        if (!isAllGranted && Build.VERSION.SDK_INT >= 30) {
+            LinearLayout restrictedCard = new LinearLayout(context);
+            restrictedCard.setOrientation(LinearLayout.VERTICAL);
+            int rp = CyberUiTheme.dpToPx(context, 16);
+            restrictedCard.setPadding(rp, rp, rp, rp);
+            restrictedCard.setBackground(CyberUiTheme.createCardBg("#26170E", CyberUiTheme.COLOR_AMBER, 18));
+            LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            rlp.setMargins(0, 0, 0, CyberUiTheme.dpToPx(context, 16));
+            restrictedCard.setLayoutParams(rlp);
+
+            TextView rTitle = new TextView(context);
+            rTitle.setText("راهنمای رفع خطای «App was denied access» (اندروید ۱۳ و ۱۴)");
+            rTitle.setTextColor(Color.parseColor(CyberUiTheme.COLOR_AMBER));
+            rTitle.setTextSize(13);
+            FontHelper.applyBold(rTitle);
+            restrictedCard.addView(rTitle);
+
+            TextView rDesc = new TextView(context);
+            rDesc.setText(
+                "در اندروید ۱۳، ۱۴ و ۱۵، گوگل برای برنامه‌های خارج از گوگل‌پلی کلید دسترسی‌ها را قفل می‌کند (Restricted Settings).\n" +
+                "برای باز کردن قفل و فعال‌سازی آسان دسترسی‌ها:\n\n" +
+                "۱. دکمه زیر را لمس کنید تا صفحه اطلاعات سپر در تنظیمات گوشی باز شود.\n" +
+                "۲. در بالای صفحه گوشه راست، روی آیکون «سه نقطه (⋮)» بزنید.\n" +
+                "۳. گزینه «Allow restricted settings» (اجازه دادن به تنظیمات محدودشده) را لمس کرده و اثر انگشت یا رمز گوشی خود را بزنید.\n" +
+                "۴. پس از این کار، تمام کلیدهای دسترسی آزاد شده و می‌توانید به راحتی آن‌ها را روشن کنید."
+            );
+            rDesc.setTextColor(Color.parseColor(CyberUiTheme.COLOR_TEXT_PRIMARY));
+            rDesc.setTextSize(11);
+            FontHelper.applyRegular(rDesc);
+            rDesc.setLineSpacing(CyberUiTheme.dpToPx(context, 3), 1.25f);
+            rDesc.setPadding(0, CyberUiTheme.dpToPx(context, 6), 0, CyberUiTheme.dpToPx(context, 12));
+            restrictedCard.addView(rDesc);
+
+            Button unlockBtn = CyberUiTheme.createPrimaryButton(
+                context,
+                "باز کردن صفحه تنظیمات جهت زدن سه نقطه (⋮)",
+                "#FFA726",
+                "#080B10"
+            );
+            unlockBtn.setOnClickListener(v -> {
+                if (listener != null) listener.onAppDetailsRequested();
+            });
+            restrictedCard.addView(unlockBtn);
+
+            container.addView(restrictedCard);
+        }
+
         // ۳. کارت‌های دسترسی هوشمند
         container.addView(CyberUiTheme.createSectionTitle(context, "فهرست دسترسی‌های حفاظتی سیستم"));
 

@@ -102,8 +102,8 @@ public class MainActivity extends Activity {
             getWindow().setNavigationBarColor(Color.parseColor(CyberUiTheme.COLOR_BOTTOM_BAR_BG));
         }
 
-        // اعمال سیاست امنیتی ضد اسکرین‌شات
-        SmsAndScreenGuard.enforceScreenSecurity(this);
+        // اجازه ثبت اسکرین‌شات از خود نرم‌افزار سپر (بدون اعمال محدودیت FLAG_SECURE روی خود برنامه)
+        // SmsAndScreenGuard.enforceScreenSecurity(this);
 
         audioGuide = new AudioGuideEngine(this);
         billingManager = SeparApp.getInstance().getBillingManager();

@@ -96,7 +96,7 @@ public class AcademyMediaTabView {
         topRow.setOrientation(LinearLayout.HORIZONTAL);
         topRow.setGravity(Gravity.CENTER_VERTICAL);
 
-        // فریم گرد عکس پروفایل
+        // فریم گرد عکس پروفایل با برش کامپوزیت مدور
         LinearLayout avatarRing = new LinearLayout(context);
         avatarRing.setGravity(Gravity.CENTER);
         int ringSize = CyberUiTheme.dpToPx(context, 54);
@@ -106,10 +106,10 @@ public class AcademyMediaTabView {
         avatarRing.setBackground(CyberUiTheme.createOvalBg("#1E293B", partner.badgeColorHex, 2));
 
         ImageView avatarIv = new ImageView(context);
-        avatarIv.setImageResource(partner.imageResId);
+        avatarIv.setImageDrawable(CyberUiTheme.createCircularDrawable(context, partner.imageResId));
         int imgSize = CyberUiTheme.dpToPx(context, 50);
         avatarIv.setLayoutParams(new LinearLayout.LayoutParams(imgSize, imgSize));
-        avatarIv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        avatarIv.setScaleType(ImageView.ScaleType.FIT_CENTER);
         avatarRing.addView(avatarIv);
         topRow.addView(avatarRing);
 
@@ -146,18 +146,42 @@ public class AcademyMediaTabView {
         descTv.setPadding(0, CyberUiTheme.dpToPx(context, 10), 0, CyberUiTheme.dpToPx(context, 10));
         card.addView(descTv);
 
-        // دکمه‌های مستقیم شبکه‌های اجتماعی
+        // آیکون‌های شکیل و تمیز شبکه‌های اجتماعی
         if (!partner.socialLinks.isEmpty()) {
             LinearLayout socialRow = new LinearLayout(context);
             socialRow.setOrientation(LinearLayout.HORIZONTAL);
+            socialRow.setGravity(Gravity.CENTER_VERTICAL);
             socialRow.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            socialRow.setPadding(0, CyberUiTheme.dpToPx(context, 4), 0, 0);
 
             for (MediaPartnerRepository.SocialLink sl : partner.socialLinks) {
-                Button sBtn = CyberUiTheme.createChipButton(context, sl.titleFa, "#141F30", Color.parseColor(sl.colorHex));
-                sBtn.setOnClickListener(v -> {
+                LinearLayout iconBtn = new LinearLayout(context);
+                iconBtn.setGravity(Gravity.CENTER);
+                int btnSize = CyberUiTheme.dpToPx(context, 40);
+                LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(btnSize, btnSize);
+                blp.setMargins(CyberUiTheme.dpToPx(context, 6), 0, 0, 0);
+                iconBtn.setLayoutParams(blp);
+
+                GradientDrawable btnBg = new GradientDrawable();
+                btnBg.setColor(Color.parseColor("#141E2C"));
+                btnBg.setCornerRadius(CyberUiTheme.dpToPx(context, 12));
+                btnBg.setStroke(1, Color.parseColor(sl.colorHex));
+                iconBtn.setBackground(btnBg);
+
+                ImageView iv = new ImageView(context);
+                if (sl.iconResId > 0) {
+                    iv.setImageResource(sl.iconResId);
+                } else {
+                    iv.setImageResource(R.drawable.ic_shield);
+                }
+                int isz = CyberUiTheme.dpToPx(context, 20);
+                iv.setLayoutParams(new LinearLayout.LayoutParams(isz, isz));
+                iconBtn.addView(iv);
+
+                iconBtn.setOnClickListener(v -> {
                     if (listener != null) listener.onPartnerClicked(sl.url);
                 });
-                socialRow.addView(sBtn);
+                socialRow.addView(iconBtn);
             }
             card.addView(socialRow);
         }
