@@ -6,18 +6,19 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.HorizontalScrollView;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import ir.ricksanchez.separ.R;
 import ir.ricksanchez.separ.SeparApp;
 import ir.ricksanchez.separ.audio.AudioGuideEngine;
 import ir.ricksanchez.separ.billing.PromoAndAffiliateManager;
@@ -47,7 +48,7 @@ import java.util.Set;
 
 /**
  * رابط کاربری اصلی و فوق‌پیشرفته سایبری «سپر» (Cyber-SOC HUD)
- * مجهز به معماری تب‌بندی‌شده ۴ لایه، رادار مدور، دیده‌بان پیامک، آکادمی آپارات و سیستم لایسنس
+ * مجهز به نوار ناوبری مدرن پایینی (Bottom Navigation Bar)، رادار متمرکز، دیده‌بان پیامک و تایپوگرافی وزیرمتن
  */
 public class MainActivity extends Activity {
 
@@ -65,9 +66,10 @@ public class MainActivity extends Activity {
     private UserModeManager userModeManager;
     private UserCustomWhitelistManager userWhitelist;
 
-    private LinearLayout mainContainer;
-    private LinearLayout tabsHeaderLayout;
+    private LinearLayout rootAppLayout;
+    private ScrollView contentScrollView;
     private LinearLayout tabContentContainer;
+    private LinearLayout bottomNavBar;
 
     private List<ThreatPackageRegistry.ThreatResult> detectedThreats = new ArrayList<>();
     private List<SmsAndScreenGuard.AppAuditResult> smsAuditList = new ArrayList<>();
@@ -94,121 +96,202 @@ public class MainActivity extends Activity {
     }
 
     private void buildScaffoldUi() {
-        ScrollView scrollView = new ScrollView(this);
-        scrollView.setBackgroundColor(Color.parseColor(CyberUiTheme.COLOR_BG));
-        scrollView.setFillViewport(true);
-        scrollView.setLayoutParams(new ViewGroup.LayoutParams(
+        // ۱. چیدمان عمودی کل صفحه
+        rootAppLayout = new LinearLayout(this);
+        rootAppLayout.setOrientation(LinearLayout.VERTICAL);
+        rootAppLayout.setBackgroundColor(Color.parseColor(CyberUiTheme.COLOR_BG));
+        rootAppLayout.setLayoutParams(new ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT
         ));
 
-        mainContainer = new LinearLayout(this);
-        mainContainer.setOrientation(LinearLayout.VERTICAL);
-        mainContainer.setPadding(28, 32, 28, 40);
-        mainContainer.setLayoutParams(new LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        ));
-        scrollView.addView(mainContainer);
+        // ۲. ناحیه محتوای پیمایشی بالا (وزن ۱.۰ برای پر کردن فضا تا بالای نوار ناوبری)
+        contentScrollView = new ScrollView(this);
+        contentScrollView.setFillViewport(true);
+        LinearLayout.LayoutParams scrollParams = new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            0,
+            1.0f
+        );
+        contentScrollView.setLayoutParams(scrollParams);
 
-        setContentView(scrollView);
-        renderFullInterface();
+        LinearLayout scrollInner = new LinearLayout(this);
+        scrollInner.setOrientation(LinearLayout.VERTICAL);
+        scrollInner.setPadding(24, 28, 24, 28);
+        scrollInner.setLayoutParams(new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ));
+
+        // هدر بالای صفحه
+        scrollInner.addView(buildTopHeader());
+
+        // کانتینر محتوای تب فعال
+        tabContentContainer = new LinearLayout(this);
+        tabContentContainer.setOrientation(LinearLayout.VERTICAL);
+        tabContentContainer.setLayoutParams(new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ));
+        scrollInner.addView(tabContentContainer);
+
+        contentScrollView.addView(scrollInner);
+        rootAppLayout.addView(contentScrollView);
+
+        // ۳. نوار ناوبری مدرن پایینی (Fixed Bottom Navigation Bar)
+        bottomNavBar = buildBottomNavBar();
+        rootAppLayout.addView(bottomNavBar);
+
+        setContentView(rootAppLayout);
+        renderActiveTabContent();
     }
 
-    private void renderFullInterface() {
-        mainContainer.removeAllViews();
-
-        // ۱. نوار وضعیت و برند برنامه در بالاترین نقطه
+    private View buildTopHeader() {
         LinearLayout topBar = new LinearLayout(this);
         topBar.setOrientation(LinearLayout.HORIZONTAL);
         topBar.setGravity(Gravity.CENTER_VERTICAL);
-        topBar.setPadding(0, 0, 0, 16);
-        topBar.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        topBar.setPadding(0, 0, 0, 18);
+        topBar.setLayoutParams(new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ));
 
+        // آیکون سپر در سمت راست
+        ImageView logoView = new ImageView(this);
+        logoView.setImageResource(R.drawable.ic_shield);
+        int logoSizePx = 36;
+        LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(logoSizePx, logoSizePx);
+        llp.setMargins(14, 0, 0, 0);
+        logoView.setLayoutParams(llp);
+        topBar.addView(logoView);
+
+        // ستون متن عنوان و زیرعنوان
         LinearLayout brandCol = new LinearLayout(this);
         brandCol.setOrientation(LinearLayout.VERTICAL);
         LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f);
         brandCol.setLayoutParams(blp);
 
         TextView title = new TextView(this);
-        title.setText("🛡️ سپر ضد هک");
-        title.setTextSize(22);
+        title.setText("سپر ضد هک");
+        title.setTextSize(18);
         title.setTextColor(Color.WHITE);
         FontHelper.applyBold(title);
         brandCol.addView(title);
 
         TextView subtitle = new TextView(this);
-        subtitle.setText("۱۰۰٪ رایگان و عام‌المنفعه • برنامه‌نویس: ریک سانچز");
-        subtitle.setTextSize(11);
-        subtitle.setTextColor(Color.parseColor(CyberUiTheme.COLOR_NEON_GREEN));
+        subtitle.setText("سامانه دفاع سایبری ملی • ریک سانچز");
+        subtitle.setTextSize(10);
+        subtitle.setTextColor(Color.parseColor(CyberUiTheme.COLOR_TEXT_MUTED));
         FontHelper.applyRegular(subtitle);
         brandCol.addView(subtitle);
         topBar.addView(brandCol);
 
-        // دکمه کوچک دسترسی سریع صدا
-        Button quickVoice = new Button(this);
-        quickVoice.setText("🔊 راهنما");
-        quickVoice.setTextColor(Color.WHITE);
-        quickVoice.setTextSize(11);
-        FontHelper.applyMedium(quickVoice);
-        quickVoice.setBackground(CyberUiTheme.createCardBg("#1E293B", CyberUiTheme.COLOR_CYAN, 12));
-        quickVoice.setPadding(16, 8, 16, 8);
-        quickVoice.setOnClickListener(v -> playVoiceBriefing());
-        topBar.addView(quickVoice);
+        // نشان وضعیت سبز (Live Status Chip)
+        TextView liveChip = new TextView(this);
+        liveChip.setText("پایش ۲۴ ساعته");
+        liveChip.setTextColor(Color.parseColor(CyberUiTheme.COLOR_NEON_GREEN));
+        liveChip.setTextSize(10);
+        FontHelper.applyMedium(liveChip);
+        liveChip.setPadding(12, 6, 12, 6);
+        liveChip.setBackground(CyberUiTheme.createCardBg("#0F2618", CyberUiTheme.COLOR_NEON_GREEN, 10));
+        LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        clp.setMargins(8, 0, 8, 0);
+        liveChip.setLayoutParams(clp);
+        topBar.addView(liveChip);
 
-        mainContainer.addView(topBar);
+        // دکمه دستیار صوتی
+        ImageView voiceBtn = new ImageView(this);
+        voiceBtn.setImageResource(R.drawable.ic_volume_up);
+        int vSizePx = 36;
+        LinearLayout.LayoutParams vlp = new LinearLayout.LayoutParams(vSizePx, vSizePx);
+        voiceBtn.setLayoutParams(vlp);
+        voiceBtn.setPadding(6, 6, 6, 6);
+        voiceBtn.setBackground(CyberUiTheme.createCardBg("#131D2E", CyberUiTheme.COLOR_CYAN, 12));
+        voiceBtn.setOnClickListener(v -> playVoiceBriefing());
+        topBar.addView(voiceBtn);
 
-        // ۲. تب‌های ناوبری مدرن افقی (Horizontal Cyber Tab Bar)
-        HorizontalScrollView tabScroll = new HorizontalScrollView(this);
-        tabScroll.setHorizontalScrollBarEnabled(false);
-        tabScroll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-
-        tabsHeaderLayout = new LinearLayout(this);
-        tabsHeaderLayout.setOrientation(LinearLayout.HORIZONTAL);
-        tabsHeaderLayout.setPadding(0, 4, 0, 16);
-        tabsHeaderLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-
-        addTabButton("🛡️ رادار امنیت", TAB_RADAR);
-        addTabButton("🔒 دیده‌بان پیامک", TAB_SMS_APPS);
-        addTabButton("🎬 آکادمی آپارات", TAB_ACADEMY);
-        addTabButton("👤 سازنده: ریک سانچز", TAB_CREATOR);
-
-        tabScroll.addView(tabsHeaderLayout);
-        mainContainer.addView(tabScroll);
-
-        // ۳. کانتینر محتوای تب فعال
-        tabContentContainer = new LinearLayout(this);
-        tabContentContainer.setOrientation(LinearLayout.VERTICAL);
-        tabContentContainer.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        mainContainer.addView(tabContentContainer);
-
-        renderActiveTabContent();
+        return topBar;
     }
 
-    private void addTabButton(String label, final int tabIndex) {
-        Button btn = new Button(this);
-        btn.setText(label);
-        btn.setTextSize(12);
-        FontHelper.applyMedium(btn);
+    private LinearLayout buildBottomNavBar() {
+        LinearLayout bar = new LinearLayout(this);
+        bar.setOrientation(LinearLayout.HORIZONTAL);
+        bar.setGravity(Gravity.CENTER);
+        bar.setBackgroundColor(Color.parseColor(CyberUiTheme.COLOR_BOTTOM_BAR_BG));
+        bar.setPadding(10, 8, 10, 8);
+
+        LinearLayout.LayoutParams barParams = new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        bar.setLayoutParams(barParams);
+
+        addBottomNavItem(bar, R.drawable.ic_nav_radar, "رادار پایش", TAB_RADAR);
+        addBottomNavItem(bar, R.drawable.ic_nav_sms, "دیده‌بان پیامک", TAB_SMS_APPS);
+        addBottomNavItem(bar, R.drawable.ic_nav_academy, "آموزش‌ها", TAB_ACADEMY);
+        addBottomNavItem(bar, R.drawable.ic_nav_creator, "سازنده", TAB_CREATOR);
+
+        return bar;
+    }
+
+    private void addBottomNavItem(LinearLayout parent, int iconResId, String label, final int tabIndex) {
+        LinearLayout item = new LinearLayout(this);
+        item.setOrientation(LinearLayout.VERTICAL);
+        item.setGravity(Gravity.CENTER);
+        item.setPadding(6, 6, 6, 6);
+
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f);
+        item.setLayoutParams(lp);
 
         boolean isActive = (currentTab == tabIndex);
-        btn.setTextColor(Color.parseColor(isActive ? "#FFFFFF" : CyberUiTheme.COLOR_TEXT_MUTED));
-        btn.setBackground(CyberUiTheme.createCardBg(isActive ? "#1E293B" : "#0F172A", isActive ? CyberUiTheme.COLOR_CYAN : null, 14));
 
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.setMargins(0, 0, 10, 0);
-        btn.setLayoutParams(lp);
-        btn.setPadding(22, 14, 22, 14);
+        ImageView icon = new ImageView(this);
+        icon.setImageResource(iconResId);
+        int iconSize = 22;
+        LinearLayout.LayoutParams ilp = new LinearLayout.LayoutParams(iconSize, iconSize);
+        icon.setLayoutParams(ilp);
+        if (isActive) {
+            icon.setColorFilter(Color.parseColor(CyberUiTheme.COLOR_CYAN));
+        } else {
+            icon.setColorFilter(Color.parseColor(CyberUiTheme.COLOR_TEXT_DIM));
+        }
+        item.addView(icon);
 
-        btn.setOnClickListener(v -> {
-            currentTab = tabIndex;
-            renderFullInterface();
+        TextView text = new TextView(this);
+        text.setText(label);
+        text.setTextSize(10);
+        text.setTextColor(Color.parseColor(isActive ? "#FFFFFF" : CyberUiTheme.COLOR_TEXT_DIM));
+        if (isActive) {
+            FontHelper.applyBold(text);
+        } else {
+            FontHelper.applyRegular(text);
+        }
+        text.setPadding(0, 3, 0, 0);
+        item.addView(text);
+
+        item.setOnClickListener(v -> {
+            if (currentTab != tabIndex) {
+                currentTab = tabIndex;
+                refreshBottomNavBar();
+                renderActiveTabContent();
+                contentScrollView.smoothScrollTo(0, 0);
+            }
         });
 
-        tabsHeaderLayout.addView(btn);
+        parent.addView(item);
+    }
+
+    private void refreshBottomNavBar() {
+        if (bottomNavBar == null) return;
+        bottomNavBar.removeAllViews();
+        addBottomNavItem(bottomNavBar, R.drawable.ic_nav_radar, "رادار پایش", TAB_RADAR);
+        addBottomNavItem(bottomNavBar, R.drawable.ic_nav_sms, "دیده‌بان پیامک", TAB_SMS_APPS);
+        addBottomNavItem(bottomNavBar, R.drawable.ic_nav_academy, "آموزش‌ها", TAB_ACADEMY);
+        addBottomNavItem(bottomNavBar, R.drawable.ic_nav_creator, "سازنده", TAB_CREATOR);
     }
 
     private void renderActiveTabContent() {
+        if (tabContentContainer == null) return;
         tabContentContainer.removeAllViews();
 
         int unapprovedCount = 0;
@@ -424,7 +507,7 @@ public class MainActivity extends Activity {
         String[] items = new String[dangerousApks.size()];
         for (int i = 0; i < dangerousApks.size(); i++) {
             PreInstallApkScanner.DangerousApkFile f = dangerousApks.get(i);
-            items[i] = "⛔ " + f.fileName + " (" + f.getFormattedSize() + ")\n" + f.threatName;
+            items[i] = f.fileName + " (" + f.getFormattedSize() + ") - " + f.threatName;
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -471,7 +554,7 @@ public class MainActivity extends Activity {
         String[] items = new String[bankApps.size()];
         for (int i = 0; i < bankApps.size(); i++) {
             BankingAppIntegrityGuard.BankAppStatus b = bankApps.get(i);
-            items[i] = "🏦 " + b.bankNameFa + "\n" + b.statusDescriptionFa;
+            items[i] = b.bankNameFa + " - " + b.statusDescriptionFa;
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -483,9 +566,9 @@ public class MainActivity extends Activity {
 
     private void openCallFraudCheckDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("📞 بررسی شماره تماس و تله‌های وانگیری");
+        builder.setTitle("بررسی شماره تماس و تله‌های وانگیری");
 
-        final android.widget.EditText input = new android.widget.EditText(this);
+        final EditText input = new EditText(this);
         input.setHint("شماره تماس ناشناس یا بین‌المللی (مثلاً +247...)");
         input.setPadding(30, 24, 30, 24);
         builder.setView(input);
@@ -559,7 +642,7 @@ public class MainActivity extends Activity {
         }
 
         smsAuditList = SmsAndScreenGuard.auditInstalledPackages(this, userWhitelist);
-        renderFullInterface();
+        renderActiveTabContent();
     }
 
     @Override

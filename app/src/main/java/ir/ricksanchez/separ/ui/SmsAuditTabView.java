@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * رندر تب ممیزی دسترسی به پیامک‌ها، ضبط صفحه و بدافزارهای استتاریافته (SMS & Apps SOC)
- * مجهز به فونت فارسی وزیرمتن (Vazirmatn)
+ * طراحی دارک مود درجه یک بدون استفاده از اموجی، مجهز به وکتورهای تمیز و تایپوگرافی وزیرمتن
  */
 public class SmsAuditTabView {
 
@@ -35,14 +35,14 @@ public class SmsAuditTabView {
         if (!threats.isEmpty()) {
             LinearLayout threatCard = new LinearLayout(context);
             threatCard.setOrientation(LinearLayout.VERTICAL);
-            threatCard.setPadding(24, 20, 24, 20);
+            threatCard.setPadding(22, 20, 22, 20);
             threatCard.setBackground(CyberUiTheme.createCardBg("#381515", CyberUiTheme.COLOR_CRIMSON, 20));
             LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             tlp.setMargins(0, 0, 0, 16);
             threatCard.setLayoutParams(tlp);
 
             TextView tTitle = new TextView(context);
-            tTitle.setText("🔴 " + threats.size() + " بدافزار سارق و استتاریافته شناسایی شد!");
+            tTitle.setText(CyberUiTheme.toPersianDigits(String.valueOf(threats.size())) + " بدافزار سارق و استتاریافته شناسایی شد");
             tTitle.setTextColor(Color.parseColor(CyberUiTheme.COLOR_CRIMSON));
             tTitle.setTextSize(14);
             FontHelper.applyBold(tTitle);
@@ -50,14 +50,14 @@ public class SmsAuditTabView {
 
             for (ThreatPackageRegistry.ThreatResult t : threats) {
                 TextView tItem = new TextView(context);
-                tItem.setText("• " + t.threatName + "\n  " + t.description);
+                tItem.setText(t.threatName + "\n" + t.description);
                 tItem.setTextColor(Color.WHITE);
                 tItem.setTextSize(12);
                 FontHelper.applyRegular(tItem);
                 tItem.setPadding(0, 6, 0, 8);
                 threatCard.addView(tItem);
 
-                Button delBtn = CyberUiTheme.createCyberButton(context, "🗑️ حذف فوری " + t.threatName, "#D32F2F", "#FFFFFF", 12);
+                Button delBtn = CyberUiTheme.createPrimaryButton(context, "حذف فوری و پاکسازی " + t.threatName, "#D32F2F", "#FFFFFF");
                 delBtn.setOnClickListener(v -> {
                     if (listener != null) listener.onRevokeOrUninstallClicked(t.packageName, true);
                 });
@@ -74,7 +74,7 @@ public class SmsAuditTabView {
 
         LinearLayout auditCard = new LinearLayout(context);
         auditCard.setOrientation(LinearLayout.VERTICAL);
-        auditCard.setPadding(24, 20, 24, 20);
+        auditCard.setPadding(22, 20, 22, 20);
         String auditBg = unapprovedCount > 0 ? "#2D181A" : "#102318";
         String auditBorder = unapprovedCount > 0 ? CyberUiTheme.COLOR_CRIMSON : CyberUiTheme.COLOR_NEON_GREEN;
         auditCard.setBackground(CyberUiTheme.createCardBg(auditBg, auditBorder, 20));
@@ -84,8 +84,8 @@ public class SmsAuditTabView {
 
         TextView aTitle = new TextView(context);
         aTitle.setText(unapprovedCount > 0
-            ? "⚠️ " + unapprovedCount + " برنامه بدون اجازه به پیامک‌ها دسترسی دارند!"
-            : "🔒 محافظت فعال: هیچ برنامه ناشناسی به پیامک‌ها دسترسی ندارد");
+            ? CyberUiTheme.toPersianDigits(String.valueOf(unapprovedCount)) + " برنامه بدون اجازه به پیامک‌ها دسترسی دارند"
+            : "محافظت فعال: هیچ برنامه ناشناسی به پیامک‌ها دسترسی ندارد");
         aTitle.setTextColor(Color.parseColor(unapprovedCount > 0 ? CyberUiTheme.COLOR_CRIMSON : CyberUiTheme.COLOR_NEON_GREEN));
         aTitle.setTextSize(14);
         FontHelper.applyBold(aTitle);
@@ -103,14 +103,14 @@ public class SmsAuditTabView {
             if (!item.isSafe()) {
                 LinearLayout row = new LinearLayout(context);
                 row.setOrientation(LinearLayout.VERTICAL);
-                row.setPadding(16, 12, 16, 12);
-                row.setBackground(CyberUiTheme.createCardBg("#1E2536", null, 14));
+                row.setPadding(16, 14, 16, 14);
+                row.setBackground(CyberUiTheme.createCardBg("#1E2536", null, 16));
                 LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                rlp.setMargins(0, 4, 0, 6);
+                rlp.setMargins(0, 4, 0, 8);
                 row.setLayoutParams(rlp);
 
                 TextView nView = new TextView(context);
-                nView.setText("• " + item.appName + " (" + item.packageName + ")");
+                nView.setText(item.appName + " (" + item.packageName + ")");
                 nView.setTextColor(Color.WHITE);
                 nView.setTextSize(13);
                 FontHelper.applyBold(nView);
@@ -121,7 +121,7 @@ public class SmsAuditTabView {
                 dView.setTextColor(Color.parseColor(CyberUiTheme.COLOR_AMBER));
                 dView.setTextSize(11);
                 FontHelper.applyRegular(dView);
-                dView.setPadding(0, 2, 0, 6);
+                dView.setPadding(0, 3, 0, 8);
                 row.addView(dView);
 
                 LinearLayout btnRow = new LinearLayout(context);
@@ -144,7 +144,7 @@ public class SmsAuditTabView {
             }
         }
 
-        Button manageBtn = CyberUiTheme.createCyberButton(context, "📋 مدیریت لیست سفید برنامه‌های من", "#1A2638", CyberUiTheme.COLOR_CYAN, 12);
+        Button manageBtn = CyberUiTheme.createCyberButton(context, "مدیریت لیست سفید برنامه‌های من", "#1A2638", CyberUiTheme.COLOR_CYAN, 12);
         manageBtn.setOnClickListener(v -> {
             if (listener != null) listener.onManageWhitelistClicked();
         });
