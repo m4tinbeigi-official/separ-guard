@@ -22,6 +22,7 @@ public class CyberUiTheme {
     public static final String COLOR_BG = "#080B10";
     public static final String COLOR_CARD_BG = "#111622";
     public static final String COLOR_CARD_BORDER = "#1A2234";
+    public static final String COLOR_TOP_BAR_BG = "#0D111A";
     public static final String COLOR_BOTTOM_BAR_BG = "#0D121C";
     public static final String COLOR_BOTTOM_BAR_BORDER = "#1E273A";
 
@@ -34,6 +35,12 @@ public class CyberUiTheme {
     public static final String COLOR_TEXT_PRIMARY = "#F8FAFC";
     public static final String COLOR_TEXT_MUTED = "#94A3B8";
     public static final String COLOR_TEXT_DIM = "#64748B";
+
+    public static int dpToPx(Context context, int dp) {
+        if (context == null) return dp;
+        float density = context.getResources().getDisplayMetrics().density;
+        return Math.round(dp * density);
+    }
 
     public static String toPersianDigits(String text) {
         if (text == null) return "";
@@ -49,10 +56,10 @@ public class CyberUiTheme {
         return sb.toString();
     }
 
-    public static GradientDrawable createCardBg(String bgColor, String strokeColor, int radius) {
+    public static GradientDrawable createCardBg(String bgColor, String strokeColor, int radiusDp) {
         GradientDrawable gd = new GradientDrawable();
         gd.setColor(Color.parseColor(bgColor != null ? bgColor : COLOR_CARD_BG));
-        gd.setCornerRadius(radius > 0 ? radius : 20);
+        gd.setCornerRadius(radiusDp > 0 ? (float) radiusDp * 2.5f : 40f);
         if (strokeColor != null) {
             gd.setStroke(2, Color.parseColor(strokeColor));
         } else {
@@ -61,12 +68,12 @@ public class CyberUiTheme {
         return gd;
     }
 
-    public static GradientDrawable createOvalBg(String bgColor, String strokeColor, int strokeWidth) {
+    public static GradientDrawable createOvalBg(String bgColor, String strokeColor, int strokeWidthDp) {
         GradientDrawable gd = new GradientDrawable();
         gd.setShape(GradientDrawable.OVAL);
         gd.setColor(Color.parseColor(bgColor));
-        if (strokeColor != null && strokeWidth > 0) {
-            gd.setStroke(strokeWidth, Color.parseColor(strokeColor));
+        if (strokeColor != null && strokeWidthDp > 0) {
+            gd.setStroke(strokeWidthDp, Color.parseColor(strokeColor));
         }
         return gd;
     }
@@ -80,16 +87,17 @@ public class CyberUiTheme {
 
         GradientDrawable gd = new GradientDrawable();
         gd.setColor(Color.parseColor(bgColor));
-        gd.setCornerRadius(18);
+        gd.setCornerRadius(dpToPx(context, 16));
         btn.setBackground(gd);
 
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
+            dpToPx(context, 50)
         );
-        lp.setMargins(0, 10, 0, 10);
+        int mVert = dpToPx(context, 8);
+        lp.setMargins(0, mVert, 0, mVert);
         btn.setLayoutParams(lp);
-        btn.setPadding(20, 20, 20, 20);
+        btn.setPadding(dpToPx(context, 16), 0, dpToPx(context, 16), 0);
         return btn;
     }
 
@@ -102,16 +110,17 @@ public class CyberUiTheme {
 
         GradientDrawable gd = new GradientDrawable();
         gd.setColor(Color.parseColor(bgColor));
-        gd.setCornerRadius(16);
+        gd.setCornerRadius(dpToPx(context, 14));
         btn.setBackground(gd);
 
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         );
-        lp.setMargins(0, 8, 0, 8);
+        int mVert = dpToPx(context, 6);
+        lp.setMargins(0, mVert, 0, mVert);
         btn.setLayoutParams(lp);
-        btn.setPadding(20, 18, 20, 18);
+        btn.setPadding(dpToPx(context, 16), dpToPx(context, 14), dpToPx(context, 16), dpToPx(context, 14));
         return btn;
     }
 
@@ -121,24 +130,38 @@ public class CyberUiTheme {
         LinearLayout row = new LinearLayout(context);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER_VERTICAL);
-        row.setPadding(18, 16, 18, 16);
-        row.setBackground(createCardBg(COLOR_CARD_BG, null, 18));
+        int pHoriz = dpToPx(context, 16);
+        int pVert = dpToPx(context, 14);
+        row.setPadding(pHoriz, pVert, pHoriz, pVert);
+        row.setBackground(createCardBg(COLOR_CARD_BG, null, 16));
 
         LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         );
-        rlp.setMargins(0, 0, 0, 10);
+        rlp.setMargins(0, 0, 0, dpToPx(context, 10));
         row.setLayoutParams(rlp);
 
-        // ۱. آیکون در سمت راست (RTL)
+        // ۱. آیکون در سمت راست با کانتینر گرد (RTL)
+        LinearLayout iconBox = new LinearLayout(context);
+        iconBox.setGravity(Gravity.CENTER);
+        int boxSize = dpToPx(context, 40);
+        LinearLayout.LayoutParams iblp = new LinearLayout.LayoutParams(boxSize, boxSize);
+        iblp.setMargins(dpToPx(context, 14), 0, 0, 0);
+        iconBox.setLayoutParams(iblp);
+
+        String boxBg = (tagColorHex != null) ? "#141D2C" : "#141B26";
+        GradientDrawable boxDrawable = new GradientDrawable();
+        boxDrawable.setColor(Color.parseColor(boxBg));
+        boxDrawable.setCornerRadius(dpToPx(context, 12));
+        iconBox.setBackground(boxDrawable);
+
         ImageView iconView = new ImageView(context);
         iconView.setImageResource(iconResId);
-        int iconSizePx = 36;
-        LinearLayout.LayoutParams ilp = new LinearLayout.LayoutParams(iconSizePx, iconSizePx);
-        ilp.setMargins(14, 0, 0, 0);
-        iconView.setLayoutParams(ilp);
-        row.addView(iconView);
+        int iconSize = dpToPx(context, 22);
+        iconView.setLayoutParams(new LinearLayout.LayoutParams(iconSize, iconSize));
+        iconBox.addView(iconView);
+        row.addView(iconBox);
 
         // ۲. ستون میانی: عنوان و زیرعنوان
         LinearLayout textCol = new LinearLayout(context);
@@ -158,7 +181,7 @@ public class CyberUiTheme {
         subView.setTextSize(11);
         subView.setTextColor(Color.parseColor(COLOR_TEXT_MUTED));
         FontHelper.applyRegular(subView);
-        subView.setPadding(0, 3, 0, 0);
+        subView.setPadding(0, dpToPx(context, 3), 0, 0);
         textCol.addView(subView);
 
         row.addView(textCol);
@@ -170,10 +193,10 @@ public class CyberUiTheme {
             tagView.setTextSize(10);
             tagView.setTextColor(Color.parseColor(tagColorHex != null ? tagColorHex : COLOR_CYAN));
             FontHelper.applyMedium(tagView);
-            tagView.setPadding(10, 4, 10, 4);
-            tagView.setBackground(createCardBg("#151D2A", tagColorHex != null ? tagColorHex : COLOR_CARD_BORDER, 10));
+            tagView.setPadding(dpToPx(context, 8), dpToPx(context, 4), dpToPx(context, 8), dpToPx(context, 4));
+            tagView.setBackground(createCardBg("#151D2A", tagColorHex != null ? tagColorHex : COLOR_CARD_BORDER, 8));
             LinearLayout.LayoutParams tagLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            tagLp.setMargins(6, 0, 6, 0);
+            tagLp.setMargins(dpToPx(context, 6), 0, dpToPx(context, 6), 0);
             tagView.setLayoutParams(tagLp);
             row.addView(tagView);
         }
@@ -181,8 +204,8 @@ public class CyberUiTheme {
         // ۴. فلش هدایتگر چپ در انتهای ردیف (RTL Forward)
         ImageView chevronView = new ImageView(context);
         chevronView.setImageResource(R.drawable.ic_chevron_left);
-        int chevSizePx = 20;
-        LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(chevSizePx, chevSizePx);
+        int chevSize = dpToPx(context, 18);
+        LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(chevSize, chevSize);
         chevronView.setLayoutParams(clp);
         row.addView(chevronView);
 
@@ -199,18 +222,19 @@ public class CyberUiTheme {
 
         GradientDrawable gd = new GradientDrawable();
         gd.setColor(Color.parseColor(bgColor));
-        gd.setCornerRadius(14);
+        gd.setCornerRadius(dpToPx(context, 14));
         gd.setStroke(1, Color.parseColor(COLOR_CARD_BORDER));
         btn.setBackground(gd);
 
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
             0,
-            ViewGroup.LayoutParams.WRAP_CONTENT,
+            dpToPx(context, 42),
             1.0f
         );
-        lp.setMargins(4, 4, 4, 4);
+        int m = dpToPx(context, 4);
+        lp.setMargins(m, m, m, m);
         btn.setLayoutParams(lp);
-        btn.setPadding(10, 12, 10, 12);
+        btn.setPadding(dpToPx(context, 8), 0, dpToPx(context, 8), 0);
         return btn;
     }
 
@@ -218,11 +242,13 @@ public class CyberUiTheme {
         LinearLayout chip = new LinearLayout(context);
         chip.setOrientation(LinearLayout.VERTICAL);
         chip.setGravity(Gravity.CENTER);
-        chip.setPadding(14, 14, 14, 14);
-        chip.setBackground(createCardBg("#111724", colorHex, 18));
+        int p = dpToPx(context, 12);
+        chip.setPadding(p, p, p, p);
+        chip.setBackground(createCardBg("#111724", colorHex, 16));
 
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f);
-        lp.setMargins(4, 0, 4, 0);
+        int m = dpToPx(context, 4);
+        lp.setMargins(m, 0, m, 0);
         chip.setLayoutParams(lp);
 
         TextView valView = new TextView(context);
@@ -239,7 +265,7 @@ public class CyberUiTheme {
         lblView.setTextColor(Color.parseColor(COLOR_TEXT_MUTED));
         FontHelper.applyRegular(lblView);
         lblView.setGravity(Gravity.CENTER);
-        lblView.setPadding(0, 4, 0, 0);
+        lblView.setPadding(0, dpToPx(context, 3), 0, 0);
         chip.addView(lblView);
 
         return chip;
@@ -248,10 +274,10 @@ public class CyberUiTheme {
     public static TextView createSectionTitle(Context context, String text) {
         TextView tv = new TextView(context);
         tv.setText(text);
-        tv.setTextSize(14);
+        tv.setTextSize(13);
         tv.setTextColor(Color.parseColor(COLOR_TEXT_PRIMARY));
         FontHelper.applyBold(tv);
-        tv.setPadding(0, 20, 0, 10);
+        tv.setPadding(0, dpToPx(context, 20), 0, dpToPx(context, 10));
         return tv;
     }
 }

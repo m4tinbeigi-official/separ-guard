@@ -13,8 +13,8 @@ import ir.ricksanchez.separ.R;
 import ir.ricksanchez.separ.data.RescueLedgerRepository;
 
 /**
- * رندر تب رادار امنیت و داشبورد مرکزی (Cyber Radar Dashboard)
- * طراحی دارک مود درجه یک بدون استفاده از اموجی، مجهز به وکتورهای تمیز و تایپوگرافی وزیرمتن
+ * داشبورد رادار مرکزی سایبری (Cyber-SOC HUD Dashboard)
+ * طراحی دارک مود فین‌تک درجه یک بدون اموجی، مجهز به کارت وضعیت قهرمان و معماری ماژولار ۳ سطحی
  */
 public class RadarDashboardView {
 
@@ -30,113 +30,133 @@ public class RadarDashboardView {
         void onSyncDatabaseClicked();
         void onBankingIntegrityClicked();
         void onCallFraudCheckClicked();
+        void onOtpNotificationShieldClicked();
+        void onWifiRadarClicked();
+        void onAppLockClicked();
+        void onPhotoMetadataCleanClicked();
     }
 
     public static View buildView(Context context, boolean hasThreats, int threatsCount,
                                  RescueLedgerRepository.RescueStats stats,
                                  final RadarDashboardListener listener) {
-
         LinearLayout container = new LinearLayout(context);
         container.setOrientation(LinearLayout.VERTICAL);
-        container.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        container.setLayoutParams(new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ));
 
         // ۱. نوار چیپ‌های وضعیت زنده (Live Telemetry Row)
         LinearLayout statsRow = new LinearLayout(context);
         statsRow.setOrientation(LinearLayout.HORIZONTAL);
-        statsRow.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        statsRow.setPadding(0, 0, 0, 18);
+        statsRow.setLayoutParams(new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ));
+        statsRow.setPadding(0, 0, 0, CyberUiTheme.dpToPx(context, 14));
 
         statsRow.addView(CyberUiTheme.createStatChip(context, "دفاع موفق", String.valueOf(stats.totalAttacksBlocked), CyberUiTheme.COLOR_CYAN));
         statsRow.addView(CyberUiTheme.createStatChip(context, "سرقت خنثی‌شده", String.valueOf(stats.bankingTheftsPrevented), CyberUiTheme.COLOR_NEON_GREEN));
         statsRow.addView(CyberUiTheme.createStatChip(context, "تهدید فعال", String.valueOf(threatsCount), hasThreats ? CyberUiTheme.COLOR_CRIMSON : CyberUiTheme.COLOR_NEON_GREEN));
         container.addView(statsRow);
 
-        // ۲. رادار مدور سایبری (Concentric Cyber Radar Core)
-        LinearLayout outerRadar = new LinearLayout(context);
-        outerRadar.setOrientation(LinearLayout.VERTICAL);
-        outerRadar.setGravity(Gravity.CENTER);
-        int outerSizePx = 340;
-        LinearLayout.LayoutParams outerParams = new LinearLayout.LayoutParams(outerSizePx, outerSizePx);
-        outerParams.gravity = Gravity.CENTER_HORIZONTAL;
-        outerParams.setMargins(0, 8, 0, 18);
-        outerRadar.setLayoutParams(outerParams);
+        // ۲. کارت وضعیت قهرمان (Hero Security Card)
+        LinearLayout heroCard = new LinearLayout(context);
+        heroCard.setOrientation(LinearLayout.VERTICAL);
+        int p = CyberUiTheme.dpToPx(context, 18);
+        heroCard.setPadding(p, p, p, p);
+        String heroBg = hasThreats ? "#1F0D11" : "#0D1822";
+        String heroBorder = hasThreats ? CyberUiTheme.COLOR_CRIMSON : CyberUiTheme.COLOR_NEON_GREEN;
+        heroCard.setBackground(CyberUiTheme.createCardBg(heroBg, heroBorder, 20));
 
-        String radarBg = hasThreats ? "#2E0F12" : "#0A1D13";
-        String radarBorder = hasThreats ? CyberUiTheme.COLOR_CRIMSON : CyberUiTheme.COLOR_NEON_GREEN;
-        outerRadar.setBackground(CyberUiTheme.createOvalBg(radarBg, radarBorder, 3));
+        LinearLayout.LayoutParams heroParams = new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        heroParams.setMargins(0, 0, 0, CyberUiTheme.dpToPx(context, 16));
+        heroCard.setLayoutParams(heroParams);
 
-        LinearLayout innerRadar = new LinearLayout(context);
-        innerRadar.setOrientation(LinearLayout.VERTICAL);
-        innerRadar.setGravity(Gravity.CENTER);
-        int innerSizePx = 290;
-        LinearLayout.LayoutParams innerParams = new LinearLayout.LayoutParams(innerSizePx, innerSizePx);
-        innerParams.gravity = Gravity.CENTER;
-        innerRadar.setLayoutParams(innerParams);
+        // سطر افقی بالای کارت قهرمان (حلقه نشان وضعیت + توضیحات)
+        LinearLayout heroTopRow = new LinearLayout(context);
+        heroTopRow.setOrientation(LinearLayout.HORIZONTAL);
+        heroTopRow.setGravity(Gravity.CENTER_VERTICAL);
+        heroTopRow.setLayoutParams(new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ));
 
-        String innerBg = hasThreats ? "#42161A" : "#0F2E1E";
-        innerRadar.setBackground(CyberUiTheme.createOvalBg(innerBg, radarBorder, 1));
+        // حلقه آیکون وضعیت مرکزی (۶۰dp)
+        LinearLayout heroRing = new LinearLayout(context);
+        heroRing.setGravity(Gravity.CENTER);
+        int ringSize = CyberUiTheme.dpToPx(context, 58);
+        LinearLayout.LayoutParams ringLp = new LinearLayout.LayoutParams(ringSize, ringSize);
+        ringLp.setMargins(CyberUiTheme.dpToPx(context, 14), 0, 0, 0);
+        heroRing.setLayoutParams(ringLp);
+        String ringBg = hasThreats ? "#3E1319" : "#0F281E";
+        heroRing.setBackground(CyberUiTheme.createOvalBg(ringBg, heroBorder, 2));
 
-        ImageView iconView = new ImageView(context);
-        iconView.setImageResource(hasThreats ? R.drawable.ic_call_warning : R.drawable.ic_shield);
-        int iconSizePx = 48;
-        LinearLayout.LayoutParams ilp = new LinearLayout.LayoutParams(iconSizePx, iconSizePx);
-        iconView.setLayoutParams(ilp);
-        innerRadar.addView(iconView);
+        ImageView heroIcon = new ImageView(context);
+        heroIcon.setImageResource(hasThreats ? R.drawable.ic_call_warning : R.drawable.ic_shield);
+        int heroIconSize = CyberUiTheme.dpToPx(context, 30);
+        heroIcon.setLayoutParams(new LinearLayout.LayoutParams(heroIconSize, heroIconSize));
+        heroRing.addView(heroIcon);
+        heroTopRow.addView(heroRing);
 
-        TextView scoreView = new TextView(context);
-        scoreView.setText(hasThreats ? CyberUiTheme.toPersianDigits(String.valueOf(threatsCount)) + " تهدید" : CyberUiTheme.toPersianDigits("۱۰۰") + "٪");
-        scoreView.setTextSize(26);
-        scoreView.setTextColor(Color.WHITE);
-        FontHelper.applyBold(scoreView);
-        scoreView.setGravity(Gravity.CENTER);
-        scoreView.setPadding(0, 4, 0, 0);
-        innerRadar.addView(scoreView);
+        // ستون متن وضعیت
+        LinearLayout heroTextCol = new LinearLayout(context);
+        heroTextCol.setOrientation(LinearLayout.VERTICAL);
+        heroTextCol.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f));
 
-        TextView statusTitle = new TextView(context);
-        statusTitle.setText(hasThreats ? "خطر بدافزار شناسایی شد" : "سیستم کاملاً ایمن است");
-        statusTitle.setTextSize(14);
-        statusTitle.setTextColor(Color.parseColor(hasThreats ? "#FF8A80" : "#A7F3D0"));
-        FontHelper.applyMedium(statusTitle);
-        statusTitle.setGravity(Gravity.CENTER);
-        innerRadar.addView(statusTitle);
+        TextView heroStatusTitle = new TextView(context);
+        if (hasThreats) {
+            heroStatusTitle.setText("هشدار: " + CyberUiTheme.toPersianDigits(String.valueOf(threatsCount)) + " تهدید فعال کشف شد");
+            heroStatusTitle.setTextColor(Color.parseColor("#FF5252"));
+        } else {
+            heroStatusTitle.setText("وضعیت گوشی: ۱۰۰٪ امن و نفوذناپذیر");
+            heroStatusTitle.setTextColor(Color.parseColor("#00E676"));
+        }
+        heroStatusTitle.setTextSize(15);
+        FontHelper.applyBold(heroStatusTitle);
+        heroTextCol.addView(heroStatusTitle);
 
-        TextView subTitle = new TextView(context);
-        subTitle.setText(hasThreats ? "لمس برای پاکسازی فوری" : "پایش ۲۴ ساعته شاپرک و پیامک‌ها");
-        subTitle.setTextSize(10);
-        subTitle.setTextColor(Color.parseColor(CyberUiTheme.COLOR_TEXT_MUTED));
-        FontHelper.applyRegular(subTitle);
-        subTitle.setGravity(Gravity.CENTER);
-        subTitle.setPadding(0, 2, 0, 0);
-        innerRadar.addView(subTitle);
+        TextView heroStatusDesc = new TextView(context);
+        heroStatusDesc.setText(hasThreats ? "برنامه‌هایی بدون تایید به پیامک‌ها یا صفحه گوشی دسترسی دارند." : "سپرهای فعال: شاپرک، پیامک‌های رمز پویا و ضد اسکرین‌شات");
+        heroStatusDesc.setTextSize(11);
+        heroStatusDesc.setTextColor(Color.parseColor(CyberUiTheme.COLOR_TEXT_MUTED));
+        FontHelper.applyRegular(heroStatusDesc);
+        heroStatusDesc.setPadding(0, CyberUiTheme.dpToPx(context, 3), 0, 0);
+        heroTextCol.addView(heroStatusDesc);
 
-        outerRadar.addView(innerRadar);
-        outerRadar.setOnClickListener(v -> {
-            if (listener != null) listener.onScanRequested();
-        });
-        container.addView(outerRadar);
+        heroTopRow.addView(heroTextCol);
+        heroCard.addView(heroTopRow);
 
-        // ۳. دکمه اصلی اسکن کامل
-        Button scanBtn = CyberUiTheme.createPrimaryButton(
+        // دکمه عریض اسکن کامل درون کارت قهرمان
+        Button heroActionBtn = CyberUiTheme.createPrimaryButton(
             context,
-            hasThreats ? "پاکسازی فوری بدافزارهای کشف‌شده" : "پایش عمیق و اسکن لحظه‌ای دستگاه",
+            hasThreats ? "پاکسازی فوری بدافزارهای کشف‌شده" : "اسکن عمیق و ممیزی ۲۴ ساعته دستگاه",
             hasThreats ? CyberUiTheme.COLOR_CRIMSON : CyberUiTheme.COLOR_NEON_GREEN,
             "#080B10"
         );
-        scanBtn.setOnClickListener(v -> {
+        LinearLayout.LayoutParams btnLp = (LinearLayout.LayoutParams) heroActionBtn.getLayoutParams();
+        btnLp.setMargins(0, CyberUiTheme.dpToPx(context, 14), 0, 0);
+        heroActionBtn.setLayoutParams(btnLp);
+        heroActionBtn.setOnClickListener(v -> {
             if (listener != null) listener.onScanRequested();
         });
-        container.addView(scanBtn);
+        heroCard.addView(heroActionBtn);
 
-        // ۴. بخش ابزارهای فوریت‌های امنیتی (Crisis Response Suite)
-        TextView quickHeader = CyberUiTheme.createSectionTitle(context, "ابزارهای فوریت‌های امنیتی و واکنش سریع");
-        container.addView(quickHeader);
+        container.addView(heroCard);
 
-        // سطر ۱: لغو دایورت
+        // ==========================================
+        // ۳. بلوک ۱: فوریت‌ها و واکنش سریع (Crisis Response)
+        // ==========================================
+        container.addView(CyberUiTheme.createSectionTitle(context, "فوریت‌های امنیتی و واکنش سریع"));
+
         container.addView(CyberUiTheme.createInteractiveCardRow(
             context,
             R.drawable.ic_phone_divert,
             "لغو دایورت خطوط (کد دستوری ##002#)",
-            "قطع فوری هرگونه انحراف مکالمه و پیامک در تمام اپراتورها",
+            "قطع فوری هرگونه انحراف تماس و پیامک در همراه اول، ایرانسل و رایتل",
             "اقدام فوری",
             CyberUiTheme.COLOR_CRIMSON,
             v -> {
@@ -144,12 +164,11 @@ public class RadarDashboardView {
             }
         ));
 
-        // سطر ۲: پلیس فتا
         container.addView(CyberUiTheme.createInteractiveCardRow(
             context,
             R.drawable.ic_police_badge,
             "مرکز فوریت‌های سایبری پلیس فتا (۰۹۶۳۸۰)",
-            "تماس تلفنی مستقیم و شبانه‌روزی با کارشناسان پلیس فضای مجازی",
+            "تماس تلفنی شبانه‌روزی و رایگان با کارشناسان رسمی پلیس فضای مجازی",
             "تماس اضطراری",
             CyberUiTheme.COLOR_CYAN,
             v -> {
@@ -157,42 +176,93 @@ public class RadarDashboardView {
             }
         ));
 
-        // سطر ۳: اخراج نفوذگران سشن‌ها
         container.addView(CyberUiTheme.createInteractiveCardRow(
             context,
             R.drawable.ic_session_exit,
             "اخراج نفوذگران از نشست‌های فعال",
-            "بررسی و خروج اجباری دستگاه‌های ناشناس در تلگرام، ایتا، روبیکا و بله",
-            "امنیت حساب",
+            "بررسی و خروج اجباری دستگاه‌های متصل در تلگرام، ایتا، روبیکا و بله",
+            "امنیت اکانت",
             CyberUiTheme.COLOR_AMBER,
             v -> {
                 if (listener != null) listener.onSessionKillClicked();
             }
         ));
 
-        // سطر ۴: بررسی رسید بانکی
+        // ==========================================
+        // ۴. بلوک ۲: سپرهای پایش خودکار و محرمانگی (Automated Defense & Privacy)
+        // ==========================================
+        container.addView(CyberUiTheme.createSectionTitle(context, "سپرهای پایش خودکار و حفظ محرمانگی"));
+
+        container.addView(CyberUiTheme.createInteractiveCardRow(
+            context,
+            R.drawable.ic_notification_shield,
+            "سپر اعلان‌های رمز پویا (OTP Notification Shield)",
+            "شناسایی برنامه‌هایی که با خواندن اعلان‌ها رمز دوم بانکی را سرقت می‌کنند",
+            "ضد سرقت OTP",
+            "#FF4081",
+            v -> {
+                if (listener != null) listener.onOtpNotificationShieldClicked();
+            }
+        ));
+
+        container.addView(CyberUiTheme.createInteractiveCardRow(
+            context,
+            R.drawable.ic_wifi_shield,
+            "رادار امنیت وای‌فای و شبکه‌های عمومی",
+            "پایش وای‌فای کافه‌ها، هتل‌ها و فرودگاه‌ها برای جلوگیری از شنود بانکی",
+            "پایش وای‌فای",
+            CyberUiTheme.COLOR_CYAN,
+            v -> {
+                if (listener != null) listener.onWifiRadarClicked();
+            }
+        ));
+
+        container.addView(CyberUiTheme.createInteractiveCardRow(
+            context,
+            R.drawable.ic_lock_app,
+            "قفل‌گذار و استتار برنامه‌های بانکی",
+            "محافظت با رمز عبور و پین اختصاصی روی همراه بانک‌ها و پیام‌رسان‌ها",
+            "قفل برنامه",
+            CyberUiTheme.COLOR_AMBER,
+            v -> {
+                if (listener != null) listener.onAppLockClicked();
+            }
+        ));
+
+        container.addView(CyberUiTheme.createInteractiveCardRow(
+            context,
+            R.drawable.ic_photo_clean,
+            "پاک‌سازی موقعیت مکانی و متادیتای عکس‌ها",
+            "حذف اطلاعات GPS و مدل گوشی از تصاویر قبل از انتشار در فضای مجازی",
+            "حریم خصوصی",
+            CyberUiTheme.COLOR_NEON_GREEN,
+            v -> {
+                if (listener != null) listener.onPhotoMetadataCleanClicked();
+            }
+        ));
+
+        // ==========================================
+        // ۵. بلوک ۳: ابزارهای بررسی و اصالت‌سنجی (Integrity & Forensics)
+        // ==========================================
+        container.addView(CyberUiTheme.createSectionTitle(context, "ابزارهای بررسی اصالت و پیگیری قضایی"));
+
         container.addView(CyberUiTheme.createInteractiveCardRow(
             context,
             R.drawable.ic_receipt,
             "اعتبارسنجی فیش بانکی (ضد جعل رسید)",
-            "بررسی هوشمند پیش‌شماره کارت، شماره مرجع و کد پیگیری تراکنش",
-            "سامانه بانکی",
+            "بررسی صحت پیش‌شماره کارت، شماره مرجع و فرمت رسیدهای بانکی",
+            "ضد کلاهبرداری",
             CyberUiTheme.COLOR_NEON_GREEN,
             v -> {
                 if (listener != null) listener.onReceiptVerifyClicked();
             }
         ));
 
-        // ۵. بخش پایش و مهندسی معکوس پیشرفته (Advanced Defensive Tools)
-        TextView advHeader = CyberUiTheme.createSectionTitle(context, "ابزارهای تکمیلی پایش و دفاع سایبری");
-        container.addView(advHeader);
-
-        // سطر ۵: اسکن پوشه دانلود
         container.addView(CyberUiTheme.createInteractiveCardRow(
             context,
             R.drawable.ic_folder_download,
             "اسکن فایل‌های دریافتی تلگرام و پوشه دانلود",
-            "کشف و حذف قطعی بدافزارهای نصبی قبل از اجرا توسط کاربر",
+            "کشف و حذف قطعی بدافزارهای APK قبل از اقدام به نصب توسط کاربر",
             "پایش فایل",
             CyberUiTheme.COLOR_PURPLE,
             v -> {
@@ -200,25 +270,11 @@ public class RadarDashboardView {
             }
         ));
 
-        // سطر ۶: صدور گزارش فتا
-        container.addView(CyberUiTheme.createInteractiveCardRow(
-            context,
-            R.drawable.ic_file_report,
-            "صدور لایحه مستند فنی برای پلیس فتا و دادسرا",
-            "تنظیم خودکار گزارش قضایی مستند به قانون جرایم رایانه‌ای",
-            "لایحه قضایی",
-            "#F06292",
-            v -> {
-                if (listener != null) listener.onFataReportExportClicked();
-            }
-        ));
-
-        // سطر ۷: اصالت همراه بانک‌ها
         container.addView(CyberUiTheme.createInteractiveCardRow(
             context,
             R.drawable.ic_bank,
-            "پایش اصالت و سلامت همراه بانک‌ها و همراه کارت",
-            "تایید نصب رسمی بانک‌های ملی، ملت، بلو، ویپاد و سپه از مارکت‌های رسمی",
+            "پایش اصالت و سلامت همراه بانک‌ها",
+            "تایید نصب رسمی همراه بانک‌های ملی، ملت، بلو، ویپاد و سپه",
             "اصالت نسخه",
             "#69F0AE",
             v -> {
@@ -226,12 +282,11 @@ public class RadarDashboardView {
             }
         ));
 
-        // سطر ۸: تماس‌های مشکوک
         container.addView(CyberUiTheme.createInteractiveCardRow(
             context,
             R.drawable.ic_call_warning,
             "بررسی شماره‌های مشکوک و تله‌های وانگیری",
-            "شناسایی تماس‌های پرهزینه بین‌المللی، ماهواره‌ای و ادعای پشتیبانی",
+            "شناسایی تماس‌های پرهزینه بین‌المللی، ماهواره‌ای و مدعیان پشتیبانی",
             "پایش تماس",
             CyberUiTheme.COLOR_GOLD,
             v -> {
@@ -239,12 +294,23 @@ public class RadarDashboardView {
             }
         ));
 
-        // سطر ۹: همگام‌سازی ابری گیت‌هاب
+        container.addView(CyberUiTheme.createInteractiveCardRow(
+            context,
+            R.drawable.ic_file_report,
+            "صدور لایحه مستند فنی برای پلیس فتا و دادسرا",
+            "تنظیم گزارش فنی جرایم رایانه‌ای با استناد به مواد قانونی پلیس فتا",
+            "لایحه قضایی",
+            "#F06292",
+            v -> {
+                if (listener != null) listener.onFataReportExportClicked();
+            }
+        ));
+
         container.addView(CyberUiTheme.createInteractiveCardRow(
             context,
             R.drawable.ic_sync,
             "به‌روزرسانی ابری پایگاه داده بدافزارها از گیت‌هاب",
-            "دریافت آخرین امضاها و الگوهای جدید بدافزاری بدون نیاز به آپدیت اپ",
+            "دریافت آخرین امضاها و الگوهای کشف بدافزار بدون نیاز به آپدیت اپ",
             "همگام‌سازی",
             CyberUiTheme.COLOR_CYAN,
             v -> {
