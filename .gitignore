@@ -13,3 +13,6 @@ build/apk/app-unaligned.apk
 build/apk/Separ-Aligned.apk
 build/apk/classes.dex
 build/apk/*.idsig
+build/apk/r8_out/
+build/apk/test_r8/
+build/apk/mapping.txt

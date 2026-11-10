@@ -22,6 +22,12 @@ public class SeparApp extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
+
+        // بررسی یکپارچگی دودویی، امضای دیجیتال و ضد مهندسی معکوس
+        try {
+            ir.ricksanchez.separ.security.AntiTamperGuardian.performComprehensiveAudit(this);
+        } catch (Exception ignored) {}
+
         rescueLedger = new RescueLedgerRepository(this);
         billingManager = new UnifiedBillingManager(this);
         promoManager = new PromoAndAffiliateManager(this, billingManager);

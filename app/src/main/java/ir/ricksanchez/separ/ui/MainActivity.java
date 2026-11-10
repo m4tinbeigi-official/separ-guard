@@ -126,6 +126,11 @@ public class MainActivity extends Activity {
             initialNavBarHeight = getResources().getDimensionPixelSize(nId);
         }
 
+        // پایش جامع ضد دستکاری و ضد مهندسی معکوس
+        try {
+            ir.ricksanchez.separ.security.AntiTamperGuardian.performComprehensiveAudit(this);
+        } catch (Exception ignored) {}
+
         // نمایش شفافیت دسترسی‌ها در اولین اجرا
         ProminentDisclosureHelper.showDisclosureIfNeeded(this, null);
 

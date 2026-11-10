@@ -48,14 +48,21 @@ echo "=== ۳. کامپایل کدهای جاوا ==="
     $(find "$GEN_DIR" -name "*.java") \
     $(find "$PROJECT_DIR/app/src/main/java" -name "*.java" 2>/dev/null || true)
 
-echo "=== ۴. تبدیل کلاس‌ها به Dalvik با D8 (حداقل API 26) ==="
-CLASSES_COUNT=$(find "$OBJ_DIR" -name "*.class" 2>/dev/null | wc -l | tr -d ' ')
-if [ "$CLASSES_COUNT" -gt 0 ]; then
-    "$D8" --output "$BIN_DIR" \
-        --min-api 26 \
-        --lib "$PLATFORM" \
-        $(find "$OBJ_DIR" -name "*.class")
-fi
+echo "=== ۴. بهینه‌سازی، مبهم‌سازی پیشرفته (ProGuard/R8) و تبدیل به Dalvik ==="
+rm -f "$OBJ_DIR/app_classes.jar"
+jar cf "$OBJ_DIR/app_classes.jar" -C "$OBJ_DIR" .
+mkdir -p "$BIN_DIR/r8_out"
+rm -rf "$BIN_DIR/r8_out/*"
+java -cp "$BUILD_TOOLS/lib/d8.jar" com.android.tools.r8.R8 \
+    --release \
+    --min-api 26 \
+    --output "$BIN_DIR/r8_out/" \
+    --lib "$PLATFORM" \
+    --pg-conf "$PROJECT_DIR/proguard-rules.pro" \
+    --pg-map-output "$BIN_DIR/mapping.txt" \
+    "$OBJ_DIR/app_classes.jar"
+
+cp "$BIN_DIR/r8_out/classes.dex" "$BIN_DIR/classes.dex"
 
 echo "=== ۵. الصاق classes.dex به APK ==="
 cd "$BIN_DIR"
