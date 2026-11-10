@@ -1,6 +1,7 @@
 package ir.ricksanchez.separ.ui;
 
 import android.Manifest;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -22,7 +23,7 @@ import ir.ricksanchez.separ.R;
 
 /**
  * مرکز هوشمند تنظیمات و مدیریت دسترسی‌های امنیتی سیستم (VibeFarsi Security Permissions SOC)
- * تشخیص خودکار وضعیت دسترسی‌ها: اگر دسترسی فعال است، وضعیت تاییدشده سبز را نشان می‌دهد و هرگز درخواست فعال‌سازی مجدد نمی‌کند.
+ * اولویت‌بندی دقیق: مجوزهای نیازمند اقدام در صدر با رنگ اخطار، و مجوزهای فعال در پایین با رنگ سبز تاییدشده
  */
 public class SecuritySettingsTabView {
 
@@ -40,7 +41,7 @@ public class SecuritySettingsTabView {
         container.setOrientation(LinearLayout.VERTICAL);
         container.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        // ۱. بررسی وضعیت تمام دسترسی‌ها
+        // ۱. بررسی وضعیت بلادرنگ تمام دسترسی‌ها
         boolean hasAccessibility = isAccessibilityServiceEnabled(context);
         boolean hasNotification = isNotificationListenerEnabled(context);
         boolean hasOverlay = hasOverlayPermission(context);
@@ -86,7 +87,7 @@ public class SecuritySettingsTabView {
             hDesc.setText("سپرهای ضد هک، پایش درگاه‌های شاپرک و دیده‌بان اعلان‌ها با حداکثر توان فعال هستند. هیچ نیازی به فعال‌سازی مجدد هیچ مجوزی ندارید.");
             hDesc.setTextColor(Color.parseColor("#A7F3D0"));
         } else {
-            hDesc.setText("جهت تکمیل زنجیره دفاعی و محافظت خودکار از پیامک‌ها و درگاه‌های بانکی، مجوزهای غیرفعال زیر را با یک کلیک فعال نمایید.");
+            hDesc.setText("جهت تکمیل زنجیره دفاعی و محافظت خودکار از پیامک‌ها و درگاه‌های بانکی، مجوزهای زیر را با یک کلیک فعال نمایید.");
             hDesc.setTextColor(Color.parseColor(CyberUiTheme.COLOR_TEXT_PRIMARY));
         }
         hDesc.setTextSize(11);
@@ -97,7 +98,7 @@ public class SecuritySettingsTabView {
 
         container.addView(headerCard);
 
-        // ۲. کارت راهنمای رفع خطای «App was denied access» در اندروید ۱۳ و ۱۴ (باز کردن قفل ۳ نقطه)
+        // ۳. راهنمای رفع خطای «App was denied access» در اندروید ۱۳ و ۱۴ (باز کردن قفل ۳ نقطه)
         if (!isAllGranted && Build.VERSION.SDK_INT >= 30) {
             LinearLayout restrictedCard = new LinearLayout(context);
             restrictedCard.setOrientation(LinearLayout.VERTICAL);
@@ -119,10 +120,10 @@ public class SecuritySettingsTabView {
             rDesc.setText(
                 "در اندروید ۱۳، ۱۴ و ۱۵، گوگل برای برنامه‌های خارج از گوگل‌پلی کلید دسترسی‌ها را قفل می‌کند (Restricted Settings).\n" +
                 "برای باز کردن قفل و فعال‌سازی آسان دسترسی‌ها:\n\n" +
-                "۱. دکمه زیر را لمس کنید تا صفحه اطلاعات سپر در تنظیمات گوشی باز شود.\n" +
+                "۱. دکمه زیر را بزنید تا صفحه اطلاعات برنامه سپر در تنظیمات گوشی باز شود.\n" +
                 "۲. در بالای صفحه گوشه راست، روی آیکون «سه نقطه (⋮)» بزنید.\n" +
-                "۳. گزینه «Allow restricted settings» (اجازه دادن به تنظیمات محدودشده) را لمس کرده و اثر انگشت یا رمز گوشی خود را بزنید.\n" +
-                "۴. پس از این کار، تمام کلیدهای دسترسی آزاد شده و می‌توانید به راحتی آن‌ها را روشن کنید."
+                "۳. گزینه «Allow restricted settings» (اجازه دادن به تنظیمات محدودشده) را بزنید و رمز گوشی‌تان را تایید کنید.\n" +
+                "۴. تمام کلیدهای دسترسی آزاد شده و می‌توانید به راحتی آن‌ها را روشن کنید."
             );
             rDesc.setTextColor(Color.parseColor(CyberUiTheme.COLOR_TEXT_PRIMARY));
             rDesc.setTextSize(11);
@@ -133,7 +134,7 @@ public class SecuritySettingsTabView {
 
             Button unlockBtn = CyberUiTheme.createPrimaryButton(
                 context,
-                "باز کردن صفحه تنظیمات جهت زدن سه نقطه (⋮)",
+                "باز کردن صفحه اطلاعات برنامه جهت زدن سه نقطه (⋮)",
                 "#FFA726",
                 "#080B10"
             );
@@ -145,101 +146,156 @@ public class SecuritySettingsTabView {
             container.addView(restrictedCard);
         }
 
-        // ۳. کارت‌های دسترسی هوشمند
-        container.addView(CyberUiTheme.createSectionTitle(context, "فهرست دسترسی‌های حفاظتی سیستم"));
+        // ==========================================
+        // اولویت اول: مجوزهای نیازمند اقدام فوری (در صورت وجود)
+        // ==========================================
+        int ungrantedCount = totalCount - grantedCount;
+        if (ungrantedCount > 0) {
+            TextView alertSectionTitle = CyberUiTheme.createSectionTitle(context, "مجوزهای نیازمند اقدام فوری (" + CyberUiTheme.toPersianDigits(String.valueOf(ungrantedCount)) + " مورد)");
+            alertSectionTitle.setTextColor(Color.parseColor("#FF9100"));
+            container.addView(alertSectionTitle);
 
-        // ۱) دسترسی‌پذیری پایش شاپرک
-        container.addView(createSmartPermissionCard(
-            context,
-            R.drawable.ic_shield,
-            "پایش لحظه‌ای درگاه‌های شاپرک (Accessibility)",
-            "بررسی خودکار آدرس‌بار مرورگرها و مسدودسازی آنی صفحات پرداخت جعلی قبل از سرقت رمز دوم.",
-            hasAccessibility,
-            "فعال‌سازی سپر شاپرک",
-            v -> {
-                if (listener != null) listener.onAccessibilitySettingsRequested();
+            if (!hasAccessibility) {
+                container.addView(createSmartPermissionCard(
+                    context, R.drawable.ic_shield,
+                    "پایش لحظه‌ای درگاه‌های شاپرک (Accessibility)",
+                    "بررسی خودکار آدرس‌بار مرورگرها و مسدودسازی آنی صفحات پرداخت جعلی قبل از سرقت رمز دوم.",
+                    false, "فعال‌سازی سپر شاپرک",
+                    v -> { if (listener != null) listener.onAccessibilitySettingsRequested(); }
+                ));
             }
-        ));
 
-        // ۲) دسترسی به اعلان‌ها (Notification Access)
-        container.addView(createSmartPermissionCard(
-            context,
-            R.drawable.ic_notification_shield,
-            "دیده‌بان اعلان‌های رمز پویا (Notification Access)",
-            "خنثی‌سازی تروجان‌های پیشرفته که کدهای تایید ۲ مرحله‌ای و رمز یکبار مصرف بانکی را از اعلان‌ها استراق‌سمع می‌کنند.",
-            hasNotification,
-            "اعطای دسترسی به اعلان‌ها",
-            v -> {
-                if (listener != null) listener.onNotificationListenerSettingsRequested();
+            if (!hasNotification) {
+                container.addView(createSmartPermissionCard(
+                    context, R.drawable.ic_notification_shield,
+                    "دیده‌بان اعلان‌های رمز پویا (Notification Access)",
+                    "خنثی‌سازی تروجان‌های پیشرفته که کدهای تایید ۲ مرحله‌ای و رمز یکبار مصرف بانکی را از اعلان‌ها استراق‌سمع می‌کنند.",
+                    false, "اعطای دسترسی به اعلان‌ها",
+                    v -> { if (listener != null) listener.onNotificationListenerSettingsRequested(); }
+                ));
             }
-        ));
 
-        // ۳) نمایش روی سایر برنامه‌ها (Overlay)
-        container.addView(createSmartPermissionCard(
-            context,
-            R.drawable.ic_call_warning,
-            "هشدار اضطراری روی صفحه (Display Over Other Apps)",
-            "نمایش پوشش اضطراری قرمز رنگ روی درگاه‌های فیشینگ و بدافزارها جهت مسدودسازی دسترسی کاربر به فرم جعلی.",
-            hasOverlay,
-            "فعال‌سازی نمایش هشدار فوری",
-            v -> {
-                if (listener != null) listener.onOverlaySettingsRequested();
+            if (!hasOverlay) {
+                container.addView(createSmartPermissionCard(
+                    context, R.drawable.ic_call_warning,
+                    "هشدار اضطراری روی صفحه (Display Over Other Apps)",
+                    "نمایش پوشش اضطراری قرمز رنگ روی درگاه‌های فیشینگ و بدافزارها جهت مسدودسازی دسترسی کاربر به فرم جعلی.",
+                    false, "فعال‌سازی نمایش هشدار فوری",
+                    v -> { if (listener != null) listener.onOverlaySettingsRequested(); }
+                ));
             }
-        ));
 
-        // ۴) شروع خودکار و پایش دائم پس‌زمینه (Battery Optimization)
-        container.addView(createSmartPermissionCard(
-            context,
-            R.drawable.ic_sync,
-            "پایش ۲۴ ساعته در پس‌زمینه (Autostart & Battery)",
-            "جلوگیری از بسته شدن خودکار سپر توسط مدیریت باتری گوشی‌های شیائومی، سامسونگ و هواوی هنگام خاموش بودن صفحه.",
-            isBatteryIgnored,
-            "فعال‌سازی کارکرد دائمی پس‌زمینه",
-            v -> {
-                if (listener != null) listener.onBatteryOptimizationRequested();
+            if (!isBatteryIgnored) {
+                container.addView(createSmartPermissionCard(
+                    context, R.drawable.ic_sync,
+                    "پایش ۲۴ ساعته در پس‌زمینه (Autostart & Battery)",
+                    "جلوگیری از بسته شدن خودکار سپر توسط مدیریت باتری گوشی‌های شیائومی، سامسونگ و هواوی هنگام خاموش بودن صفحه.",
+                    false, "فعال‌سازی کارکرد دائمی پس‌زمینه",
+                    v -> { if (listener != null) listener.onBatteryOptimizationRequested(); }
+                ));
             }
-        ));
 
-        // ۵) دسترسی به پیامک‌های بانکی و مدیریت برنامه
-        container.addView(createSmartPermissionCard(
-            context,
-            R.drawable.ic_nav_sms,
-            "مجوز خواندن پیامک‌های بانکی (SMS & OTP)",
-            "پایش مستقیم پیامک‌های دریافتی برای خنثی‌سازی لینک‌های آلوده ثنا، سهام عدالت و صیغه‌یاب.",
-            hasSms,
-            "اعطای مجوز پیامک در تنظیمات",
-            v -> {
-                if (listener != null) listener.onAppDetailsRequested();
+            if (!hasSms) {
+                container.addView(createSmartPermissionCard(
+                    context, R.drawable.ic_nav_sms,
+                    "مجوز خواندن پیامک‌های بانکی (SMS & OTP)",
+                    "پایش مستقیم پیامک‌های دریافتی برای خنثی‌سازی لینک‌های آلوده ثنا، سهام عدالت و صیغه‌یاب.",
+                    false, "اعطای مجوز پیامک در تنظیمات",
+                    v -> { if (listener != null) listener.onAppDetailsRequested(); }
+                ));
             }
-        ));
+        }
 
-        // ۴. سند حریم خصوصی و تعهد آفلاین
-        LinearLayout privCard = new LinearLayout(context);
-        privCard.setOrientation(LinearLayout.VERTICAL);
+        // ==========================================
+        // اولویت دوم: مجوزهای فعال و مجهز (سبز تاییدشده)
+        // ==========================================
+        if (grantedCount > 0) {
+            TextView okSectionTitle = CyberUiTheme.createSectionTitle(context, "مجوزهای فعال و ایمن‌شده (" + CyberUiTheme.toPersianDigits(String.valueOf(grantedCount)) + " مورد)");
+            okSectionTitle.setTextColor(Color.parseColor(CyberUiTheme.COLOR_NEON_GREEN));
+            container.addView(okSectionTitle);
+
+            if (hasAccessibility) {
+                container.addView(createSmartPermissionCard(
+                    context, R.drawable.ic_shield,
+                    "پایش لحظه‌ای درگاه‌های شاپرک (Accessibility)",
+                    "بررسی خودکار آدرس‌بار مرورگرها و مسدودسازی آنی صفحات پرداخت جعلی قبل از سرقت رمز دوم.",
+                    true, "", null
+                ));
+            }
+
+            if (hasNotification) {
+                container.addView(createSmartPermissionCard(
+                    context, R.drawable.ic_notification_shield,
+                    "دیده‌بان اعلان‌های رمز پویا (Notification Access)",
+                    "خنثی‌سازی تروجان‌های پیشرفته که کدهای تایید ۲ مرحله‌ای و رمز یکبار مصرف بانکی را از اعلان‌ها استراق‌سمع می‌کنند.",
+                    true, "", null
+                ));
+            }
+
+            if (hasOverlay) {
+                container.addView(createSmartPermissionCard(
+                    context, R.drawable.ic_call_warning,
+                    "هشدار اضطراری روی صفحه (Display Over Other Apps)",
+                    "نمایش پوشش اضطراری قرمز رنگ روی درگاه‌های فیشینگ و بدافزارها جهت مسدودسازی دسترسی کاربر به فرم جعلی.",
+                    true, "", null
+                ));
+            }
+
+            if (isBatteryIgnored) {
+                container.addView(createSmartPermissionCard(
+                    context, R.drawable.ic_sync,
+                    "پایش ۲۴ ساعته در پس‌زمینه (Autostart & Battery)",
+                    "جلوگیری از بسته شدن خودکار سپر توسط مدیریت باتری گوشی هنگام خاموش بودن صفحه.",
+                    true, "", null
+                ));
+            }
+
+            if (hasSms) {
+                container.addView(createSmartPermissionCard(
+                    context, R.drawable.ic_nav_sms,
+                    "مجوز خواندن پیامک‌های بانکی (SMS & OTP)",
+                    "پایش مستقیم پیامک‌های دریافتی برای خنثی‌سازی لینک‌های آلوده ثنا، سهام عدالت و صیغه‌یاب.",
+                    true, "", null
+                ));
+            }
+        }
+
+        // ۴. بخش منشور حریم خصوصی، شفافیت و قوانین سپر
+        container.addView(CyberUiTheme.createSectionTitle(context, "منشور حریم خصوصی و شفافیت دسترسی‌ها"));
+
+        LinearLayout policyCard = new LinearLayout(context);
+        policyCard.setOrientation(LinearLayout.VERTICAL);
         int p2 = CyberUiTheme.dpToPx(context, 16);
-        privCard.setPadding(p2, p2, p2, p2);
-        privCard.setBackground(CyberUiTheme.createCardBg("#0D1420", "#1E273A", 16));
+        policyCard.setPadding(p2, p2, p2, p2);
+        policyCard.setBackground(CyberUiTheme.createCardBg("#0D1420", "#1E273A", 16));
         LinearLayout.LayoutParams plp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        plp.setMargins(0, CyberUiTheme.dpToPx(context, 12), 0, CyberUiTheme.dpToPx(context, 24));
-        privCard.setLayoutParams(plp);
+        plp.setMargins(0, 0, 0, CyberUiTheme.dpToPx(context, 24));
+        policyCard.setLayoutParams(plp);
 
-        TextView privTitle = new TextView(context);
-        privTitle.setText("تعهد رسمی عدم خروج داده‌ها (Zero-Telemetry Guarantee)");
-        privTitle.setTextColor(Color.parseColor(CyberUiTheme.COLOR_NEON_GREEN));
-        privTitle.setTextSize(12);
-        FontHelper.applyBold(privTitle);
-        privCard.addView(privTitle);
+        TextView policyTitle = new TextView(context);
+        policyTitle.setText("چرا این دسترسی‌ها لازم است و با آن‌ها چه می‌کنیم؟");
+        policyTitle.setTextColor(Color.parseColor(CyberUiTheme.COLOR_CYAN));
+        policyTitle.setTextSize(13);
+        FontHelper.applyBold(policyTitle);
+        policyCard.addView(policyTitle);
 
-        TextView privDesc = new TextView(context);
-        privDesc.setText("نرم‌افزار «سپر» هیچ سرور ابری، سرویس ردیابی یا پایگاه‌داده اینترنتی ندارد. تمام ممیزی‌ها ۱۰۰٪ آفلاین روی گوشی شما انجام شده و هیچ داده‌ای از گوشی شما خارج نمی‌شود.");
-        privDesc.setTextColor(Color.parseColor(CyberUiTheme.COLOR_TEXT_MUTED));
-        privDesc.setTextSize(11);
-        FontHelper.applyRegular(privDesc);
-        privDesc.setLineSpacing(CyberUiTheme.dpToPx(context, 3), 1.25f);
-        privDesc.setPadding(0, CyberUiTheme.dpToPx(context, 6), 0, 0);
-        privCard.addView(privDesc);
+        TextView policyDesc = new TextView(context);
+        policyDesc.setText(
+            "• دسترسی پیامک (SMS): صرفاً جهت بررسی آفلاین لینک‌های آلوده ثنا، سهام عدالت و صیغه‌یاب استفاده می‌شود. هیچ پیامک یا متنی هرگز به هیچ سروری ارسال نمی‌شود.\n\n" +
+            "• دسترسی‌پذیری (Accessibility): صرفاً برای خواندن نام هاست در آدرس‌بار مرورگرها (کروم و فایرفاکس) تا قبل از ورود به سایت جعلی شاپرک، جلوی فیشینگ گرفته شود.\n\n" +
+            "• دسترسی اعلان‌ها (Notification Access): تنها برای خنثی‌سازی تروجان‌های سارق که رمز پویای بانکی را از اعلان بالای صفحه می‌دزدند.\n\n" +
+            "• همپوشانی (Display Over Apps): برای پرتاب کاور قرمز هشدار روی صفحات فیشینگ و بدافزارها تا کاربر ناخواسته اطلاعاتی وارد نکند.\n\n" +
+            "• پایش دائم (Battery Optimization): برای جلوگیری از به خواب رفتن سپر توسط سیستم‌عامل هنگام قفل بودن گوشی.\n\n" +
+            "• تعهدنامه ۱۰۰٪ آفلاین (Zero-Telemetry): کدهای منبع سپر در گیت‌هاب عمومی است و پردازش‌ها منحصراً روی سخت‌افزار داخلی گوشی شما انجام می‌گیرد."
+        );
+        policyDesc.setTextColor(Color.parseColor(CyberUiTheme.COLOR_TEXT_PRIMARY));
+        policyDesc.setTextSize(11);
+        FontHelper.applyRegular(policyDesc);
+        policyDesc.setLineSpacing(CyberUiTheme.dpToPx(context, 3), 1.25f);
+        policyDesc.setPadding(0, CyberUiTheme.dpToPx(context, 8), 0, 0);
+        policyCard.addView(policyDesc);
 
-        container.addView(privCard);
+        container.addView(policyCard);
 
         return container;
     }
@@ -400,10 +456,20 @@ public class SecuritySettingsTabView {
         if (context == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return true;
         try {
             PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-            return pm != null && pm.isIgnoringBatteryOptimizations(context.getPackageName());
-        } catch (Exception ignored) {
-            return false;
-        }
+            if (pm != null && pm.isIgnoringBatteryOptimizations(context.getPackageName())) {
+                return true;
+            }
+        } catch (Exception ignored) {}
+
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+                if (am != null && !am.isBackgroundRestricted()) {
+                    return true;
+                }
+            }
+        } catch (Exception ignored) {}
+        return false;
     }
 
     public static boolean hasSmsPermission(Context context) {

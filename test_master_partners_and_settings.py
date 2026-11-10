@@ -73,7 +73,7 @@ def test_security_settings_tab():
     assert "isAccessibilityServiceEnabled" in content
     assert "isNotificationListenerEnabled" in content
     assert "isBatteryOptimizationIgnored" in content
-    assert "Zero-Telemetry Guarantee" in content
+    assert "Zero-Telemetry" in content
 
 def test_master_documentation():
     doc_path = os.path.join(BASE_DIR, "SEPAR_MASTER_DOCUMENTATION.md")

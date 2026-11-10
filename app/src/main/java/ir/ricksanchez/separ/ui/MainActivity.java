@@ -481,6 +481,11 @@ public class MainActivity extends Activity {
                         }
 
                         @Override
+                        public void onEmergencyKillSwitchClicked() {
+                            triggerEmergencyLockdownProtocol();
+                        }
+
+                        @Override
                         public void onCancelDivertClicked() {
                             CallForwardingAuditor.dialCancelForwarding(MainActivity.this);
                         }
@@ -660,6 +665,28 @@ public class MainActivity extends Activity {
                         public void onPartnerClicked(String partnerUrl) {
                             MediaPartnerRepository.openPartnerUrl(MainActivity.this, partnerUrl);
                         }
+
+                        @Override
+                        public void onVoicePlayRequested(String title, String audioText) {
+                            if (audioGuide != null) {
+                                audioGuide.speak(audioText);
+                            }
+                            Toast.makeText(MainActivity.this, "در حال پخش پادکست: " + title, Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onArticleReadRequested(String title, String fullContent) {
+                            CyberDialogHelper.showCyberAlert(
+                                MainActivity.this,
+                                R.drawable.ic_file_report,
+                                title,
+                                fullContent,
+                                "متوجه شدم",
+                                Dialog::dismiss,
+                                null,
+                                null
+                            );
+                        }
                     }
                 ));
                 break;
@@ -703,6 +730,62 @@ public class MainActivity extends Activity {
                 ));
                 break;
         }
+    }
+
+    private void triggerEmergencyLockdownProtocol() {
+        CyberDialogHelper.showCyberAlert(
+            this,
+            R.drawable.ic_call_warning,
+            "هشدار: اجرای پروتکل قطع اضطراری نفوذ",
+            "آیا احساس کردید گوشی شما هک شده یا پول از حسابتان کسر شده است؟\n\n" +
+            "با تایید این گزینه:\n" +
+            "۱. فوراً صفحه تنظیمات حالت پرواز باز می‌شود تا سیم‌کارت و اینترنت را قطع کنید.\n" +
+            "۲. دسترسی تمام برنامه‌های دارای مجوز پیامک و ضبط صفحه سلب می‌شود.\n" +
+            "۳. راهنمای تماس تلفنی فوری با پشتیبان (با خط دیگر) نمایش داده می‌شود.",
+            "اجرای قرنطینه و قطع فوری",
+            dialog -> {
+                dialog.dismiss();
+                executeQuarantineActions();
+            },
+            "انصراف",
+            null
+        );
+    }
+
+    private void executeQuarantineActions() {
+        // ۱. هدایت مستقیم به صفحه حالت پرواز جهت قطع فوری اینترنت و سیم‌کارت
+        try {
+            Intent airplaneIntent = new Intent(Settings.ACTION_AIRPLANE_MODE_SETTINGS);
+            airplaneIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(airplaneIntent);
+        } catch (Exception ignored) {}
+
+        // ۲. سلب دسترسی تمام برنامه‌های دارای مجوز پیامک
+        for (SmsAndScreenGuard.AppAuditResult app : smsAuditList) {
+            if (!app.isSafe()) {
+                SmsAndScreenGuard.launchRevokeOrUninstall(MainActivity.this, app.packageName, app.isKnownMalware);
+            }
+        }
+
+        // ۳. لغو کلیه دایورت‌ها
+        CallForwardingAuditor.dialCancelForwarding(MainActivity.this);
+
+        // ۴. نمایش پنجره بحران با شماره‌های پشتیبانی
+        CyberDialogHelper.showCyberAlert(
+            MainActivity.this,
+            R.drawable.ic_shield,
+            "گوشی در وضعیت قرنطینه امنیتی قرار گرفت!",
+            "اقدامات فوری و حیاتی:\n\n" +
+            "۱. به هیچ وجه گوشی را از حالت پرواز خارج نکنید و وای‌فای یا دیتا را روشن ننمایید!\n\n" +
+            "۲. فوراً با یک گوشی دیگر (تلفن خانواده یا خط ثابت) با پشتیبانی ما تماس بگیرید:\n" +
+            "• پشتیبانی مستقیم ریک سانچز: ۰۹۱۲۷۰۴۷۸۱۳ / ۰۹۹۸۱۹۹۸۲۰۲\n" +
+            "• مرکز فوریت‌های سایبری پلیس فتا: ۰۹۶۳۸۰ (شبانه‌روزی و رایگان)\n\n" +
+            "۳. سریعاً با تلفنبانک حساب خود تماس گرفته و کارت‌های بانکی‌تان را مسدود نمایید.",
+            "متوجه شدم (گوشی در حالت پرواز بماند)",
+            Dialog::dismiss,
+            null,
+            null
+        );
     }
 
     private void playVoiceBriefing() {
@@ -1078,6 +1161,22 @@ public class MainActivity extends Activity {
                 ));
             }
         }
+
+        // اسکن عمیق و خودکار فایل‌های نصبی دانلودشده در پوشه دانلود و تلگرام
+        try {
+            List<PreInstallApkScanner.DangerousApkFile> dangerousDownloads = PreInstallApkScanner.scanDownloadedApks(this);
+            for (PreInstallApkScanner.DangerousApkFile df : dangerousDownloads) {
+                detectedThreats.add(new ThreatPackageRegistry.ThreatResult(
+                    true,
+                    true,
+                    true,
+                    df.threatName,
+                    "DOWNLOADED_APK",
+                    df.threatDescription + " (فایل: " + df.fileName + ")",
+                    df.packageName
+                ));
+            }
+        } catch (Exception ignored) {}
 
         smsAuditList = SmsAndScreenGuard.auditInstalledPackages(this, userWhitelist);
         renderActiveTabContent();

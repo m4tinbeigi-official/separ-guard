@@ -66,6 +66,11 @@ public class StealthTrojanDetector {
         if (pkgInfo == null || pkgInfo.packageName == null) return null;
         String pkg = pkgInfo.packageName.toLowerCase().trim();
 
+        // ۰. معافیت خود نرم‌افزار سپر
+        if (context != null && pkg.equalsIgnoreCase(context.getPackageName())) {
+            return null;
+        }
+
         // ۰. معافیت برنامه‌های لیست سفید معتبر
         if (TrustedWhitelistRegistry.isWhitelisted(pkg)) {
             return null;
@@ -137,21 +142,32 @@ public class StealthTrojanDetector {
             );
         }
 
+        // بررسی اینکه آیا برنامه از استورهای رسمی نصب شده است
+        String installer = null;
+        try {
+            installer = pm.getInstallerPackageName(pkg);
+        } catch (Exception ignored) {}
+        boolean isStoreInstalled = (installer != null && (
+            installer.contains("vending") || installer.contains("bazaar") || installer.contains("market")
+        ));
+        if (isStoreInstalled) {
+            // برنامه‌های نصب‌شده از مارکت‌های رسمی معاف از حدس‌های فریبنده هستند
+            return null;
+        }
+
         // بررسی دسترسی‌های درخواستی
         Set<String> requestedPerms = new HashSet<>();
         if (pkgInfo.requestedPermissions != null) {
             requestedPerms.addAll(Arrays.asList(pkgInfo.requestedPermissions));
         }
 
-        boolean hasSms = requestedPerms.contains("android.permission.RECEIVE_SMS") ||
-                         requestedPerms.contains("android.permission.READ_SMS") ||
-                         requestedPerms.contains("android.permission.SEND_SMS");
+        boolean hasGrantedSms = SmsAndScreenGuard.hasActiveSmsPermission(pm, pkgInfo);
         boolean hasBoot = requestedPerms.contains("android.permission.RECEIVE_BOOT_COMPLETED");
         boolean hasBatteryIgnore = requestedPerms.contains("android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS");
         boolean hasOverlay = requestedPerms.contains("android.permission.SYSTEM_ALERT_WINDOW");
 
         // بررسی ۴: پایداری در پس‌زمینه با گیرنده‌های سیستمی (SMS Worm Persistence)
-        if (hasBoot && hasSms && (hasBatteryIgnore || requestedPerms.contains("android.permission.READ_CONTACTS"))) {
+        if (hasBoot && hasGrantedSms && (hasBatteryIgnore || requestedPerms.contains("android.permission.READ_CONTACTS"))) {
             return new StealthEvaluationResult(
                 true,
                 "PERSISTENT_SMS_WORM",
@@ -164,7 +180,7 @@ public class StealthTrojanDetector {
         // بررسی ۵: حذف آیکون از لانچر (Hidden Launcher Component)
         Intent launchIntent = pm.getLaunchIntentForPackage(pkg);
         boolean hasNoLauncher = (launchIntent == null);
-        if (hasNoLauncher && (hasSms || hasOverlay || hasBoot)) {
+        if (hasNoLauncher && hasGrantedSms && hasBoot) {
             return new StealthEvaluationResult(
                 true,
                 "HIDDEN_ICON",
@@ -178,7 +194,7 @@ public class StealthTrojanDetector {
         if (pkgInfo.services != null) {
             for (ServiceInfo serviceInfo : pkgInfo.services) {
                 if ("android.permission.BIND_ACCESSIBILITY_SERVICE".equals(serviceInfo.permission)) {
-                    if (hasSms || hasBoot || hasOverlay) {
+                    if (hasGrantedSms && (hasBoot || hasOverlay)) {
                         return new StealthEvaluationResult(
                             true,
                             "ROGUE_ACCESSIBILITY",

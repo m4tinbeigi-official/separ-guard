@@ -21,6 +21,7 @@ public class RadarDashboardView {
     public interface RadarDashboardListener {
         void onScanRequested();
         void onVoiceRequested();
+        void onEmergencyKillSwitchClicked();
         void onCancelDivertClicked();
         void onFataEmergencyClicked();
         void onSessionKillClicked();
@@ -146,6 +147,69 @@ public class RadarDashboardView {
         heroCard.addView(heroActionBtn);
 
         container.addView(heroCard);
+
+        // ==========================================
+        // ۰. پروتکل قطع اضطراری نفوذ (اگر احساس کردید هک شدید)
+        // ==========================================
+        LinearLayout emergencyCard = new LinearLayout(context);
+        emergencyCard.setOrientation(LinearLayout.VERTICAL);
+        int ep = CyberUiTheme.dpToPx(context, 16);
+        emergencyCard.setPadding(ep, ep, ep, ep);
+        emergencyCard.setBackground(CyberUiTheme.createCardBg("#280D12", CyberUiTheme.COLOR_CRIMSON, 18));
+        LinearLayout.LayoutParams elp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        elp.setMargins(0, 0, 0, CyberUiTheme.dpToPx(context, 14));
+        emergencyCard.setLayoutParams(elp);
+
+        LinearLayout eTopRow = new LinearLayout(context);
+        eTopRow.setOrientation(LinearLayout.HORIZONTAL);
+        eTopRow.setGravity(Gravity.CENTER_VERTICAL);
+
+        ImageView eIv = new ImageView(context);
+        eIv.setImageResource(R.drawable.ic_call_warning);
+        eIv.setColorFilter(Color.parseColor(CyberUiTheme.COLOR_CRIMSON));
+        int eisz = CyberUiTheme.dpToPx(context, 26);
+        LinearLayout.LayoutParams eilp = new LinearLayout.LayoutParams(eisz, eisz);
+        eilp.setMargins(CyberUiTheme.dpToPx(context, 10), 0, 0, 0);
+        eIv.setLayoutParams(eilp);
+        eTopRow.addView(eIv);
+
+        LinearLayout eCol = new LinearLayout(context);
+        eCol.setOrientation(LinearLayout.VERTICAL);
+        eCol.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f));
+
+        TextView eTitle = new TextView(context);
+        eTitle.setText("قطع اضطراری نفوذ (اگر احساس کردید هک شدید)");
+        eTitle.setTextColor(Color.parseColor("#FF5252"));
+        eTitle.setTextSize(14);
+        FontHelper.applyBold(eTitle);
+        eCol.addView(eTitle);
+
+        TextView eSub = new TextView(context);
+        eSub.setText("قرنطینه کامل گوشی، قطع سیم‌کارت، لغو دسترسی‌ها و تماس با پشتیبان");
+        eSub.setTextColor(Color.parseColor("#FFCDD2"));
+        eSub.setTextSize(11);
+        FontHelper.applyRegular(eSub);
+        eSub.setPadding(0, CyberUiTheme.dpToPx(context, 2), 0, 0);
+        eCol.addView(eSub);
+
+        eTopRow.addView(eCol);
+        emergencyCard.addView(eTopRow);
+
+        Button eActionBtn = CyberUiTheme.createPrimaryButton(
+            context,
+            "اجرای پروتکل قطع نفوذ و قرنطینه اضطراری",
+            "#D32F2F",
+            "#FFFFFF"
+        );
+        LinearLayout.LayoutParams ebp = (LinearLayout.LayoutParams) eActionBtn.getLayoutParams();
+        ebp.setMargins(0, CyberUiTheme.dpToPx(context, 12), 0, 0);
+        eActionBtn.setLayoutParams(ebp);
+        eActionBtn.setOnClickListener(v -> {
+            if (listener != null) listener.onEmergencyKillSwitchClicked();
+        });
+        emergencyCard.addView(eActionBtn);
+
+        container.addView(emergencyCard);
 
         // ==========================================
         // ۳. بلوک ۱: فوریت‌ها و واکنش سریع (Crisis Response)
