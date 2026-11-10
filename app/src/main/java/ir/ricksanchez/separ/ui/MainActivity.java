@@ -486,6 +486,16 @@ public class MainActivity extends Activity {
                         }
 
                         @Override
+                        public void onRescueReportClicked() {
+                            RescueReportHelper.showRescueReportDialog(MainActivity.this);
+                        }
+
+                        @Override
+                        public void onSocialSideloadBlockerClicked() {
+                            openSocialSideloadBlockerDialog();
+                        }
+
+                        @Override
                         public void onCancelDivertClicked() {
                             CallForwardingAuditor.dialCancelForwarding(MainActivity.this);
                         }
@@ -784,6 +794,56 @@ public class MainActivity extends Activity {
             "متوجه شدم (گوشی در حالت پرواز بماند)",
             Dialog::dismiss,
             null,
+            null
+        );
+    }
+
+    private void openSocialSideloadBlockerDialog() {
+        List<ir.ricksanchez.separ.data.SocialInstallBlockerGuard.RiskySocialApp> audited =
+            ir.ricksanchez.separ.data.SocialInstallBlockerGuard.auditSocialInstallPermissions(this);
+
+        List<ir.ricksanchez.separ.data.SocialInstallBlockerGuard.RiskySocialApp> dangerousApps = new ArrayList<>();
+        for (ir.ricksanchez.separ.data.SocialInstallBlockerGuard.RiskySocialApp a : audited) {
+            if (a.canInstallUnknownApps) {
+                dangerousApps.add(a);
+            }
+        }
+
+        if (dangerousApps.isEmpty()) {
+            CyberDialogHelper.showCyberAlert(
+                this,
+                R.drawable.ic_lock_app,
+                "وضعیت امن: اجازه نصب ناشناخته مسدود است",
+                "تمام پیام‌رسان‌ها (تلگرام، واتساپ، روبیکا، ایتا) و مرورگرها فاقد اجازه نصب برنامه ناشناخته هستند.\n\n" +
+                "هیچ بدافزاری نمی‌تواند از طریق چت‌ها یا کانال‌ها روی گوشی شما نصب شود.",
+                "بسیار عالی",
+                Dialog::dismiss,
+                null,
+                null
+            );
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (ir.ricksanchez.separ.data.SocialInstallBlockerGuard.RiskySocialApp da : dangerousApps) {
+            sb.append("• ").append(da.appNameFa).append(" (خطر فعال)\n");
+        }
+
+        final ir.ricksanchez.separ.data.SocialInstallBlockerGuard.RiskySocialApp firstRisky = dangerousApps.get(0);
+        CyberDialogHelper.showCyberAlert(
+            this,
+            R.drawable.ic_call_warning,
+            "هشدار نفوذ: پیام‌رسان‌ها اجازه نصب مستقیم دارند!",
+            "برنامه‌های زیر در حال حاضر اجازه نصب برنامه ناشناخته دارند:\n\n" +
+            sb.toString() + "\n" +
+            "راه ورود ۹۹٪ بدافزارها و تروجان‌های بانکی (مانند آلبوم یادگاری) همین مجوز است.\n\n" +
+            "آیا می‌خواهید دسترسی نصب ناشناخته برای «" + firstRisky.appNameFa + "» را قطع کنید؟",
+            "قطع دسترسی نصب " + firstRisky.appNameFa,
+            d -> {
+                d.dismiss();
+                ir.ricksanchez.separ.data.SocialInstallBlockerGuard.launchManageUnknownSources(MainActivity.this, firstRisky.packageName);
+            },
+            "بستن",
             null
         );
     }

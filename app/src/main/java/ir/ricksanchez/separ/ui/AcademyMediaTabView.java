@@ -115,6 +115,25 @@ public class AcademyMediaTabView {
             }
         ));
 
+        List<ir.ricksanchez.separ.data.SecurityArticlesRepository.SecurityArticle> forensicArticles =
+            ir.ricksanchez.separ.data.SecurityArticlesRepository.getArticles();
+
+        for (final ir.ricksanchez.separ.data.SecurityArticlesRepository.SecurityArticle art : forensicArticles) {
+            container.addView(CyberUiTheme.createInteractiveCardRow(
+                context,
+                R.drawable.ic_file_report,
+                art.title,
+                art.subtitle,
+                art.tag,
+                art.tagColor,
+                v -> {
+                    if (listener != null) {
+                        listener.onArticleReadRequested(art.title, art.fullContent);
+                    }
+                }
+            ));
+        }
+
         // ۳. ویدیوهای آموزشی در آپارات (Aparat Video Hub)
         TextView vidHeader = CyberUiTheme.createSectionTitle(context, "ویدیوهای آموزشی امنیت و ضد هک در آپارات (اینترنت نیم‌بها)");
         vidHeader.setTextColor(Color.parseColor("#FF4081"));

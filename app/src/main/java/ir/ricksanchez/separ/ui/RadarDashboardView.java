@@ -22,6 +22,8 @@ public class RadarDashboardView {
         void onScanRequested();
         void onVoiceRequested();
         void onEmergencyKillSwitchClicked();
+        void onRescueReportClicked();
+        void onSocialSideloadBlockerClicked();
         void onCancelDivertClicked();
         void onFataEmergencyClicked();
         void onSessionKillClicked();
@@ -230,6 +232,18 @@ public class RadarDashboardView {
 
         container.addView(CyberUiTheme.createInteractiveCardRow(
             context,
+            R.drawable.ic_notification_shield,
+            "کارنامه نجات: از چه خطراتی نجات پیدا کردید؟",
+            "مشاهده خطرات خنثی‌شده توسط سپر و تحلیل سناریوهای فاجعه (امکان داشته چی بشه؟)",
+            "کارنامه نجات",
+            "#00E5FF",
+            v -> {
+                if (listener != null) listener.onRescueReportClicked();
+            }
+        ));
+
+        container.addView(CyberUiTheme.createInteractiveCardRow(
+            context,
             R.drawable.ic_police_badge,
             "مرکز فوریت‌های سایبری پلیس فتا (۰۹۶۳۸۰)",
             "تماس تلفنی شبانه‌روزی و رایگان با کارشناسان رسمی پلیس فضای مجازی",
@@ -249,6 +263,18 @@ public class RadarDashboardView {
             CyberUiTheme.COLOR_AMBER,
             v -> {
                 if (listener != null) listener.onSessionKillClicked();
+            }
+        ));
+
+        container.addView(CyberUiTheme.createInteractiveCardRow(
+            context,
+            R.drawable.ic_lock_app,
+            "قفل اجازه نصب برنامه از پیام‌رسان‌ها (Anti-Sideload)",
+            "قطع دسترسی تلگرام، روبیکا و واتساپ به نصب خودکار فایل‌های آلوده",
+            "سد نفوذ اصلی",
+            "#FF9100",
+            v -> {
+                if (listener != null) listener.onSocialSideloadBlockerClicked();
             }
         ));
 

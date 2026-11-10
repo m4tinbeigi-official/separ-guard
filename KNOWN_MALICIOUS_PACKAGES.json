@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.2.0",
   "last_updated": "2026-11-04",
   "project": "separ-guard",
   "description": "Corpus of known malicious Android packages, banking trojans, SMS worms, and abused remote tools in Iran",
@@ -266,6 +266,496 @@
         "family": "Stalkerware",
         "description_fa": "جاسوس‌افزار ردیاب و شنود نامحسوس",
         "severity": "CRITICAL"
+      },
+      {
+        "package_name": "org.ir.talaeii",
+        "threat_type": "ROGUE_TELEGRAM",
+        "family": "Talaeii",
+        "description_fa": "تلگرام طلایی (طلاگرام) - شنود پیام‌ها و رصد کانال‌ها",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "ir.hotgram.mobile.android",
+        "threat_type": "ROGUE_TELEGRAM",
+        "family": "Hotgram",
+        "description_fa": "هاتگرام - شناسایی به عنوان جاسوس‌افزار توسط گوگل پلی پروتکت",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.hanista.mobogram",
+        "threat_type": "ROGUE_TELEGRAM",
+        "family": "Mobogram",
+        "description_fa": "موبوگرام اصلی (هانیستا) - فورس‌جوین و نقض حریم خصوصی",
+        "severity": "HIGH"
+      },
+      {
+        "package_name": "com.hanista.moboplus",
+        "threat_type": "ROGUE_TELEGRAM",
+        "family": "Mobogram",
+        "description_fa": "موبوپلاس - تزریق توکن و ابزار جانبی غیررسمی",
+        "severity": "HIGH"
+      },
+      {
+        "package_name": "com.mobogram.messenger.chat",
+        "threat_type": "ROGUE_TELEGRAM",
+        "family": "FakeTelegram",
+        "description_fa": "یوگرام (Ugram) - کلاینت جعلی با کدهای مخرب تبلیغاتی",
+        "severity": "HIGH"
+      },
+      {
+        "package_name": "org.ir.azadtelegram",
+        "threat_type": "ROGUE_TELEGRAM",
+        "family": "FakeTelegram",
+        "description_fa": "آزادگرام - پوسته ناامن با قابلیت استخراج اطلاعات حساب",
+        "severity": "HIGH"
+      },
+      {
+        "package_name": "ir.forigram.messenger",
+        "threat_type": "ROGUE_TELEGRAM",
+        "family": "FakeTelegram",
+        "description_fa": "فوری‌گرام - کلاینت غیررسمی مشکوک و ادویر",
+        "severity": "HIGH"
+      },
+      {
+        "package_name": "ir.igram.messenger",
+        "threat_type": "ROGUE_TELEGRAM",
+        "family": "FakeTelegram",
+        "description_fa": "آی‌گرام - شنود نشست و دسترسی بدون مجوز به دفترچه تلفن",
+        "severity": "HIGH"
+      },
+      {
+        "package_name": "ir.adliran.eblagh",
+        "threat_type": "BANKING_PHISHING",
+        "family": "FakeAdliran",
+        "description_fa": "عدل ایران / شکوائیه دادسرا - سرقت کارت بانکی در درگاه فیک",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.adliran.sana",
+        "threat_type": "BANKING_PHISHING",
+        "family": "FakeSana",
+        "description_fa": "ابلاغیه الکترونیک دادگستری - کنترل پیامک‌ها و کدهای OTP",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.edalat.sahamedalat",
+        "threat_type": "BANKING_PHISHING",
+        "family": "FakeSahamEdalat",
+        "description_fa": "سامانه سود سهام عدالت - استخراج کدملی و سرقت حساب",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.kart.sookht",
+        "threat_type": "BANKING_PHISHING",
+        "family": "FakeFuelCard",
+        "description_fa": "سهمیه بنزین و کارت سوخت - فیشینگ درگاه شتاب",
+        "severity": "HIGH"
+      },
+      {
+        "package_name": "com.sighe.yab",
+        "threat_type": "BANKING_PHISHING",
+        "family": "FakeLure",
+        "description_fa": "صیغه‌یاب و همدم - اخاذی و سرقت موجودی حساب بانکی",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "ir.ops.breacker",
+        "threat_type": "QURIUM_TRAP",
+        "family": "FakePsiphon",
+        "description_fa": "فیلترشکن آمدنیوز / سایفون جعلی - سرقت کدهای تایید دومرحله‌ای",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "ir.ops.breaker",
+        "threat_type": "QURIUM_TRAP",
+        "family": "FakePsiphon",
+        "description_fa": "شکننده فیلتر و پیامک جعلی - بات‌نت و استخراج تماس‌ها",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "ir.ops.irani",
+        "threat_type": "QURIUM_TRAP",
+        "family": "FakePsiphon",
+        "description_fa": "سایفون تقلبی ایرانی - شنود نشست و موقعیت مکانی",
+        "severity": "HIGH"
+      },
+      {
+        "package_name": "ir.persianlifeme.mahvare",
+        "threat_type": "SCAM_TRAP",
+        "family": "ScamTrap",
+        "description_fa": "ماهواره جیبی اندروید (IPTV Scam) - سرقت پیامک‌ها",
+        "severity": "HIGH"
+      },
+      {
+        "package_name": "ir.besteveryeverapp.telegram",
+        "threat_type": "SCAM_TRAP",
+        "family": "ScamTrap",
+        "description_fa": "ماهواره تلگرام جعلی - سرقت فایل‌های دستگاه",
+        "severity": "HIGH"
+      },
+      {
+        "package_name": "ir.persianlifeme.freeforall",
+        "threat_type": "VALUE_ADDED_SCAM",
+        "family": "ValueAddedScam",
+        "description_fa": "سرویس پیامکی رایگان فریبنده - عضویت ناخواسته در ارزش افزوده",
+        "severity": "HIGH"
+      },
+      {
+        "package_name": "com.getdoc.freepaaper.dissertation",
+        "threat_type": "DOMESTIC_KITTEN",
+        "family": "DomesticKitten",
+        "description_fa": "سرای مقاله / دانلود مقالات - شنود زنده میکروفون و ردیابی GPS",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.mohsen",
+        "threat_type": "FURBALL_SPYWARE",
+        "family": "FurBall",
+        "description_fa": "رستوران محسن تهران (جعلی) - فعال‌سازی میکروفون و سرقت پیامک‌ها",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.majorityapps.exoticflowers",
+        "threat_type": "FURBALL_SPYWARE",
+        "family": "FurBall",
+        "description_fa": "تصاویر گل‌های عجیب - جاسوس‌افزار FurBall با دسترسی کامل به فایل‌ها",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.clem.isisnews",
+        "threat_type": "DOMESTIC_KITTEN",
+        "family": "DomesticKitten",
+        "description_fa": "اخبار داعش / جنگ (جعلی) - ردیابی موقعیت مکانی و شنود محیطی",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.ssd.vipre",
+        "threat_type": "FAKE_ANTIVIRUS",
+        "family": "FakeAV",
+        "description_fa": "آنتی‌ویروس وایپر تقلبی (VIPRE) - استتار جهت کنترل کامل گوشی",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.memopt",
+        "threat_type": "HIDDEN_SPYWARE",
+        "family": "HiddenSpy",
+        "description_fa": "بهینه‌ساز رم و باتری (جعلی) - بدافزار پنهان در پس‌زمینه بدون آیکون",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.andriod.browser",
+        "threat_type": "PHISHING_BROWSER",
+        "family": "PhishingBrowser",
+        "description_fa": "مرورگر اندروید جعلی - سرقت تاریخچه وب و اطلاعات لاگین",
+        "severity": "HIGH"
+      },
+      {
+        "package_name": "com.eracomteck",
+        "threat_type": "DOMESTIC_KITTEN",
+        "family": "DomesticKitten",
+        "description_fa": "دوست‌یابی بادو تقلبی - سرقت لیست مخاطبان و پیام‌ها",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "air.com.arsnetworks.poems.moshiri",
+        "threat_type": "DOMESTIC_KITTEN",
+        "family": "DomesticKitten",
+        "description_fa": "اشعار فریدون مشیری (جعلی) - استتار در پوشش شعر جهت مانیتورینگ",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "air.com.arsnetworks.poems.sohrab",
+        "threat_type": "DOMESTIC_KITTEN",
+        "family": "DomesticKitten",
+        "description_fa": "اشعار سهراب سپهری (جعلی) - نظارت بر پیامک‌ها، لیست تماس و ضبط صدا",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.nidayehaq",
+        "threat_type": "FURBALL_SPYWARE",
+        "family": "FurBall",
+        "description_fa": "ندای حق مذهبی (جعلی) - جاسوس‌افزار FurBall",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.appmilad.numrent",
+        "threat_type": "RATMILAD_SPYWARE",
+        "family": "RatMilad",
+        "description_fa": "شماره مجازی نام‌رنت (NumRent) - ضبط مکالمات، دوربین و روت",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.textme.phone",
+        "threat_type": "RATMILAD_SPYWARE",
+        "family": "RatMilad",
+        "description_fa": "تکست‌می جعلی (Text Me) - سرقت آدرس MAC و کنترل کامل",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.fmwhatsapp",
+        "threat_type": "TRIADA_TROJAN",
+        "family": "TriadaTrojan",
+        "description_fa": "اف‌ام واتساپ (FMWhatsApp) - سرقت نشست، خواندن کدهای OTP و عضویت مخفی",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.yowhatsapp",
+        "threat_type": "TRIADA_TROJAN",
+        "family": "TriadaTrojan",
+        "description_fa": "یو واتساپ (YoWhatsApp) - ارسال هرزنامه و ماژول‌های ناشناس",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.gbwhatsapp",
+        "threat_type": "TRIADA_TROJAN",
+        "family": "TriadaTrojan",
+        "description_fa": "جی‌بی واتساپ (GBWhatsApp) - سرقت پیام‌ها و شنود نشست‌های فعال",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.whatsapp.plus",
+        "threat_type": "TRIADA_TROJAN",
+        "family": "TriadaTrojan",
+        "description_fa": "واتساپ پلاس (WhatsApp Plus) - استخراج داده‌های چت و دور زدن لایه‌ها",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "ir.resaneh.hotgram",
+        "threat_type": "MALWARE_IOC",
+        "family": "هاتگرام (بسته رسانه)",
+        "description_fa": "هاتگرام (بسته رسانه) - پروکسی رصدشده و تزریق کدهای رهگیری",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.hanista.mobogramtwo",
+        "threat_type": "MALWARE_IOC",
+        "family": "موبوگرام ۲ (نسخه دوم)",
+        "description_fa": "موبوگرام ۲ (نسخه دوم) - ارسال پنهانی اطلاعات دستگاه و عضویت در کانال‌های اسپانسری",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.hanista.mobogramthree",
+        "threat_type": "MALWARE_IOC",
+        "family": "موبوگرام ۳ (نسخه سوم)",
+        "description_fa": "موبوگرام ۳ (نسخه سوم) - باز کردن پنهانی لینک‌ها و استفاده از ترافیک پس‌زمینه",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "org.vidogram.messenger",
+        "threat_type": "MALWARE_IOC",
+        "family": "ویدوگرام",
+        "description_fa": "ویدوگرام - تزریق تبلیغات، SDKهای رهگیری رفتار کاربر و شکستن ایزولاسیون",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "ir.farsigram.messenger",
+        "threat_type": "MALWARE_IOC",
+        "family": "فارسی‌گرام",
+        "description_fa": "فارسی‌گرام - کلاینت ناامن با قابلیت کنترل کانال‌ها و پیام‌ها",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.turbo.telegram",
+        "threat_type": "MALWARE_IOC",
+        "family": "توربوگرام",
+        "description_fa": "توربوگرام - کلاینت تجاری حاوی کدهای رصد نشست",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.barandagram.app",
+        "threat_type": "MALWARE_IOC",
+        "family": "برندگرام",
+        "description_fa": "برندگرام - پوسته تلگرامی با تزریق بنرهای تبلیغاتی تهاجمی",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.aerowhatsapp",
+        "threat_type": "MALWARE_IOC",
+        "family": "آئرو واتساپ (Aero WhatsApp)",
+        "description_fa": "آئرو واتساپ (Aero WhatsApp) - استخراج توکن‌های ارتباطی و نشت سوابق تماس",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.obwhatsapp",
+        "threat_type": "MALWARE_IOC",
+        "family": "او‌بی واتساپ (OBWhatsApp)",
+        "description_fa": "او‌بی واتساپ (OBWhatsApp) - تزریق کدهای مخرب تبلیغاتی و کنترل بخش نوتیفیکیشن‌ها",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.eblagh.sana",
+        "threat_type": "MALWARE_IOC",
+        "family": "مشاهده ابلاغیه دادسرا",
+        "description_fa": "مشاهده ابلاغیه دادسرا - مخفی کردن آیکون پس از نصب و فعال‌سازی سرویس پس‌زمینه",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.shekayat.sabt",
+        "threat_type": "MALWARE_IOC",
+        "family": "ثبت شکوائیه آنلاین",
+        "description_fa": "ثبت شکوائیه آنلاین - سرقت اطلاعات هویتی و مسدودسازی اعلان پیامک‌های برداشت وجه",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.post.peygiri",
+        "threat_type": "MALWARE_IOC",
+        "family": "رهگیری مرسوله شرکت پست",
+        "description_fa": "رهگیری مرسوله شرکت پست - ارسال پیامک «مرسوله شما به علت نقص آدرس مرجوع شد» و سرقت حساب",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "ir.post.tracking",
+        "threat_type": "MALWARE_IOC",
+        "family": "پیگیری بسته اداره پست",
+        "description_fa": "پیگیری بسته اداره پست - دریافت دسترسی Accessibility و کنترل کامل دستگاه",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.hamta.sabt",
+        "threat_type": "MALWARE_IOC",
+        "family": "سامانه قطع گوشی همتا",
+        "description_fa": "سامانه قطع گوشی همتا - سرقت شناسه IMEI و رمز اینترنتی به بهانه عدم رجیستری",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.maliat.sabt",
+        "threat_type": "MALWARE_IOC",
+        "family": "سامانه امور مالیاتی و مودیان",
+        "description_fa": "سامانه امور مالیاتی و مودیان - کلاهبرداری پیامکی با عنوان جریمه فرار مالیاتی",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "ir.seham.edalat",
+        "threat_type": "MALWARE_IOC",
+        "family": "سامانه ثبت نام سهام عدالت",
+        "description_fa": "سامانه ثبت نام سهام عدالت - سرقت نشست‌های پیام‌رسان‌ها جهت بازنشر پیامک فیشینگ",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.kalabarg.fajr",
+        "threat_type": "MALWARE_IOC",
+        "family": "توزیع کالابرگ الکترونیکی فجر",
+        "description_fa": "توزیع کالابرگ الکترونیکی فجر - باج‌گیری پیامکی و استخراج موجودی حساب‌ها",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.blubank.vam",
+        "threat_type": "MALWARE_IOC",
+        "family": "وام فوری بلوبانک جعلی",
+        "description_fa": "وام فوری بلوبانک جعلی - فیشینگ اطلاعات لاگین همراه بانک‌ها و اسناد هویتی",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.radyab.hamsar",
+        "threat_type": "MALWARE_IOC",
+        "family": "همسرگرام / ردیاب همسر",
+        "description_fa": "همسرگرام / ردیاب همسر - شنود تماس‌ها، خواندن چت‌های شبکه‌های اجتماعی و ردیابی زنده GPS",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.body.scanner.fake",
+        "threat_type": "MALWARE_IOC",
+        "family": "دوربین دید در شب / لخت‌کن",
+        "description_fa": "دوربین دید در شب / لخت‌کن - رت بر پایه SpyNote جهت دستیابی به دسترسی کامل روت و مخاطبان",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.mahvareh.online",
+        "threat_type": "MALWARE_IOC",
+        "family": "ماهواره جیبی آنلاین و تلویزیون",
+        "description_fa": "ماهواره جیبی آنلاین و تلویزیون - سرقت پیامک‌ها و کدهای فعال‌سازی و باز کردن صفحات اسپانسری",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.net.raygan",
+        "threat_type": "MALWARE_IOC",
+        "family": "اینترنت رایگان ۱۰۰ گیگ هدیه",
+        "description_fa": "اینترنت رایگان ۱۰۰ گیگ هدیه - کرم پیامکی جهت انتشار انبوه لینک‌های مخرب از سیم‌کارت قربانی",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.wifi.hacker.real",
+        "threat_type": "MALWARE_IOC",
+        "family": "هک واقعی وای‌فای همسایه",
+        "description_fa": "هک واقعی وای‌فای همسایه - تروجان کی‌لاگر و ارسال رمزهای عبور تایپ‌شده",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "ir.persianlifeme.vipforall",
+        "threat_type": "MALWARE_IOC",
+        "family": "پروکسی اختصاصی VIP",
+        "description_fa": "پروکسی اختصاصی VIP - ثبت ترافیک اینترنت و رمزهای عبور ارسالی",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "ir.persianlifeme.irani",
+        "threat_type": "MALWARE_IOC",
+        "family": "فیلترشکن ایرانیان لایف",
+        "description_fa": "فیلترشکن ایرانیان لایف - جاسوس‌افزار هدفمند جهت استخراج هویت شبکه‌ای",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.poet.saadi",
+        "threat_type": "MALWARE_IOC",
+        "family": "کلیات سعدی شیرازی",
+        "description_fa": "کلیات سعدی شیرازی - جاسوس‌افزار تله",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.hamgaam.shahnamef",
+        "threat_type": "MALWARE_IOC",
+        "family": "شاهنامه فردوسی صوتی",
+        "description_fa": "شاهنامه فردوسی صوتی - فعال‌سازی میکروفون و ضبط صدا در زمان پخش صوت",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "ir.hawijapp.myhafez",
+        "threat_type": "MALWARE_IOC",
+        "family": "دیوان حافظ شیرازی",
+        "description_fa": "دیوان حافظ شیرازی - خواندن تمامی پیام‌های ورودی و خروجی",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "ir.korosh.kabir",
+        "threat_type": "MALWARE_IOC",
+        "family": "تاریخ کوروش کبیر",
+        "description_fa": "تاریخ کوروش کبیر - پایش گروه‌های هویتی و فرهنگی",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.ramadan.kareem.app",
+        "threat_type": "MALWARE_IOC",
+        "family": "ادعیه ماه رمضان",
+        "description_fa": "ادعیه ماه رمضان - ابزار نظارتی استتار شده",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.numrent.app",
+        "threat_type": "MALWARE_IOC",
+        "family": "کلاینت وب‌ویو NumRent",
+        "description_fa": "کلاینت وب‌ویو NumRent - بسترساز اجرای پی‌لود RatMilad",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.sweden.driving.license",
+        "threat_type": "MALWARE_IOC",
+        "family": "آزمون گواهینامه رانندگی سوئد به فارسی",
+        "description_fa": "آزمون گواهینامه رانندگی سوئد به فارسی - سرقت کدهای تایید دومرحله‌ای تلگرام و ضبط صدای محیط",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.google.service.update",
+        "threat_type": "MALWARE_IOC",
+        "family": "سرویس بروزرسانی گوگل",
+        "description_fa": "سرویس بروزرسانی گوگل - شبیه‌سازی سیستم امنیتی اندروید برای ممانعت از حذف و دزدی OTP",
+        "severity": "CRITICAL"
+      },
+      {
+        "package_name": "com.android.providers.telephony.fix",
+        "threat_type": "MALWARE_IOC",
+        "family": "سرویس مخفی سیستم تلفن",
+        "description_fa": "سرویس مخفی سیستم تلفن - رهگیری دائم پیامک‌های تایید حساب‌های کاربری",
+        "severity": "CRITICAL"
       }
     ],
     "remote_access_rats_abused": [
@@ -345,5 +835,6 @@
         "description_fa": "هرگونه برنامه مرتبط با زنجیره تروجان ولورا و یادگاری"
       }
     ]
-  }
+  },
+  "total_exact_malware_count": 103
 }

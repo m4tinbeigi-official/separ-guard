@@ -26,6 +26,13 @@ public class SmsGuardianReceiver extends BroadcastReceiver {
             if (body == null) continue;
 
             String cleanBody = body.replace("\n", " ").trim();
+
+            // ارزیابی بمباران پیامکی و فعال‌سازی آژیر در صورت هجوم پیامک‌های ورود
+            boolean isStormAttack = ir.ricksanchez.separ.data.OtpStormGuardian.registerIncomingOtp(context, sender, cleanBody);
+            if (isStormAttack) {
+                Toast.makeText(context, "🚨 آژیر خطر سپر: بمباران پیامکی ورود شناسایی شد! کدهای تایید را به هیچ‌کس نخوانید!", Toast.LENGTH_LONG).show();
+            }
+
             boolean isPersonalNumber = sender != null && (sender.startsWith("+989") || sender.startsWith("09") || sender.startsWith("989"));
 
             boolean isOtpTheft = cleanBody.contains("رمز") || cleanBody.contains("کد تایید") || cleanBody.contains("پویا");

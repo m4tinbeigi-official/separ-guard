@@ -21,7 +21,11 @@ public class NotificationGuardianService extends NotificationListenerService {
                 String textStr = (text != null) ? text.toString() : "";
                 if (OtpNotificationShield.isBankingOtpNotification(titleStr, textStr)) {
                     // اعلان حاوی رمز پویا یا تراکنش بانکی شناسایی شد
-                    // مانیتورینگ امن به صورت ۱۰۰٪ آفلاین
+                    ir.ricksanchez.separ.data.OtpStormGuardian.registerIncomingOtp(
+                        getApplicationContext(),
+                        sbn.getPackageName(),
+                        titleStr + " " + textStr
+                    );
                 }
             }
         } catch (Exception ignored) {}
