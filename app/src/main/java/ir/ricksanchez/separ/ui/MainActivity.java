@@ -597,6 +597,14 @@ public class MainActivity extends Activity {
                         }
 
                         @Override
+                        public void onRecentOtpAuditClicked() {
+                            RecentOtpAuditDialogHelper.showRecentOtpAuditDialog(
+                                MainActivity.this,
+                                SeparApp.getInstance().getOtpAuditRepository()
+                            );
+                        }
+
+                        @Override
                         public void onBankEmergencyFreezeClicked() {
                             BankEmergencyFreezeDialogHelper.showEmergencyBankFreezeDialog(MainActivity.this);
                         }

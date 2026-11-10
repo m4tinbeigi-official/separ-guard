@@ -23,6 +23,7 @@ public class RadarDashboardView {
         void onVoiceRequested();
         void onEmergencyKillSwitchClicked();
         void onRescueReportClicked();
+        void onRecentOtpAuditClicked();
         void onBankEmergencyFreezeClicked();
         void onGoldOrderGuardianClicked();
         void onStoryExporterClicked();
@@ -321,6 +322,18 @@ public class RadarDashboardView {
             CyberUiTheme.COLOR_CYAN,
             v -> {
                 if (listener != null) listener.onFataEmergencyClicked();
+            }
+        ));
+
+        container.addView(CyberUiTheme.createInteractiveCardRow(
+            context,
+            R.drawable.ic_notification_shield,
+            "دیده‌بان ورودهای پنهان: کدهای اخیری که برایتان آمده",
+            "شناسایی برنامه‌هایی که شاید روی گوشی ندارید اما هکر با شماره شما وارد آن‌ها شده است",
+            "لاگین نامرئی",
+            "#00E5FF",
+            v -> {
+                if (listener != null) listener.onRecentOtpAuditClicked();
             }
         ));
 

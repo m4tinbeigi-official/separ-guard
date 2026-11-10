@@ -33,6 +33,13 @@ public class SmsGuardianReceiver extends BroadcastReceiver {
                 Toast.makeText(context, "🚨 آژیر خطر سپر: بمباران پیامکی ورود شناسایی شد! کدهای تایید را به هیچ‌کس نخوانید!", Toast.LENGTH_LONG).show();
             }
 
+            // ثبت در دیده‌بان ورودهای پنهان جهت رصد لاگین‌های راه دور
+            if (ir.ricksanchez.separ.data.RecentOtpAuditRepository.isLoginOtpMessage(cleanBody)) {
+                try {
+                    SeparApp.getInstance().getOtpAuditRepository().recordOtpMessage(sender, cleanBody, System.currentTimeMillis());
+                } catch (Exception ignored) {}
+            }
+
             // ارزیابی سفارشات دیجی‌کالا و خرید مشکوک طلای فیزیکی و نقد کردن وجوه
             ir.ricksanchez.separ.data.GoldOrderAndCashingGuardian.SuspectedOrderEvent goldEvent =
                 ir.ricksanchez.separ.data.GoldOrderAndCashingGuardian.evaluateIncomingMessage(sender, cleanBody);

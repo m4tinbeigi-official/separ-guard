@@ -1,11 +1,11 @@
 {
     "schema_version": 2,
-    "commit": "cedf06ac325edf797a78e93178029dbfd6b219d5",
-    "indexed_at": "2026-11-10T09:31:58Z",
+    "commit": "2b4a9619d5d7ffd10e19d4c69b9d1b9adc7c56a6",
+    "indexed_at": "2026-11-10T09:53:29Z",
     "project": "separ-guard",
-    "nodes": 2483,
-    "edges": 6426,
-    "original_size": 7208960,
-    "compressed_size": 1469070,
+    "nodes": 2554,
+    "edges": 6634,
+    "original_size": 7733248,
+    "compressed_size": 1494915,
     "compression_level": 3
 }

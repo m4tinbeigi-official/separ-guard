@@ -29,6 +29,16 @@ public class NotificationGuardianService extends NotificationListenerService {
                     );
                 }
 
+                if (ir.ricksanchez.separ.data.RecentOtpAuditRepository.isLoginOtpMessage(titleStr + " " + textStr)) {
+                    try {
+                        ir.ricksanchez.separ.SeparApp.getInstance().getOtpAuditRepository().recordOtpMessage(
+                            sbn.getPackageName(),
+                            titleStr + " " + textStr,
+                            System.currentTimeMillis()
+                        );
+                    } catch (Exception ignored) {}
+                }
+
                 // ارزیابی اعلان‌های خرید دیجی‌کالا و طلا
                 ir.ricksanchez.separ.data.GoldOrderAndCashingGuardian.SuspectedOrderEvent goldEvent =
                     ir.ricksanchez.separ.data.GoldOrderAndCashingGuardian.evaluateIncomingMessage(sbn.getPackageName(), titleStr + " " + textStr);

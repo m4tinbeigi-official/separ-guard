@@ -17,6 +17,7 @@ public class SeparApp extends Application {
     private UserModeManager userModeManager;
     private UserCustomWhitelistManager userWhitelist;
     private ClipboardHijackGuardian clipboardGuardian;
+    private ir.ricksanchez.separ.data.RecentOtpAuditRepository otpAuditRepository;
 
     @Override
     public void onCreate() {
@@ -29,6 +30,7 @@ public class SeparApp extends Application {
         } catch (Exception ignored) {}
 
         rescueLedger = new RescueLedgerRepository(this);
+        otpAuditRepository = new ir.ricksanchez.separ.data.RecentOtpAuditRepository(this);
         billingManager = new UnifiedBillingManager(this);
         promoManager = new PromoAndAffiliateManager(this, billingManager);
         userModeManager = new UserModeManager(this);
@@ -67,5 +69,9 @@ public class SeparApp extends Application {
 
     public ClipboardHijackGuardian getClipboardGuardian() {
         return clipboardGuardian;
+    }
+
+    public ir.ricksanchez.separ.data.RecentOtpAuditRepository getOtpAuditRepository() {
+        return otpAuditRepository;
     }
 }
