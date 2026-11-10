@@ -22,8 +22,11 @@ import ir.ricksanchez.separ.SeparApp;
 import ir.ricksanchez.separ.audio.AudioGuideEngine;
 import ir.ricksanchez.separ.billing.PromoAndAffiliateManager;
 import ir.ricksanchez.separ.billing.UnifiedBillingManager;
+import ir.ricksanchez.separ.data.BankingAppIntegrityGuard;
 import ir.ricksanchez.separ.data.FakeReceiptAnalyzer;
+import ir.ricksanchez.separ.data.LiveThreatSyncEngine;
 import ir.ricksanchez.separ.data.MediaPartnerRepository;
+import ir.ricksanchez.separ.data.PreInstallApkScanner;
 import ir.ricksanchez.separ.data.RescueLedgerRepository;
 import ir.ricksanchez.separ.data.SmsAndScreenGuard;
 import ir.ricksanchez.separ.data.StealthTrojanDetector;
@@ -31,7 +34,9 @@ import ir.ricksanchez.separ.data.ThreatPackageRegistry;
 import ir.ricksanchez.separ.data.UserCustomWhitelistManager;
 import ir.ricksanchez.separ.data.UserModeManager;
 import ir.ricksanchez.separ.data.VideoTutorialRepository;
+import ir.ricksanchez.separ.services.CallFraudGuardian;
 import ir.ricksanchez.separ.utils.CallForwardingAuditor;
+import ir.ricksanchez.separ.utils.FataIncidentReportExporter;
 import ir.ricksanchez.separ.utils.PrivacyPolicyHelper;
 import ir.ricksanchez.separ.utils.ProminentDisclosureHelper;
 import ir.ricksanchez.separ.utils.SessionRemediationHelper;
@@ -251,6 +256,31 @@ public class MainActivity extends Activity {
                         public void onReceiptVerifyClicked() {
                             openReceiptDialog();
                         }
+
+                        @Override
+                        public void onPreInstallScanClicked() {
+                            openPreInstallScannerDialog();
+                        }
+
+                        @Override
+                        public void onFataReportExportClicked() {
+                            FataIncidentReportExporter.shareReport(MainActivity.this);
+                        }
+
+                        @Override
+                        public void onSyncDatabaseClicked() {
+                            syncThreatDatabaseOnline();
+                        }
+
+                        @Override
+                        public void onBankingIntegrityClicked() {
+                            openBankingIntegrityDialog();
+                        }
+
+                        @Override
+                        public void onCallFraudCheckClicked() {
+                            openCallFraudCheckDialog();
+                        }
                     }
                 ));
                 break;
@@ -380,6 +410,95 @@ public class MainActivity extends Activity {
     private void openReceiptDialog() {
         FakeReceiptAnalyzer.VerificationResult result = FakeReceiptAnalyzer.analyzeReceipt("6037991234567890", "123456", "9988");
         Toast.makeText(this, result.titleFa + "\n" + result.voiceWarning, Toast.LENGTH_LONG).show();
+    }
+
+    private void openPreInstallScannerDialog() {
+        List<PreInstallApkScanner.DangerousApkFile> dangerousApks = PreInstallApkScanner.scanDownloadedApks(this);
+        if (dangerousApks.isEmpty()) {
+            Toast.makeText(this, "پوشه Download و فایل‌های دریافتی تلگرام بررسی شد؛ هیچ فایل نصبی مخربی وجود ندارد.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        String[] items = new String[dangerousApks.size()];
+        for (int i = 0; i < dangerousApks.size(); i++) {
+            PreInstallApkScanner.DangerousApkFile f = dangerousApks.get(i);
+            items[i] = "⛔ " + f.fileName + " (" + f.getFormattedSize() + ")\n" + f.threatName;
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("فایل‌های نصبی آلوده در پوشه دانلود/تلگرام:");
+        builder.setItems(items, (dialog, which) -> {
+            PreInstallApkScanner.DangerousApkFile chosen = dangerousApks.get(which);
+            new AlertDialog.Builder(this)
+                .setTitle("حذف قطعی فایل آلوده؟")
+                .setMessage("فایل «" + chosen.fileName + "» یک بدافزار است.\nتوضیح: " + chosen.threatDescription + "\n\nآیا مایل به حذف قطعی آن از حافظه هستید؟")
+                .setPositiveButton("بله، حذف کن", (d, w) -> {
+                    boolean deleted = PreInstallApkScanner.deleteDangerousApk(chosen.filePath);
+                    if (deleted) {
+                        Toast.makeText(this, "فایل با موفقیت از حافظه گوشی حذف شد.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, "امکان حذف خودکار وجود نداشت. لطفاً به صورت دستی از پوشه Download پاک کنید.", Toast.LENGTH_LONG).show();
+                    }
+                })
+                .setNegativeButton("انصراف", null)
+                .show();
+        });
+        builder.setPositiveButton("بستن", null);
+        builder.show();
+    }
+
+    private void syncThreatDatabaseOnline() {
+        Toast.makeText(this, "در حال اتصال به گیت‌هاب و دریافت آخرین امضاهای بدافزار...", Toast.LENGTH_SHORT).show();
+        LiveThreatSyncEngine.syncThreatDatabaseAsync(this, (success, newCount, message) -> {
+            runOnUiThread(() -> {
+                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+                if (success) {
+                    performDeepScan();
+                }
+            });
+        });
+    }
+
+    private void openBankingIntegrityDialog() {
+        List<BankingAppIntegrityGuard.BankAppStatus> bankApps = BankingAppIntegrityGuard.auditInstalledBankingApps(this);
+        if (bankApps.isEmpty()) {
+            Toast.makeText(this, "هیچ برنامه همراه بانک رسمی روی گوشی نصب نیست.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        String[] items = new String[bankApps.size()];
+        for (int i = 0; i < bankApps.size(); i++) {
+            BankingAppIntegrityGuard.BankAppStatus b = bankApps.get(i);
+            items[i] = "🏦 " + b.bankNameFa + "\n" + b.statusDescriptionFa;
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("پایش اصالت همراه بانک‌های نصب‌شده:");
+        builder.setItems(items, null);
+        builder.setPositiveButton("تأیید و بستن", null);
+        builder.show();
+    }
+
+    private void openCallFraudCheckDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("📞 بررسی شماره تماس و تله‌های وانگیری");
+
+        final android.widget.EditText input = new android.widget.EditText(this);
+        input.setHint("شماره تماس ناشناس یا بین‌المللی (مثلاً +247...)");
+        input.setPadding(30, 24, 30, 24);
+        builder.setView(input);
+
+        builder.setPositiveButton("بررسی هوشمند", (dialog, which) -> {
+            String num = input.getText().toString();
+            CallFraudGuardian.CallRiskAssessment assessment = CallFraudGuardian.evaluateIncomingNumber(num);
+            new AlertDialog.Builder(this)
+                .setTitle(assessment.riskTitleFa)
+                .setMessage(assessment.recommendationFa)
+                .setPositiveButton("متوجه شدم", null)
+                .show();
+        });
+        builder.setNegativeButton("انصراف", null);
+        builder.show();
     }
 
     private void openWhitelistManagementDialog() {

@@ -3,7 +3,6 @@ package ir.ricksanchez.separ.ui;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.GradientDrawable;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +13,7 @@ import ir.ricksanchez.separ.data.RescueLedgerRepository;
 
 /**
  * رندر تب رادار امنیت و داشبورد مرکزی (Cyber Radar Dashboard)
+ * مجهز به رادار مدور، تلمتری حملات دفع‌شده و جعبه‌ابزار پیشرفته دفاع سایبری
  */
 public class RadarDashboardView {
 
@@ -24,6 +24,11 @@ public class RadarDashboardView {
         void onFataEmergencyClicked();
         void onSessionKillClicked();
         void onReceiptVerifyClicked();
+        void onPreInstallScanClicked();
+        void onFataReportExportClicked();
+        void onSyncDatabaseClicked();
+        void onBankingIntegrityClicked();
+        void onCallFraudCheckClicked();
     }
 
     public static View buildView(Context context, boolean hasThreats, int threatsCount,
@@ -105,7 +110,7 @@ public class RadarDashboardView {
         });
         container.addView(voiceBtn);
 
-        // ۴. شبکه ابزارهای بحران و واکنش سریع (۴ کاشی عملیاتی)
+        // ۴. بخش جعبه‌ابزار پیشرفته امنیتی
         TextView quickHeader = new TextView(context);
         quickHeader.setText("⚡ ابزارهای فوریت‌های امنیتی و واکنش سریع:");
         quickHeader.setTextSize(13);
@@ -114,7 +119,7 @@ public class RadarDashboardView {
         quickHeader.setPadding(0, 20, 0, 10);
         container.addView(quickHeader);
 
-        // سطر ۱ کاشی‌ها
+        // سطر ۱: فوریت‌ها
         LinearLayout row1 = new LinearLayout(context);
         row1.setOrientation(LinearLayout.HORIZONTAL);
         row1.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -132,7 +137,7 @@ public class RadarDashboardView {
         row1.addView(fataBtn);
         container.addView(row1);
 
-        // سطر ۲ کاشی‌ها
+        // سطر ۲: نشست‌ها و فیش بانکی
         LinearLayout row2 = new LinearLayout(context);
         row2.setOrientation(LinearLayout.HORIZONTAL);
         row2.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -149,6 +154,49 @@ public class RadarDashboardView {
         });
         row2.addView(receiptBtn);
         container.addView(row2);
+
+        // سطر ۳: اسکنر پوشه دانلود و گزارش فتا
+        LinearLayout row3 = new LinearLayout(context);
+        row3.setOrientation(LinearLayout.HORIZONTAL);
+        row3.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        Button scanFolderBtn = CyberUiTheme.createChipButton(context, "📂 اسکن فایل‌های دانلودی تلگرام", "#1E1F38", Color.parseColor("#8C9EFF"));
+        scanFolderBtn.setOnClickListener(v -> {
+            if (listener != null) listener.onPreInstallScanClicked();
+        });
+        row3.addView(scanFolderBtn);
+
+        Button reportBtn = CyberUiTheme.createChipButton(context, "📄 صدور گزارش مستند پلیس فتا", "#24192F", Color.parseColor("#E040FB"));
+        reportBtn.setOnClickListener(v -> {
+            if (listener != null) listener.onFataReportExportClicked();
+        });
+        row3.addView(reportBtn);
+        container.addView(row3);
+
+        // سطر ۴: اصالت همراه بانک‌ها و بررسی تماس وانگیری
+        LinearLayout row4 = new LinearLayout(context);
+        row4.setOrientation(LinearLayout.HORIZONTAL);
+        row4.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        Button bankIntegrityBtn = CyberUiTheme.createChipButton(context, "🏦 پایش اصالت همراه بانک‌ها", "#142A24", Color.parseColor("#69F0AE"));
+        bankIntegrityBtn.setOnClickListener(v -> {
+            if (listener != null) listener.onBankingIntegrityClicked();
+        });
+        row4.addView(bankIntegrityBtn);
+
+        Button callCheckBtn = CyberUiTheme.createChipButton(context, "📞 بررسی تماس‌های مشکوک", "#282012", Color.parseColor("#FFD54F"));
+        callCheckBtn.setOnClickListener(v -> {
+            if (listener != null) listener.onCallFraudCheckClicked();
+        });
+        row4.addView(callCheckBtn);
+        container.addView(row4);
+
+        // دکمه آپدیت آنلاین پایگاه داده تهدیدات از گیت‌هاب
+        Button syncBtn = CyberUiTheme.createCyberButton(context, "🔄 به‌روزرسانی آنلاین پایگاه داده بدافزارها از گیت‌هاب", "#0F1A2E", CyberUiTheme.COLOR_CYAN, 12);
+        syncBtn.setOnClickListener(v -> {
+            if (listener != null) listener.onSyncDatabaseClicked();
+        });
+        container.addView(syncBtn);
 
         return container;
     }

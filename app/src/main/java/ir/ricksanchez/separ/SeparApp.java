@@ -6,6 +6,7 @@ import ir.ricksanchez.separ.billing.UnifiedBillingManager;
 import ir.ricksanchez.separ.data.RescueLedgerRepository;
 import ir.ricksanchez.separ.data.UserCustomWhitelistManager;
 import ir.ricksanchez.separ.data.UserModeManager;
+import ir.ricksanchez.separ.services.ClipboardHijackGuardian;
 
 public class SeparApp extends Application {
 
@@ -15,6 +16,7 @@ public class SeparApp extends Application {
     private PromoAndAffiliateManager promoManager;
     private UserModeManager userModeManager;
     private UserCustomWhitelistManager userWhitelist;
+    private ClipboardHijackGuardian clipboardGuardian;
 
     @Override
     public void onCreate() {
@@ -25,6 +27,12 @@ public class SeparApp extends Application {
         promoManager = new PromoAndAffiliateManager(this, billingManager);
         userModeManager = new UserModeManager(this);
         userWhitelist = new UserCustomWhitelistManager(this);
+
+        // فعال‌سازی مانیتورینگ کلیپ‌بورد در برابر بدافزارهای کلیپر
+        try {
+            clipboardGuardian = new ClipboardHijackGuardian(this);
+            clipboardGuardian.startMonitoring();
+        } catch (Exception ignored) {}
     }
 
     public static SeparApp getInstance() {
@@ -49,5 +57,9 @@ public class SeparApp extends Application {
 
     public UserCustomWhitelistManager getUserWhitelist() {
         return userWhitelist;
+    }
+
+    public ClipboardHijackGuardian getClipboardGuardian() {
+        return clipboardGuardian;
     }
 }
