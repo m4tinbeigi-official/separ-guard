@@ -1,0 +1,158 @@
+package ir.ricksanchez.separ.ui;
+
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.net.Uri;
+import android.view.Gravity;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import ir.ricksanchez.separ.utils.PrivacyPolicyHelper;
+
+/**
+ * صفحه معرفی رسمی سازنده و برنامه‌نویس نرم‌افزار «سپر»: ریک سانچز (Rick Sanchez)
+ * بیانیه خدمت عام‌المنفعه، تعهد رایگان بودن دائمی و راه‌های ارتباطی رسمی
+ */
+public class CreatorProfileTabView {
+
+    public interface CreatorProfileListener {
+        void onTelegramClicked();
+        void onGithubClicked();
+        void onShareAppClicked();
+        void onPrivacyClicked();
+    }
+
+    public static LinearLayout buildView(final Context context, final CreatorProfileListener listener) {
+        LinearLayout container = new LinearLayout(context);
+        container.setOrientation(LinearLayout.VERTICAL);
+        container.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        // ۱. کارت شناسنامه و هویت توسعه‌دهنده
+        LinearLayout idCard = new LinearLayout(context);
+        idCard.setOrientation(LinearLayout.VERTICAL);
+        idCard.setGravity(Gravity.CENTER);
+        idCard.setPadding(24, 28, 24, 28);
+        idCard.setBackground(CyberUiTheme.createCardBg("#131C2E", CyberUiTheme.COLOR_NEON_GREEN, 22));
+        LinearLayout.LayoutParams idLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        idLp.setMargins(0, 0, 0, 16);
+        idCard.setLayoutParams(idLp);
+
+        TextView devBadge = new TextView(context);
+        devBadge.setText("معمار و برنامه‌نویس نرم‌افزار");
+        devBadge.setTextColor(Color.parseColor(CyberUiTheme.COLOR_NEON_GREEN));
+        devBadge.setTextSize(12);
+        devBadge.setTypeface(null, Typeface.BOLD);
+        devBadge.setGravity(Gravity.CENTER);
+        idCard.addView(devBadge);
+
+        TextView devName = new TextView(context);
+        devName.setText("ریک سانچز (Rick Sanchez)");
+        devName.setTextColor(Color.WHITE);
+        devName.setTextSize(22);
+        devName.setTypeface(null, Typeface.BOLD);
+        devName.setGravity(Gravity.CENTER);
+        devName.setPadding(0, 6, 0, 4);
+        idCard.addView(devName);
+
+        TextView devRole = new TextView(context);
+        devRole.setText("تحلیلگر ارشد امنیت سایبری و مهندسی معکوس بدافزارها");
+        devRole.setTextColor(Color.parseColor(CyberUiTheme.COLOR_CYAN));
+        devRole.setTextSize(12);
+        devRole.setGravity(Gravity.CENTER);
+        idCard.addView(devRole);
+
+        container.addView(idCard);
+
+        // ۲. بیانیه نرم‌افزار عام‌المنفعه و ۱۰۰٪ رایگان
+        LinearLayout missionCard = new LinearLayout(context);
+        missionCard.setOrientation(LinearLayout.VERTICAL);
+        missionCard.setPadding(22, 20, 22, 20);
+        missionCard.setBackground(CyberUiTheme.createCardBg("#161E2E", CyberUiTheme.COLOR_CYAN, 18));
+        LinearLayout.LayoutParams mlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        mlp.setMargins(0, 0, 0, 16);
+        missionCard.setLayoutParams(mlp);
+
+        TextView missionTitle = new TextView(context);
+        missionTitle.setText("💎 ۱۰۰٪ رایگان، بدون تبلیغات و وقف امنیت جامعه");
+        missionTitle.setTextColor(Color.parseColor(CyberUiTheme.COLOR_CYAN));
+        missionTitle.setTextSize(13);
+        missionTitle.setTypeface(null, Typeface.BOLD);
+        missionCard.addView(missionTitle);
+
+        TextView missionDesc = new TextView(context);
+        missionDesc.setText(
+            "نرم‌افزار «سپر» با هدف نجات دارایی‌های بانکی مردم از تروجان‌های مخرب پیامکی (مانند ولورا، آلبوم یادگاری و صیغه‌یاب) ساخته شده است.\n\n" +
+            "• هیچ‌گونه خرید درون‌برنامه‌ای، پلن پولی یا تبلیغاتی در سپر وجود ندارد.\n" +
+            "• تمامی سپرهای محافظت درگاه شاپرک، مسدودسازی پیامک‌های فیشینگ و پاکسازی بدافزارها برای همیشه رایگان است.\n" +
+            "• پردازش‌ها به صورت کاملاً آفلاین روی گوشی شما انجام شده و هیچ دیتایی از پیامک‌ها یا مخاطبین خارج نمی‌شود (Zero-Telemetry)."
+        );
+        missionDesc.setTextColor(Color.parseColor(CyberUiTheme.COLOR_TEXT_PRIMARY));
+        missionDesc.setTextSize(11);
+        missionDesc.setLineSpacing(6f, 1.25f);
+        missionDesc.setPadding(0, 8, 0, 0);
+        missionCard.addView(missionDesc);
+
+        container.addView(missionCard);
+
+        // ۳. کانال‌ها و راه‌های ارتباطی رسمی با سازنده
+        TextView linksHeader = new TextView(context);
+        linksHeader.setText("🌐 راه‌های ارتباطی رسمی با ریک سانچز:");
+        linksHeader.setTextSize(13);
+        linksHeader.setTextColor(Color.parseColor(CyberUiTheme.COLOR_TEXT_PRIMARY));
+        linksHeader.setTypeface(null, Typeface.BOLD);
+        linksHeader.setPadding(0, 4, 0, 10);
+        container.addView(linksHeader);
+
+        // کانال تلگرام
+        Button tgBtn = CyberUiTheme.createCyberButton(context, "📢 کانال رسمی تلگرام: @M4tinBeigi", "#0088CC", "#FFFFFF", 12);
+        tgBtn.setOnClickListener(v -> {
+            if (listener != null) listener.onTelegramClicked();
+        });
+        container.addView(tgBtn);
+
+        // صفحه گیت‌هاب
+        Button ghBtn = CyberUiTheme.createCyberButton(context, "💻 گیت‌هاب و پروژه‌ها: m4tinbeigi-official", "#24292E", "#FFFFFF", 12);
+        ghBtn.setOnClickListener(v -> {
+            if (listener != null) listener.onGithubClicked();
+        });
+        container.addView(ghBtn);
+
+        // ایمیل ارتباط مستقیم
+        Button emailBtn = CyberUiTheme.createCyberButton(context, "✉️ ایمیل توسعه‌دهنده: m4tinbeigi@gmail.com", "#1E293B", CyberUiTheme.COLOR_CYAN, 12);
+        emailBtn.setOnClickListener(v -> {
+            try {
+                Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:m4tinbeigi@gmail.com"));
+                emailIntent.putExtra(Intent.EXTRA_SUBJECT, "گزارش بدافزار / پیام به ریک سانچز درباره نرم‌افزار سپر");
+                context.startActivity(emailIntent);
+            } catch (Exception ignored) {}
+        });
+        container.addView(emailBtn);
+
+        // دکمه اشتراک‌گذاری رایگان نرم‌افزار با خانواده و دوستان
+        Button shareBtn = CyberUiTheme.createCyberButton(context, "📤 ارسال سپر برای دوستان و خانواده (نجات از کلاهبرداری)", "#238636", "#FFFFFF", 12);
+        shareBtn.setOnClickListener(v -> {
+            if (listener != null) listener.onShareAppClicked();
+        });
+        container.addView(shareBtn);
+
+        // سند حریم خصوصی
+        Button privBtn = CyberUiTheme.createCyberButton(context, "📜 سند حریم خصوصی و تعهد آفلاین بودن سپر", "#0A0D14", "#64748B", 11);
+        privBtn.setOnClickListener(v -> {
+            if (listener != null) listener.onPrivacyClicked();
+        });
+        container.addView(privBtn);
+
+        return container;
+    }
+
+    public static String getShareAppMessage() {
+        return "🛡️ نرم‌افزار ضد هک و محافظ حساب بانکی «سپر»\n" +
+               "برنامه‌نویس: ریک سانچز (Rick Sanchez)\n\n" +
+               "این نرم‌افزار کاملاً رایگان و بدون تبلیغات است و جلوی پیامک‌های جعلی سرقت رمز دوم (ثنا، سهام عدالت، وام‌چی) و برنامه‌های سارق پیامک (ولورا و آلبوم یادگاری) را می‌گیرد.\n\n" +
+               "کانال رسمی تلگرام: @M4tinBeigi\n" +
+               "دریافت رایگان: https://t.me/M4tinBeigi";
+    }
+}

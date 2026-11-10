@@ -49,7 +49,7 @@ public class MainActivity extends Activity {
     public static final int TAB_RADAR = 0;
     public static final int TAB_SMS_APPS = 1;
     public static final int TAB_ACADEMY = 2;
-    public static final int TAB_VIP = 3;
+    public static final int TAB_CREATOR = 3;
 
     private int currentTab = TAB_RADAR;
 
@@ -133,7 +133,7 @@ public class MainActivity extends Activity {
         brandCol.addView(title);
 
         TextView subtitle = new TextView(this);
-        subtitle.setText("سامانه هوشمند دفاع سایبری و نظارت پیامک");
+        subtitle.setText("۱۰۰٪ رایگان و عام‌المنفعه • برنامه‌نویس: ریک سانچز");
         subtitle.setTextSize(11);
         subtitle.setTextColor(Color.parseColor(CyberUiTheme.COLOR_NEON_GREEN));
         brandCol.addView(subtitle);
@@ -164,7 +164,7 @@ public class MainActivity extends Activity {
         addTabButton("🛡️ رادار امنیت", TAB_RADAR);
         addTabButton("🔒 دیده‌بان پیامک", TAB_SMS_APPS);
         addTabButton("🎬 آکادمی آپارات", TAB_ACADEMY);
-        addTabButton("💎 لایسنس و درآمد", TAB_VIP);
+        addTabButton("👤 سازنده: ریک سانچز", TAB_CREATOR);
 
         tabScroll.addView(tabsHeaderLayout);
         mainContainer.addView(tabScroll);
@@ -298,48 +298,39 @@ public class MainActivity extends Activity {
                 ));
                 break;
 
-            case TAB_VIP:
-                UnifiedBillingManager.SubscriptionInfo subInfo = billingManager.getSubscriptionInfo();
-                tabContentContainer.addView(VipAffiliateTabView.buildView(
+            case TAB_CREATOR:
+                tabContentContainer.addView(CreatorProfileTabView.buildView(
                     this,
-                    subInfo,
-                    promoManager,
-                    new VipAffiliateTabView.VipAffiliateTabListener() {
+                    new CreatorProfileTabView.CreatorProfileListener() {
                         @Override
-                        public void onBuyBazaarClicked() {
-                            billingManager.activateAnnualSubscription("bazaar_token", "sig", "data", UnifiedBillingManager.StoreType.BAZAAR);
-                            Toast.makeText(MainActivity.this, "اشتراک سالیانه فعال شد!", Toast.LENGTH_LONG).show();
-                            renderFullInterface();
+                        public void onTelegramClicked() {
+                            try {
+                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/M4tinBeigi"));
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent);
+                            } catch (Exception ignored) {}
                         }
 
                         @Override
-                        public void onRedeemCodeClicked(String code) {
-                            PromoAndAffiliateManager.RedeemResult result = promoManager.redeemCode(code);
-                            Toast.makeText(MainActivity.this, result.message, Toast.LENGTH_LONG).show();
-                            if (result.success) {
-                                renderFullInterface();
-                            }
+                        public void onGithubClicked() {
+                            try {
+                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/m4tinbeigi-official"));
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent);
+                            } catch (Exception ignored) {}
                         }
 
                         @Override
-                        public void onShareReferralClicked() {
+                        public void onShareAppClicked() {
                             Intent sendIntent = new Intent();
                             sendIntent.setAction(Intent.ACTION_SEND);
-                            sendIntent.putExtra(Intent.EXTRA_TEXT, promoManager.getInviteShareMessage());
+                            sendIntent.putExtra(Intent.EXTRA_TEXT, CreatorProfileTabView.getShareAppMessage());
                             sendIntent.setType("text/plain");
-                            startActivity(Intent.createChooser(sendIntent, "ارسال کد معرف"));
+                            startActivity(Intent.createChooser(sendIntent, "ارسال رایگان نرم‌افزار سپر"));
                         }
 
                         @Override
-                        public void onRestorePurchasesClicked() {
-                            billingManager.restorePurchases((success, message) -> {
-                                Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
-                                if (success) renderFullInterface();
-                            });
-                        }
-
-                        @Override
-                        public void onPrivacyPolicyClicked() {
+                        public void onPrivacyClicked() {
                             PrivacyPolicyHelper.showPrivacyPolicy(MainActivity.this);
                         }
                     }
